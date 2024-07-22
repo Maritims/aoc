@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include <time.h>
 
-#include "get_file.h"
-
 typedef struct SolutionPart
 {
     clock_t start_time;

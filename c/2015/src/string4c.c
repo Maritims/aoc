@@ -365,3 +365,32 @@ bool string_buffer_append(StringBuffer* buffer, const char* str) {
     
     return true;
 }
+
+size_t string_index_of(char *haystack, char needle) {
+    char *first_needle = strchr(haystack, needle);
+    size_t index = (size_t)(first_needle - haystack);
+    return index;
+}
+
+char *string_substring(char *str, size_t inclusive_start, size_t exclusive_end)
+{
+    if (inclusive_start > strlen(str))
+    {
+        fprintf(stderr, "The starting position %zu exceeds the length %zu of the input string \"%s\"\n", inclusive_start, exclusive_end, str);
+        return NULL;
+    }
+
+    size_t length = exclusive_end - inclusive_start;
+
+    char *output = malloc(length + 1);
+    if (output == NULL)
+    {
+        fprintf(stderr, "Unable to allocate memory for output\n");
+        return NULL;
+    }
+
+    strncpy(output, str + inclusive_start, exclusive_end);
+    output[length] = '\0';
+
+    return output;
+}

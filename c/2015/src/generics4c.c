@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -50,6 +51,24 @@ GenericValue* generic_create_string(const char* value) {
     return generic_value;
 }
 
+GenericValue *generic_create_object_value(GenericObject *value) {
+    if(value == NULL) {
+        debug_print("The parameter \"value\" cannot be NULL.\n", "");
+        return NULL;
+    }
+
+    GenericValue *gv = malloc(sizeof(GenericValue));
+    if(gv == NULL) {
+        printf("Failed to allocate memory for the generic value\n");
+        return NULL;
+    }
+
+    gv->type = TYPE_OBJECT;
+    gv->data.object_value = value;
+    gv->destructor = destroy_generic_value;
+    return gv;
+}
+
 void destroy_generic_value(GenericValue* generic_value) {
     if (!generic_value) {
         return;
@@ -71,8 +90,23 @@ void destroy_generic_value(GenericValue* generic_value) {
 }
 
 GenericObject* generic_create_object(size_t capacity) {
+    if(capacity == 0) {
+        printf("Parameter \"capacity\" cannot be %zu\n", capacity);
+        return NULL;
+    }
+
     GenericObject* generic_object = malloc(sizeof(GenericObject));
+    if(generic_object == NULL) {
+        printf("Failed to allocate memory for generic object\n");
+        return NULL;
+    }
+
     generic_object->pairs = calloc(capacity, sizeof(KeyValuePair*));
+    if(generic_object->pairs == NULL) {
+        printf("Failed to allocate memory for generic object pairs.\n");
+        return NULL;
+    }
+
     generic_object->size = 0;
     generic_object->capacity = capacity;
     return generic_object;
@@ -90,12 +124,28 @@ void generic_add_to_object(GenericObject* generic_object, const char* key, Gener
     }
 
     if (generic_object->size >= generic_object->capacity) {
+        printf("Size %zu exceeds capacity %zu\n", generic_object->size, generic_object->capacity);
+
         generic_object->capacity *= 2;
         generic_object->pairs = realloc(generic_object->pairs, generic_object->capacity * sizeof(KeyValuePair*));
+        if(generic_object->pairs == NULL) {
+            printf("Failed to allocate additional memory for key value pairs.\n");
+            return;
+        }
     }
 
     KeyValuePair* key_value_pair = malloc(sizeof(KeyValuePair));
+    if(key_value_pair == NULL) {
+        printf("Failed to allocate memory for key value pair.\n");
+        return;
+    }
+
     key_value_pair->key = strdup(key);
+    if(key_value_pair->key == NULL) {
+        printf("Failed to duplicate key for key value pair.\n");
+        return;
+    }
+
     key_value_pair->value = generic_value;
     generic_object->pairs[generic_object->size++] = key_value_pair;
 }

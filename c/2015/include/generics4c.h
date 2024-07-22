@@ -46,6 +46,8 @@ GenericValue* generic_create_int(int value);
 
 GenericValue* generic_create_string(const char* value);
 
+GenericValue *generic_create_object_value(GenericObject *value);
+
 GenericObject* generic_create_object(size_t capacity);
 
 void generic_add_to_object(GenericObject* generic_object, const char* key, GenericValue* generic_value);

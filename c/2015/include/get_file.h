@@ -2,6 +2,7 @@
 #define GET_FILE
 
 #include <stdint.h>
+#include <stdlib.h>
 
 char *get_file(char* filename);
 
