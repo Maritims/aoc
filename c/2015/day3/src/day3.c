@@ -1,0 +1,114 @@
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+#include "aoc.h"
+#include "debug.h"
+#include "get_file.h"
+#include "array.h"
+#include "hashtable.h"
+
+#define DEBUG 1
+
+typedef struct
+{
+    int x;
+    int y;
+} Point2D;
+
+void point2d_move(Point2D *point, char instruction)
+{
+    switch (instruction)
+    {
+    case '^':
+        point->y++;
+        break;
+    case 'v':
+        point->y--;
+        break;
+    case '>':
+        point->x++;
+        break;
+    case '<':
+        point->x--;
+        break;
+    }
+}
+
+void visit(HashTable *visited, Point2D *visitor)
+{
+    char key[10];
+    sprintf(key, "%d,%d", visitor->x, visitor->y);
+    if(hashtable_get(visited, key) == NULL)
+    {
+        hashtable_put(visited, key, &visitor, sizeof(Point2D), 0);
+    }
+}
+
+void solve_part_one(char *instructions, SolutionPart *solution_part)
+{
+    HashTable *visited = hashtable_create(10);
+    if(visited == NULL)
+    {
+        return;
+    }
+
+    Point2D visitor = {.x = 0, .y = 0};
+    char instruction;
+    uint32_t instruction_number = 0;
+    while((instruction = *instructions) != '\0')
+    {
+        visit(visited, &visitor);
+        point2d_move(&visitor, instruction);
+        instructions++;
+        instruction_number++;
+    }
+
+    sprintf(solution_part->result, "%zu", visited->size);
+    solution_part_finalize(solution_part);
+}
+
+void solve_part_two(char *instructions, SolutionPart *solution_part)
+{
+    HashTable *visited = hashtable_create(10);
+    if(visited == NULL)
+    {
+        return;
+    }
+
+    Point2D visitors[2] = {
+        {.x = 0, .y = 0},
+        {.x = 0, .y = 0}
+    };
+    char instruction;
+    uint32_t instruction_number = 0;
+    while((instruction = *instructions) != '\0')
+    {
+        visit(visited, &visitors[instruction_number % 2]);
+        point2d_move(&visitors[instruction_number %2], instruction);
+        instructions++;
+        instruction_number++;
+    }
+
+    sprintf(solution_part->result, "%zu", visited->size);
+    solution_part_finalize(solution_part);
+}
+
+int main(int argc, char *argv[])
+{
+    Solution *solution = solution_create(2015, 3);
+
+    char *instructions = get_file(argv[1]);
+    char *tmp = instructions;
+
+    solve_part_one(instructions, &(solution->part_one));
+    instructions = tmp;
+    solve_part_two(instructions, &(solution->part_two));
+
+    solution_finalize(solution);
+    solution_print(solution);
+
+    return 0;
+}

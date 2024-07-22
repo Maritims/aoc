@@ -1,0 +1,19 @@
+# Compiled static libraries
+# *.a
+
+**/bin/*
+**/build/*
+**/CMakeFiles/
+**/data/
+**/lib/*
+**/out/
+
+# CMake
+**/*.cmake
+**/CMakeCache.txt
+**/compile_commands.json
+**/Makefile
+
+# Local
+**/.cache
+**/.editorconfig
