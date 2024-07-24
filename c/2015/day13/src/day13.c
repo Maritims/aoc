@@ -10,8 +10,8 @@
 #include "string4c.h"
 
 int *calculate_happiness(char **lines, size_t number_of_lines, bool include_yourself) {
-    int map[25][25]; // There are 25 letters in the alphabet.
-    int id_map[25] = {0}; // Map for converting iteration variables to actual map ids;
+    int map[26][26]; // There are 26 letters in the alphabet.
+    int id_map[26] = {0}; // Map for converting iteration variables to actual map ids;
     char current_main_id = ' ';
     size_t number_of_main_ids = 0;
     for(size_t i = 0; i < number_of_lines; i++) {
