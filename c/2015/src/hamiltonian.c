@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "hamiltonian_path.h"
+#include "hamiltonian.h"
 
 #define MAX_NODES 10
 
@@ -47,7 +47,14 @@ static int compute_hamiltonian_path(int mask, int position, int number_of_nodes,
     return cache[mask][position] = final_answer;
 }
 
-int hamiltonian_path(int nodes[][20], int number_of_nodes, HAMILTONIAN_PATH_FLAGS flags)
+/**
+ * hamiltonian_compute: Compute a Hamiltonian cycle or path.
+ * @nodes: A two-dimensional array of nodes.
+ * @number_of_nodes: The number of nodes.
+ * @flags: Manipulate the HP_RETURN_TO_START flag to choose between computing a Hamiltonian cycle or path.
+ * return: The Hamiltonian cycle or path for the given nodes. Either the maximum or minimum cost depending on the given flags.
+*/
+int hamiltonian_compute(int nodes[][20], int number_of_nodes, HAMILTONIAN_PATH_FLAGS flags)
 {
     memset(cache, -1, sizeof(cache));
 

@@ -1,5 +1,5 @@
-#ifndef HAMILTONIAN_PATH
-#define HAMILTONIAN_PATH
+#ifndef HAMILTONIAN
+#define HAMILTONIAN
 
 typedef enum
 {
@@ -9,6 +9,6 @@ typedef enum
     HP_FIND_MAXIMUM_COST = 1 << 3
 } HAMILTONIAN_PATH_FLAGS;
 
-int hamiltonian_path(int nodes[][20], int number_of_nodes, HAMILTONIAN_PATH_FLAGS flags);
+int hamiltonian_compute(int nodes[][20], int number_of_nodes, HAMILTONIAN_PATH_FLAGS flags);
 
 #endif

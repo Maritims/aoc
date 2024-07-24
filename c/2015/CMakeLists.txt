@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.29)
 
-# This project is C only.
 project(AdventOfCode2015)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_C_STANDARD 99) # This project uses C99.
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -52,8 +52,8 @@ target_sources(point PRIVATE ${PROJECT_SOURCE_DIR}/src/point.c)
 add_aoc_library(grid)
 target_sources(grid PRIVATE ${PROJECT_SOURCE_DIR}/src/grid.c)
 
-add_aoc_library(hamiltonian_path)
-target_sources(hamiltonian_path PRIVATE ${PROJECT_SOURCE_DIR}/src/hamiltonian_path.c)
+add_aoc_library(hamiltonian)
+target_sources(hamiltonian PRIVATE ${PROJECT_SOURCE_DIR}/src/hamiltonian.c)
 
 add_aoc_library(generics4c)
 target_sources(generics4c PRIVATE ${PROJECT_SOURCE_DIR}/src/generics4c.c)
@@ -61,6 +61,9 @@ target_sources(generics4c PRIVATE ${PROJECT_SOURCE_DIR}/src/generics4c.c)
 add_aoc_library(json4c)
 target_sources(json4c PRIVATE src/json4c.c)
 target_link_libraries(json4c generics4c hashtable string4c)
+
+add_aoc_library(combinatorics4c)
+target_sources(combinatorics4c PRIVATE src/combinatorics4c.c)
 
 add_subdirectory(tests)
 add_subdirectory(day1)
