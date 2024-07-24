@@ -2,6 +2,9 @@
 
 DAY_NUMBER=$1
 TEMPLATE_DIR="day_template"
+DIR="day${DAY_NUMBER}"
+FILENAME="day${DAY_NUMBER}.c"
+FILEPATH="${DIR}/src/${FILENAME}"
 
 echo -e "Attempting to initialise day $DAY_NUMBER of Advent of Code..."
 
@@ -16,7 +19,6 @@ if ! [[ $DAY_NUMBER =~ ^[0-9]+$ ]]; then
     exit 1
 fi
 
-DIR="day${DAY_NUMBER}"
 
 echo "Checking for existing directory..."
 if [ -d "$DIR" ]; then
@@ -36,6 +38,26 @@ if [ $? -ne 0 ]; then
     echo "Copy failed with exit code $?\nUnable to initialise day $DAY_NUMBER"
     exit 1
 fi
+
+echo -e "Renaming day_template.c to $FILENAME..."
+mv $DIR/src/day_template.c $FILEPATH
+if [ $? -ne 0 ]; then
+    echo "Rename failed with exit code $?\nUnable to initialise day $DAY_NUMBER"
+    #rm -rf $DIR
+    exit 1
+fi
+
+echo -e "Setting day number $DAY_NUMBER in $FILEPATH...\n"
+sed -i "s/X/$DAY_NUMBER/g" $FILEPATH
+if [ $? -ne 0 ]; then
+    echo "sed failed with exit code $?\nEdit file manually"
+    exit 1
+fi
+
+echo "Printing $FILEPATH..."
+echo "----------------------------------"
+cat $FILEPATH
+echo -e "----------------------------------\n"
 
 echo -e "Setting day number $DAY_NUMBER in $DIR/CMakeLists.txt...\n"
 sed -i "s/X/$DAY_NUMBER/g" $DIR/CMakeLists.txt
