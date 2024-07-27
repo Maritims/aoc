@@ -59,9 +59,6 @@ add_aoc_library(json4c)
 target_sources(json4c PRIVATE src/json4c.c)
 target_link_libraries(json4c generics4c hashtable string4c)
 
-add_aoc_library(combinatorics4c)
-target_sources(combinatorics4c PRIVATE src/combinatorics4c.c)
-
 # Enable testing
 add_executable(test_hashtable tests/test_hashtable.c src/fnv.c src/hashtable.c)
 target_include_directories(test_hashtable PRIVATE include)
