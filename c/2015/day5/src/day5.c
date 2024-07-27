@@ -4,9 +4,10 @@
 #include <string.h>
 
 #include "aoc.h"
-#include "get_file.h"
+#include "file4c.h"
 #include "hashtable.h"
-#include "testutils.h"
+#include "string4c.h"
+#include "test4c.h"
 
 #define DEBUG 1
 
@@ -80,9 +81,10 @@ uint32_t is_nice_line_in_part_two(const char *line)
 {
     uint32_t is_first_criteria_met = 0;
     uint32_t is_second_criteria_met = 0;
+    size_t line_length = strlen(line);
 
     /* A line is nice if it contains at least one letter which repeats with exactly one letter between them, like xyx, abcdefeghi (efe), or even aaa. */
-    for (uint32_t i = 2; i < strlen(line); i++)
+    for (uint32_t i = 2; i < line_length; i++)
     {
         if (line[i - 2] == line[i])
         {
@@ -103,33 +105,8 @@ uint32_t is_nice_line_in_part_two(const char *line)
         return 0;
     }
 
-    char last_three[3];
-    for (uint32_t i = 0; i < strlen(line) - 1; i++)
-    {
-        last_three[i % 3] = line[i];
-        if(last_three[0] == last_three[1] && last_three[1] == last_three[2])
-        {
-            return 0;
-        }
-
-        char *pair = calloc(2, sizeof(char));
-        sprintf(pair, "%c%c", line[i], line[i + 1]);
-        
-        HashTableEntry *entry = hashtable_get(hashtable, pair);
-        if (entry == NULL)
-        {
-            uint64_t *value = malloc(sizeof(uint64_t));
-            *value = 1;
-            entry = hashtable_put(hashtable, pair, value, sizeof(uint64_t), 0);
-            if(entry == NULL)
-            {
-                return 0;
-            }
-        }
-        else
-        {
-            (*(uint64_t*)entry->value)++;
-        }
+    if(!string_contains_non_overlapping_pair(line)) {
+        return 0;
     }
 
     for (size_t i = 0; i < hashtable->capacity; i++)
@@ -144,10 +121,13 @@ uint32_t is_nice_line_in_part_two(const char *line)
             }
             entry = entry->next;
         }
+        if(is_second_criteria_met) {
+            break;
+        }
     }
-    hashtable_destroy(hashtable);
 
-    return is_first_criteria_met == 1 && is_second_criteria_met == 1 ? 1 : 0;
+    hashtable_destroy(hashtable);
+    return 1;
 }
 
 void solve_part_one(char **lines, size_t length, SolutionPart *solution_part)
@@ -158,7 +138,7 @@ void solve_part_one(char **lines, size_t length, SolutionPart *solution_part)
         nice_lines += is_nice_line_in_part_one(lines[i]);
     }
     sprintf(solution_part->result, "%d", nice_lines);
-    solution_part_finalize(solution_part);
+    solution_part_finalize(solution_part, "258");
 }
 
 void solve_part_two(char **lines, size_t length, SolutionPart *solution_part)
@@ -169,10 +149,10 @@ void solve_part_two(char **lines, size_t length, SolutionPart *solution_part)
         nice_lines += is_nice_line_in_part_two(lines[i]);
     }
     sprintf(solution_part->result, "%d", nice_lines);
-    solution_part_finalize(solution_part);
+    solution_part_finalize(solution_part, "53");
 }
 
-int test_is_nice_line_in_part_two(TestResults *test_results, const char *str, int expectation)
+void test_is_nice_line_in_part_two(TestResults *test_results, const char *str, int expectation)
 {
     int success = is_nice_line_in_part_two(str) == expectation ? 1 : 0;
     test_results->total++;
@@ -181,7 +161,7 @@ int test_is_nice_line_in_part_two(TestResults *test_results, const char *str, in
     printf("%s(%s, %d): %s\n", __func__, str, expectation, success ? "OK" : "Not OK");
 }
 
-int test()
+void test()
 {
     TestResults test_results = {.total = 0, .succeeded = 0};
     
@@ -200,38 +180,18 @@ int main(int argc, char *argv[])
 {
     test();
 
-    Solution *solution = solution_create(2015, 5);
-
+    Solution solution;
     size_t length = 0;
-    char **lines = get_file_as_lines(argv[1], &length);
+    char **lines;
 
-    solve_part_one(lines, length, &(solution->part_one));
-    solve_part_two(lines, length, &(solution->part_two));
+    solution_create(&solution, 2015, 5);
+    file_read_all_lines(&lines, &length, argv[1]);
 
-    solution_finalize(solution);
-    solution_print(solution);
+    solve_part_one(lines, length, &(solution.part_one));
+    solve_part_two(lines, length, &(solution.part_two));
 
-    return 0;
+    solution_finalize(&solution);
+    solution_print(&solution);
 
-    /*
-    size_t number_of_lines;
-    char **lines = split_to_lines(file_content, &number_of_lines);
-    uint32_t nice_lines_in_part_one = 0;
-    uint32_t nice_lines_in_part_two = 0;
-
-    for (uint32_t line_number = 0; line_number < number_of_lines; line_number++)
-    {
-        if (is_nice_line_in_part_one(lines[line_number]) == 1)
-        {
-            nice_lines_in_part_one++;
-        }
-        if (is_nice_line_in_part_two(lines[line_number]) == 1)
-        {
-            nice_lines_in_part_two++;
-        }
-    }
-
-    printf("Part 1: %d out of %zu are nice lines\nPart 2: %d out of %zu are nice lines\n", nice_lines_in_part_one, number_of_lines, nice_lines_in_part_two, number_of_lines);
-    */
     return 0;
 }

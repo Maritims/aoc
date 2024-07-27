@@ -37,4 +37,4 @@ GenericArray* parse_array(JsonToken** tokens);
 
 GenericObject* parse_object(JsonToken** tokens);
 
-GenericValue* json_parse_string(char* str);
+void json_parse_string(GenericValue **result, char* str);

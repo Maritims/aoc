@@ -6,18 +6,20 @@
 
 #include "aoc.h"
 #include "combinatorics4c.h"
-#include "get_file.h"
+#include "file4c.h"
 #include "string4c.h"
 
-int *calculate_happiness(char **lines, size_t number_of_lines, bool include_yourself) {
+void calculate_happiness(int *result, char **lines, size_t number_of_lines, bool include_yourself) {
     int map[26][26]; // There are 26 letters in the alphabet.
     int id_map[26] = {0}; // Map for converting iteration variables to actual map ids;
     char current_main_id = ' ';
     size_t number_of_main_ids = 0;
     for(size_t i = 0; i < number_of_lines; i++) {
         char *line = lines[i];
+        char **tokens;
         size_t number_of_tokens = 0;
-        char **tokens = string_split(line, " ", &number_of_tokens);
+
+        string_split(&tokens, &number_of_tokens, line, " ");
         
         char main_id = tokens[0][0]; // First letter of the person we're currently looking at.
         char minor_id = tokens[10][0]; // First letter of the person they could be sitting next to.
@@ -49,12 +51,11 @@ int *calculate_happiness(char **lines, size_t number_of_lines, bool include_your
     uint64_t *number_of_permutations = malloc(sizeof(uint64_t));
     int **permutations = combinatorics_permutations_compute_int(number_of_main_ids, &number_of_permutations);
     if(permutations == NULL) {
-        fprintf(stderr, "Failed to generate permutations\n");
-        return NULL;
+        fprintf(stderr, "%s:%d: Failed to generate permutations\n", __func__, __LINE__);
+        return;
     }
 
-    int *highest_total_happiness = malloc(sizeof(int));
-    *highest_total_happiness = INT_MIN;
+    *result = INT_MIN;
     char id_string[number_of_main_ids];
     for(uint64_t i = 0; i < *number_of_permutations; i++) {
         int *ids = permutations[i];
@@ -74,35 +75,38 @@ int *calculate_happiness(char **lines, size_t number_of_lines, bool include_your
             total_happiness += left_happiness + right_happiness;
         }
 
-        if(total_happiness >= *highest_total_happiness) {
-            *highest_total_happiness = total_happiness;
+        if(total_happiness >= (*result)) {
+            *result = total_happiness;
         }
     }
 
     free(number_of_permutations);
     free(permutations);
-
-    return highest_total_happiness;
 }
 
 int main(int argc, char *argv[]) {
-    Solution *solution = solution_create(2015, 13);
-    size_t number_of_lines = 0;
-    char **lines = get_file_as_lines(argv[1], &number_of_lines);
+    Solution solution;
+    char **lines;
+    size_t number_of_lines;
+    int part_one;
+    int part_two;
 
-    int *part_one = calculate_happiness(lines, number_of_lines, false);
-    sprintf(solution->part_one.result, "%d", *part_one);
-    solution_part_finalize(&solution->part_one);
+    
+    solution_create(&solution, 2015, 13);
+    file_read_all_lines(&lines, &number_of_lines, argv[1]);
 
-    int *part_two = calculate_happiness(lines, number_of_lines, true);
-    sprintf(solution->part_two.result, "%d", *part_two);
+    calculate_happiness(&part_one, lines, number_of_lines, false);
+    sprintf(solution.part_one.result, "%d", part_one);
+    solution_part_finalize(&solution.part_one, "664");
 
-    solution_finalize(solution);
-    solution_print(solution);
-    free(solution);
+    calculate_happiness(&part_two, lines, number_of_lines, true);
+    sprintf(solution.part_two.result, "%d", part_two);
+    solution_part_finalize(&solution.part_two, "640");
+
+    solution_finalize(&solution);
+    solution_print(&solution);
+
     free(lines);
-    free(part_one);
-    free(part_two);
 
-    return 1;
+    return 0;
 }

@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "aoc.h"
+#include "file4c.h"
 #include "test4c.h"
 
 // Increment password.
@@ -107,21 +108,24 @@ int main(int argc, char* argv[]) {
     test_has_two_different_non_overlapping_pairs("ghjaabcc", true);
     test_create_secure_password("abcdefgh", "abcdffaa");
 
-    Solution *solution = solution_create(2015, 11);
-    char *password = get_file(argv[1]);
+    Solution solution;
+    char *password;
+
+    solution_create(&solution, 2015, 11);
+    file_read_all_text(&password, argv[1]);
 
     password = create_secure_password(password);
-    sprintf(solution->part_one.result, password);
-    solution_part_finalize(&solution->part_one);
+    sprintf(solution.part_one.result, "%s", password);
+    solution_part_finalize(&solution.part_one, "hepxxyzz");
     
     password = create_secure_password(password);
-    sprintf(solution->part_two.result, password);
-    solution_part_finalize(&solution->part_two);
+    sprintf(solution.part_two.result, "%s", password);
+    solution_part_finalize(&solution.part_two, "heqaabcc");
 
-    solution_finalize(solution);
-    solution_print(solution);
+    solution_finalize(&solution);
+    solution_print(&solution);
 
     free(password);
-    free(solution);
+    
     return 0;
 }

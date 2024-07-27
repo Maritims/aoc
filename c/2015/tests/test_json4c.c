@@ -3,7 +3,7 @@
 
 #include "json4c.h"
 
-bool test_key_value_pair(KeyValuePair* key_value_pair, const char* expected_key, bool should_have_value) {
+bool verify_key_value_pair(KeyValuePair* key_value_pair, const char* expected_key, bool should_have_value) {
     if(key_value_pair) {
         printf("Parameter \"key_value_pair\" cannot be NULL\n");
         return false;
@@ -27,24 +27,24 @@ bool test_key_value_pair(KeyValuePair* key_value_pair, const char* expected_key,
     return true;
 }
 
-bool test_type_and_pair_size(GenericValue* generic_value, GenericValueType expected_generic_value_type, size_t expected_pair_size) {
+bool verify_type_and_pair_size(char *result, GenericValue* generic_value, GenericValueType expected_generic_value_type, size_t expected_pair_size) {
     if (generic_value == NULL) {
-        fprintf(stderr, "Parameter \"generic_value\" cannot be NULL\n");
+        sprintf(result, "%s", "Parameter \"generic_value\" cannot be NULL");
         return false;
     }
 
     if (generic_value->type != expected_generic_value_type) {
-        printf("type: expected %d, received %d\n", expected_generic_value_type, generic_value->type);
+        sprintf(result, "type: expected %d, received %d", expected_generic_value_type, generic_value->type);
         return false;
     }
 
     if (generic_value->data.object_value != NULL && generic_value->data.object_value->size != expected_pair_size) {
-        printf("size: expected %zu, received %zu\n", expected_pair_size, generic_value->data.object_value->size);
+        sprintf(result, "size: expected %zu, received %zu\n", expected_pair_size, generic_value->data.object_value->size);
         return false;
     }
 
     if(generic_value->data.array_value != NULL && generic_value->data.array_value->size != expected_pair_size) {
-        printf("size: expected %zu, received %zu\n", expected_pair_size, generic_value->data.array_value->size);
+        sprintf(result, "size: expected %zu, received %zu\n", expected_pair_size, generic_value->data.array_value->size);
         return false;
     }
 
@@ -55,28 +55,30 @@ void test_empty_object() {
     size_t number_of_tokens = 0;
     JsonToken* tokens = lex("{}", &number_of_tokens);
     GenericValue* gv = parse(&tokens, true);
+    char result[1024];
 
-    if (!test_type_and_pair_size(gv, TYPE_OBJECT, 0)) {
-        printf("Type and pair size test failed\n");
-        return;
+    if (!verify_type_and_pair_size(result, gv, TYPE_OBJECT, 0)) {
+        printf("%s() failed: type and pair size verification failed with reason \"%s\"\n", __func__, result);
+        exit(EXIT_FAILURE);
     }
 
-    printf("%s(): OK\n\n", __func__);
+    printf("%s(): passed\n", __func__);
 }
 
 void test_basic_object() {
     size_t number_of_tokens = 0;
     JsonToken* tokens = lex("{\"foo\": \"bar\"}", &number_of_tokens);
     GenericValue* generic_value = parse(&tokens, true);
+    char result[1024];
 
     if (generic_value == NULL) {
-        printf("parse returned NULL\n");
-        return;
+        printf("%s() failed: parse returned NULL\n", __func__);
+        exit(EXIT_FAILURE);
     }
 
-    if (!test_type_and_pair_size(generic_value, TYPE_OBJECT, 1)) {
-        printf("Type and pair size test failed\n");
-        return;
+    if (!verify_type_and_pair_size(result, generic_value, TYPE_OBJECT, 1)) {
+        printf("i%s() failure: Type and pair size verification failed with reason \"%s\"\n", __func__, result);
+        exit(EXIT_FAILURE);
     }
 
     KeyValuePair* kvp = generic_value->data.object_value->pairs[0];
@@ -88,12 +90,11 @@ void test_basic_object() {
         }
     };
     if (!generic_compare_kvp(kvp, &expected_kvp)) {
-        printf("expected key: %s, received key: %s, expected value: %s, received value: %s\n", expected_kvp.key, kvp->key, expected_kvp.value->data.string_value, kvp->value->data.string_value);
-        //printf("Key value pairs are not equal\n");
-        return;
+        printf("%s() failed: expected key: %s, received key: %s, expected value: %s, received value: %s\n", __func__, expected_kvp.key, kvp->key, expected_kvp.value->data.string_value, kvp->value->data.string_value);
+        exit(EXIT_FAILURE);
     }
 
-    printf("%s(): OK\n\n", __func__);
+    printf("%s() passed\n", __func__);
 }
 
 void test_basic_object_with_single_character_property() {
@@ -101,13 +102,14 @@ void test_basic_object_with_single_character_property() {
     JsonToken* tokens = lex("{\"f\": \"b\"}", &number_of_tokens);
     GenericValue* gv = parse(&tokens, true);
     if(gv == NULL) {
-        printf("parse returned NULL\n");
-        return;
+        printf("%s() failed: parse returned NULL\n");
+        exit(EXIT_FAILURE);
     }
+    char result[1024];
 
-    if(!test_type_and_pair_size(gv, TYPE_OBJECT, 1)) {
-        printf("type and pair size test failed\n");
-        return;
+    if(!verify_type_and_pair_size(result, gv, TYPE_OBJECT, 1)) {
+        printf("%s() failed: type and pair size verification failed with reason \"%s\"\n", __func__, result);
+        exit(EXIT_FAILURE);
     }
 
     KeyValuePair* kvp = gv->data.object_value->pairs[0];
@@ -119,20 +121,22 @@ void test_basic_object_with_single_character_property() {
         }
     };
     if(!generic_compare_kvp(kvp, &expected_kvp)) {
-        printf("expected key: %s, received key: %s, expected value: %s, received value: %s\n", expected_kvp.key, kvp->key, expected_kvp.value->data.string_value, kvp->value->data.string_value);
-        return;
+        printf("%s() failed: expected key: %s, received key: %s, expected value: %s, received value: %s\n", __func__, expected_kvp.key, kvp->key, expected_kvp.value->data.string_value, kvp->value->data.string_value);
+        exit(EXIT_FAILURE);
     }
 
-    printf("%s(): OK\n\n", __func__);
+    printf("%s() passed\n", __func__);
 }
 
 void test_number_object() {
     size_t number_of_tokens = 0;
     JsonToken* tokens = lex("{\"foo\": 1}", &number_of_tokens);
     GenericValue* generic_value = parse(&tokens, true);
+    char result[1024];
 
-    if (!test_type_and_pair_size(generic_value, TYPE_OBJECT, 1)) {
-        return;
+    if (!verify_type_and_pair_size(result, generic_value, TYPE_OBJECT, 1)) {
+        printf("%s() failed: type and pair size verification failed with reason \"%s\"\n", __func__, result);
+        exit(EXIT_FAILURE);
     }
 
     KeyValuePair* kvp = generic_value->data.object_value->pairs[0];
@@ -144,11 +148,11 @@ void test_number_object() {
         }
     };
     if (!generic_compare_kvp(kvp, &expected_kvp)) {
-        printf("Key value pairs are not equal\n");
-        return;
+        printf("%s() failed: key value pairs are not equal\n", __func__);
+        exit(EXIT_FAILURE);
     }
 
-    printf("%s(): OK\n\n", __func__);
+    printf("%s() passed\n", __func__);
 }
 
 void test_empty_array() {
@@ -158,18 +162,18 @@ void test_empty_array() {
 
     KeyValuePair* kvp = generic_get_pair_from_object(generic_value->data.object_value, "foo");
     if(kvp == NULL) {
-        printf("%s(): No key value pair with key \"foo\" was found\n\n", __func__);
-        return;
+        printf("%s() failed: no key value pair with key \"foo\" was found\n\n", __func__);
+        exit(EXIT_FAILURE);
     }
 
     GenericValue *kvp_value = (GenericValue*)kvp->value;
     GenericArray *generic_array = kvp_value->data.array_value;
     if(generic_array->size != 0) {
-        printf("%s(): Array size was %zu, but expected 0\n\n", __func__, generic_array->size);
-        return;
+        printf("%s() failed: Array size was %zu, but expected 0\n\n", __func__, generic_array->size);
+        exit(EXIT_FAILURE);
     }
 
-    printf("%s(): OK\n\n", __func__);
+    printf("%s() passed\n", __func__);
 }
 
 void test_basic_array() {
@@ -179,18 +183,18 @@ void test_basic_array() {
 
     KeyValuePair *kvp = generic_get_pair_from_object(generic_value->data.object_value, "foo");
     if(kvp == NULL) {
-        printf("%s(): No key value pair with key \"foo\" could be found\n\n", __func__);
-        return;
+        printf("%s() failed: no key value pair with key \"foo\" could be found\n\n", __func__);
+        exit(EXIT_FAILURE);
     }
 
     GenericValue *kvp_value = (GenericValue*)kvp->value;
     GenericArray *generic_array = kvp_value->data.array_value;
     if(generic_array->size != 3) {
-        printf("%s(): Array size was %zu, but expected0\n\n", __func__, generic_array->size);
-        return;
+        printf("%s() failed: array size was %zu, but expected0\n\n", __func__, generic_array->size);
+        exit(EXIT_FAILURE);
     }
 
-    printf("%s(): OK\n\n", __func__);
+    printf("%s() passed\n", __func__);
 }
 
 void test_nested_object() {
@@ -207,31 +211,33 @@ void test_nested_object() {
     int bar = gv_bar->data.int_value;
 
     if(bar != 2) {
-        printf("%s(): foo.bar was %d, but expected 2\n\n", __func__, bar);
-        return;
+        printf("%s() failed: foo.bar was %d, but expected 2\n\n", __func__, bar);
+        exit(EXIT_FAILURE);
     }
 
-    printf("%s(): OK\n\n", __func__);
+    printf("%s() passed\n", __func__);
 }
 
 void test_true() {
     size_t number_of_tokens = 0;
     JsonToken* tokens = lex("{\"foo\": true}", &number_of_tokens);
     GenericValue* generic_value = parse(&tokens, true);
+    char result[1024];
 
-    if(!test_type_and_pair_size(generic_value, TYPE_OBJECT, 1)) {
-        return;
+    if(!verify_type_and_pair_size(result, generic_value, TYPE_OBJECT, 1)) {
+        printf("%s() failed: type and pair size verification failed with reason \"%s\"\n", __func__, result);
+        exit(EXIT_FAILURE);
     }
 
     KeyValuePair* kvp_foo = generic_value->data.object_value->pairs[0];
     GenericValue* gv_foo = kvp_foo->value;
 
     if(gv_foo->data.boolean_value != true) {
-        printf("%s(): Expected foo to be true, but it was false.\n\n", __func__);
-        return;
+        printf("%s() failed: expected foo to be true, but it was false.\n\n", __func__);
+        exit(EXIT_FAILURE);
     }
 
-    printf("%s(): OK\n\n", __func__);
+    printf("%s() passed\n", __func__);
 }
 
 void test_false() {
@@ -242,11 +248,11 @@ void test_false() {
     GenericValue* gv_foo = kvp_foo->value;
 
     if(gv_foo->data.boolean_value != false) {
-        printf("%s(): Expected foo to be false, but it was true.\n\n", __func__);
-        return;
+        printf("%s() failed: expected foo to be false, but it was true.\n\n", __func__);
+        exit(EXIT_FAILURE);
     }
 
-    printf("%s(): OK\n\n", __func__);
+    printf("%s() passed\n", __func__);
 }
 
 void test_null() {
@@ -257,11 +263,11 @@ void test_null() {
     GenericValue* gv_foo = kvp_foo->value;
 
     if(gv_foo != NULL) {
-        printf("%s(): Expected foo to be NULL, but it wasn't.\n\n", __func__);
-        return;
+        printf("%s() failed: expected foo to be NULL, but it wasn't.\n\n", __func__);
+        exit(EXIT_FAILURE);
     }
 
-    printf("%s(): OK\n\n", __func__);
+    printf("%s() passed\n", __func__);
 }
 
 void test_object_with_multiple_properties() {
@@ -269,13 +275,14 @@ void test_object_with_multiple_properties() {
     JsonToken *tokens = lex("{\"e\": \"green\", \"a\": 77}", &number_of_tokens);
     GenericValue *gv = parse(&tokens, true);
     if(gv == NULL) {
-        printf("parse returned NULL\n");
-        return;
+        printf("%s() failed: parse returned NULL\n", __func__);
+        exit(EXIT_FAILURE);
     }
+    char result[1024];
 
-    if(!test_type_and_pair_size(gv, TYPE_OBJECT, 2)) {
-        printf("type and pair size test failed\n");
-        return;
+    if(!verify_type_and_pair_size(result, gv, TYPE_OBJECT, 2)) {
+        printf("%s() failed: type and pair size verification failed with reason \"%s\"\n", result);
+        exit(EXIT_FAILURE);
     }
 
     KeyValuePair *kvp_one = gv->data.object_value->pairs[0];
@@ -287,8 +294,8 @@ void test_object_with_multiple_properties() {
         }
     };
     if(!generic_compare_kvp(kvp_one, &expected_kvp_one)) {
-        printf("expected key: %s, received key: %s, expected value: %s, received value: %s\n", expected_kvp_one.key, kvp_one->key, expected_kvp_one.value->data.string_value, kvp_one->value->data.string_value);
-        return;
+        printf("%s() failed: expected key: %s, received key: %s, expected value: %s, received value: %s\n", __func__, expected_kvp_one.key, kvp_one->key, expected_kvp_one.value->data.string_value, kvp_one->value->data.string_value);
+        exit(EXIT_FAILURE);
     }
 
     KeyValuePair *kvp_two = gv->data.object_value->pairs[1];
@@ -300,11 +307,11 @@ void test_object_with_multiple_properties() {
         }
     };
     if(!generic_compare_kvp(kvp_two, &expected_kvp_two)) {
-        printf("expected key: %s, received key: %s, expected value: %d, received value: %d\n", expected_kvp_two.key, kvp_two->key, expected_kvp_two.value->data.int_value, kvp_two->value->data.int_value);
-        return;
+        printf("%s() failed: expected key: %s, received key: %s, expected value: %d, received value: %d\n", __func__, expected_kvp_two.key, kvp_two->key, expected_kvp_two.value->data.int_value, kvp_two->value->data.int_value);
+        exit(EXIT_FAILURE);
     }
 
-    printf("%s(): OK\n\n", __func__);
+    printf("%s() passed\n", __func__);
 }
 
 int main(void) {
@@ -319,5 +326,7 @@ int main(void) {
     test_false();
     test_null();
     test_object_with_multiple_properties();
-    return 0;
+
+    printf("All tests passed\n");
+    return EXIT_SUCCESS;
 }

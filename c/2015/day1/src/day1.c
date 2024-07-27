@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "aoc.h"
-#include "get_file.h"
+#include "file4c.h"
 
 void solve_part_one(char *instructions, SolutionPart *solution_part)
 {
@@ -22,7 +22,7 @@ void solve_part_one(char *instructions, SolutionPart *solution_part)
 	}
 
 	sprintf(solution_part->result, "%d", floor);
-	solution_part_finalize(solution_part);
+	solution_part_finalize(solution_part, "280");
 }
 
 void solve_part_two(char *instructions, SolutionPart *solution_part)
@@ -52,21 +52,25 @@ void solve_part_two(char *instructions, SolutionPart *solution_part)
 	}
 
 	sprintf(solution_part->result, "%d", basement_entry_position);
-	solution_part_finalize(solution_part);
+	solution_part_finalize(solution_part, "1797");
 }
 
 int main(int argc, char* argv[]) {
-	Solution *solution = solution_create(2015, 1);
+    Solution solution;
+    char *instructions;
+    char *tmp;
 
-	char *instructions = get_file(argv[1]);
-	char *tmp = instructions;
+	solution_create(&solution, 2015, 1);
+	file_read_all_text(&instructions, argv[1]);
+	
+    tmp = instructions;
 
-	solve_part_one(instructions, &(solution->part_one));
+	solve_part_one(instructions, &(solution.part_one));
 	instructions = tmp;
-	solve_part_two(instructions, &(solution->part_two));
+	solve_part_two(instructions, &(solution.part_two));
 
-	solution_finalize(solution);
-	solution_print(solution);
+	solution_finalize(&solution);
+	solution_print(&solution);
 	
 	return 0;
 }

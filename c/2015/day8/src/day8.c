@@ -2,45 +2,50 @@
 #include <string.h>
 
 #include "aoc.h"
+#include "file4c.h"
 #include "string4c.h"
 
-int main(int argc, char *argv[])
-{
-    Solution *solution = solution_create(2015, 8);
-
-    size_t length;
-    char **lines = get_file_as_lines(argv[1], &length);
+int main(int argc, char *argv[]) {
+    Solution solution;
+    char **lines;
+    size_t number_of_lines;
     size_t total_for_part_one = 0;
     size_t total_for_part_two = 0;
 
-    for(size_t i = 0; i < length; i++)
+    solution_create(&solution, 2015, 8);
+    file_read_all_lines(&lines, &number_of_lines, argv[1]);
+
+    for(size_t i = 0; i < number_of_lines; i++)
     {
         char *line = lines[i];
+        char *escaped_line;
+        char *unescaped_line;
+        size_t escaped_length;
+        size_t unescaped_length;
 
-        size_t escaped_length = strlen(line);
-        char *unescaped_line = string_unescape(line);
-        size_t unescaped_length = strlen(unescaped_line) - 2;
-        //printf("%s (%zu) -> %s (%zu)\n", line, escaped_length, unescaped_line, unescaped_length);
+
+        escaped_length = strlen(line);
+        unescaped_line = string_unescape(line);
+        unescaped_length = strlen(unescaped_line) - 2;
         total_for_part_one += escaped_length - unescaped_length;
-        free(unescaped_line);
 
         unescaped_length = strlen(line);
-        char *escaped_line = string_escape(line);
+        escaped_line = string_escape(line);
         escaped_length = strlen(escaped_line);
-        printf("%s (%zu) -> %s (%zu)\n", escaped_line, escaped_length, unescaped_line, unescaped_length);
         total_for_part_two += escaped_length - unescaped_length;
-        free(escaped_line);
 
         free(line);
+        free(unescaped_line);
+        free(escaped_line);
     }
 
-    sprintf(solution->part_one.result, "%zu", total_for_part_one);
-    solution_part_finalize(&solution->part_one);
-    sprintf(solution->part_two.result, "%zu", total_for_part_two);
-    solution_part_finalize(&solution->part_two);
+    sprintf(solution.part_one.result, "%zu", total_for_part_one);
+    solution_part_finalize(&solution.part_one, "1333");
+    sprintf(solution.part_two.result, "%zu", total_for_part_two);
+    solution_part_finalize(&solution.part_two, "2046");
 
-    solution_print(solution);
+    solution_finalize(&solution);
+    solution_print(&solution);
 
     free(lines);
-    free(solution);
 }

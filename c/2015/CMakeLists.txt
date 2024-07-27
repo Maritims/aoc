@@ -19,7 +19,8 @@ add_library(debug INTERFACE)
 target_include_directories(debug INTERFACE include/debug.h)
 
 add_aoc_library(aoc)
-target_sources(aoc PRIVATE src/aoc.c src/string4c.c src/get_file.c)
+target_sources(aoc PRIVATE src/aoc.c src/string4c.c)
+target_sources(aoc PUBLIC src/file4c.c)
 
 add_aoc_library(array)
 target_sources(array PRIVATE ${PROJECT_SOURCE_DIR}/src/array.c)
@@ -29,6 +30,7 @@ target_sources(bitutils PRIVATE ${PROJECT_SOURCE_DIR}/src/bitutils.c)
 
 add_aoc_library(math4c)
 target_sources(math4c PRIVATE ${PROJECT_SOURCE_DIR}/src/math4c.c)
+target_link_libraries(math4c gmp)
 
 add_aoc_library(string4c)
 target_sources(string4c PRIVATE ${PROJECT_SOURCE_DIR}/src/string4c.c)
@@ -65,7 +67,20 @@ target_link_libraries(json4c generics4c hashtable string4c)
 add_aoc_library(combinatorics4c)
 target_sources(combinatorics4c PRIVATE src/combinatorics4c.c)
 
-add_subdirectory(tests)
+# Enable testing
+add_executable(test_json4c tests/test_json4c.c src/json4c.c)
+target_include_directories(test_json4c PRIVATE include)
+target_link_libraries(test_json4c generics4c hashtable string4c)
+
+add_executable(test_string4c tests/test_string4c.c src/string4c.c)
+target_include_directories(test_string4c PRIVATE include)
+
+enable_testing()
+
+# Add test cases
+add_test(NAME Json4cTest COMMAND test_json4c)
+add_test(NAME String4cTest COMMAND test_string4c)
+
 add_subdirectory(day1)
 add_subdirectory(day2)
 add_subdirectory(day3)

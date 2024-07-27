@@ -5,9 +5,7 @@
 #include <time.h>
 
 #include "aoc.h"
-#include "debug.h"
-#include "get_file.h"
-#include "array.h"
+#include "file4c.h"
 #include "hashtable.h"
 
 #define DEBUG 1
@@ -67,7 +65,7 @@ void solve_part_one(char *instructions, SolutionPart *solution_part)
     }
 
     sprintf(solution_part->result, "%zu", visited->size);
-    solution_part_finalize(solution_part);
+    solution_part_finalize(solution_part, "2592");
 }
 
 void solve_part_two(char *instructions, SolutionPart *solution_part)
@@ -93,22 +91,25 @@ void solve_part_two(char *instructions, SolutionPart *solution_part)
     }
 
     sprintf(solution_part->result, "%zu", visited->size);
-    solution_part_finalize(solution_part);
+    solution_part_finalize(solution_part, "2360");
 }
 
 int main(int argc, char *argv[])
 {
-    Solution *solution = solution_create(2015, 3);
+    Solution solution;
+    char *instructions;
+    char *tmp;
+    
+    solution_create(&solution, 2015, 3);
+    file_read_all_text(&instructions, argv[1]);
+    tmp = instructions;
 
-    char *instructions = get_file(argv[1]);
-    char *tmp = instructions;
-
-    solve_part_one(instructions, &(solution->part_one));
+    solve_part_one(instructions, &(solution.part_one));
     instructions = tmp;
-    solve_part_two(instructions, &(solution->part_two));
+    solve_part_two(instructions, &(solution.part_two));
 
-    solution_finalize(solution);
-    solution_print(solution);
+    solution_finalize(&solution);
+    solution_print(&solution);
 
     return 0;
 }

@@ -4,10 +4,10 @@
 #include <limits.h>
 
 #include "aoc.h"
+#include "file4c.h"
 #include "hashset.h"
-#include "math4c.h"
 #include "string4c.h"
-#include "hamiltonian_path.h"
+#include "hamiltonian.h"
 
 void print_mask(int mask, int number_of_nodes)
 {
@@ -33,14 +33,19 @@ size_t get_city_index(char cities[][20], size_t *number_of_cities, char *city)
     return *number_of_cities - 1;
 }
 
-int main(int argc, char *argv[])
-{
-    Solution *solution = solution_create(2015, 9);
-    size_t length = 0;
-    size_t number_of_cities = 0;
-    char **lines = get_file_as_lines(argv[1], &length);
+/**
+ * Day 9: This problem is a variant of the Hamiltonian path and Hamiltonian cycle problems.
+ */
+int main(int argc, char *argv[]) {
+    Solution solution;
+    char **lines;
+    size_t number_of_lines;
+    size_t number_of_cities;
     char cities[100][20];
     int matrix[100][20];
+
+    solution_create(&solution, 2015, 9);
+    file_read_all_lines(&lines, &number_of_lines, argv[1]);
 
     // Set up an adjancency matrix where each node has its own id.
     // The node ids determine the order of the rows and columns.
@@ -50,25 +55,35 @@ int main(int argc, char *argv[])
     // London        0    464     518
     // Dublin      464      0     141
     // Belfast     518    141       0
-    for(size_t i = 0; i < length; i++)
+    for(size_t i = 0; i < number_of_lines; i++)
     {
         char *line = lines[i];
-        size_t number_of_elements = 0;
-        char **elements = string_split(line, " ", &number_of_elements);
-        size_t city_index_1 = get_city_index(cities, &number_of_cities, elements[0]);
-        size_t city_index_2 = get_city_index(cities, &number_of_cities, elements[2]);
-        int distance = atoi(elements[4]);
+        char **tokens;
+        size_t number_of_tokens = 0;
+        size_t city_index_1;
+        size_t city_index_2;
+        int distance;
+        
+        string_split(&tokens, &number_of_tokens, line, " ");
+        city_index_1 = get_city_index(cities, &number_of_cities, tokens[0]);
+        city_index_2 = get_city_index(cities, &number_of_cities, tokens[2]);
+        distance = atoi(tokens[4]);
 
         matrix[city_index_1][city_index_2] = distance;
         matrix[city_index_2][city_index_1] = distance;
+
+        free(tokens);
     }
 
-    sprintf(solution->part_one.result, "%d", hamiltonian_path(matrix, number_of_cities, HP_NONE));
-    solution_part_finalize(&solution->part_one);
-    sprintf(solution->part_two.result, "%d", hamiltonian_path(matrix, number_of_cities, HP_FIND_MAXIMUM_COST));
-    solution_part_finalize(&solution->part_two);
-    solution_finalize(solution);
-    solution_print(solution);
+    sprintf(solution.part_one.result, "%d", hamiltonian_compute(matrix, number_of_cities, HP_NONE));
+    solution_part_finalize(&solution.part_one, "251");
+    sprintf(solution.part_two.result, "%d", hamiltonian_compute(matrix, number_of_cities, HP_FIND_MAXIMUM_COST));
+    solution_part_finalize(&solution.part_two, "898");
+
+    solution_finalize(&solution);
+    solution_print(&solution);
+
+    free(lines);
 
     return 0;
 }

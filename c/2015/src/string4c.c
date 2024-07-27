@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,82 +27,55 @@ bool string_is_numeric(char *str)
     return true;
 }
 
-char **string_split(char *str, char *delimiter, size_t *out_size)
-{
-    if (str == NULL)
-    {
-        fprintf(stderr, "Parameter \"str\" cannot be NULL\n");
-        return NULL;
-    }
-
-    if (strlen(str) == 0)
-    {
-        fprintf(stderr, "Parameter \"str\" cannot be empty\n");
-        return NULL;
-    }
-
-    if (delimiter == NULL)
-    {
-        fprintf(stderr, "Parameter \"delimiter\" cannot be NULL\n");
-        return NULL;
-    }
-
-    if (strlen(delimiter) == 0)
-    {
-        fprintf(stderr, "Parameter \"delimiter\" cannot be empty\n");
-        return NULL;
-    }
-
+void string_split(char ***result, size_t *result_size, char *str, char *delimiter) {
+    char *save_ptr;
+    char *token;
+    size_t capacity = 10;
+    size_t size = 0;
     char *str_copy = strdup(str);
+
     if (str_copy == NULL)
     {
         fprintf(stderr, "Unable to create copy for tokenization\n");
-        return NULL;
+        return;
     }
-
-    size_t capacity = 10;
-    size_t size = 0;
-    char *save_ptr;
 
     char **lines = calloc(capacity, sizeof(char *));
-    if (lines == NULL)
-    {
-        fprintf(stderr, "Unable to allocate memory for lines\n");
+    if (lines == NULL) {
+        fprintf(stderr, "%s:%d: Failed allocating memory for lines: %s\n", __func__, __LINE__, strerror(errno));
         free(str_copy);
-        return NULL;
+        return;
     }
 
-    char *token = strtok_r(str_copy, delimiter, &save_ptr);
+    token = strtok_r(str_copy, delimiter, &save_ptr);
 
-    while (token != NULL)
-    {
-        if (size >= capacity)
-        {
+    while (token != NULL) {
+        if (size >= capacity) {
             capacity += 10;
+            
             char **temp = realloc(lines, capacity * sizeof(char *));
             if (temp == NULL)
             {
-                fprintf(stderr, "Unable to allocate additional memory\n");
+                fprintf(stderr, "%s:%d: Failed allocating additional memory for lines: %s\n", __func__, __LINE__, strerror(errno));
                 free(str_copy);
                 for (size_t i = 0; i < size; ++i)
                 {
                     free(lines[i]);
                 }
                 free(lines);
-                return NULL;
+                return;
             }
+
             lines = temp;
         }
 
-        if (strcmp(token, delimiter) == 0)
-        {
+        if (strcmp(token, delimiter) == 0) {
             token = strtok_r(NULL, delimiter, &save_ptr);
             continue;
         }
 
         lines[size] = strdup(token);
-        if (lines[size] == NULL)
-        {
+        if (lines[size] == NULL) {
             fprintf(stderr, "Unable to allocate memory for token\n");
             free(str_copy);
             for (size_t i = 0; i < size; ++i)
@@ -109,17 +83,17 @@ char **string_split(char *str, char *delimiter, size_t *out_size)
                 free(lines[i]);
             }
             free(lines);
-            return NULL;
+            return;
         }
 
         token = strtok_r(NULL, delimiter, &save_ptr);
         size++;
     }
 
-    free(str_copy);
+    *result = lines;
+    *result_size = size;
 
-    *out_size = size;
-    return lines;
+    free(str_copy);
 }
 
 // Duplicates the given string and trims leading and trailing whitespace. Does not modify the source string.
@@ -371,7 +345,6 @@ size_t string_index_of(char *haystack, char needle) {
     size_t index = (size_t)(first_needle - haystack);
     return index;
 }
-
 char *string_substring(char *str, size_t inclusive_start, size_t exclusive_end)
 {
     if (inclusive_start > strlen(str))
@@ -393,4 +366,24 @@ char *string_substring(char *str, size_t inclusive_start, size_t exclusive_end)
     output[length] = '\0';
 
     return output;
+}
+
+bool string_contains_non_overlapping_pair(const char *str) {
+    size_t length = strlen(str);
+    for(size_t i = 0; i < length; i++) {
+        char pair[3] = { str[i], str[i + 1], '\0' };
+
+        // Search the remainder of the string. The remainder starts at i + 2 because we've already stashed line[i] and line [i+1] in the "pair" variable.
+        for(size_t j = i + 2; j < length; j++) {
+            char next_pair[3] = { str[j], str[j + 1], '\0' };
+            if(strcmp(pair, next_pair) == 0) {
+                if(str[j - 1] == str[j] && str[j] == str[j + 1]) {
+                    printf("i = %zu, j = %zu, pair = %s, next_pair = %s\n", i, j, pair, next_pair);
+                    return false;
+                }
+                return true; 
+            }
+        }
+    }
+    return false;
 }

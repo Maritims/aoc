@@ -10,6 +10,7 @@ typedef struct SolutionPart
     clock_t stop_time;
     double elapsed_seconds;
     char *result;
+    char *expected_result;
 } SolutionPart;
 
 typedef struct Solution
@@ -23,9 +24,9 @@ typedef struct Solution
     SolutionPart part_two;
 } Solution;
 
-Solution *solution_create(uint32_t year, uint32_t day);
+void solution_create(Solution *solution, uint32_t year, uint32_t day);
 
-void solution_part_finalize(SolutionPart *solution_part);
+void solution_part_finalize(SolutionPart *solution_part, char *expected_result);
 
 void solution_finalize(Solution *solution);
 

@@ -400,9 +400,8 @@ GenericObject* parse_object(JsonToken** tokens) {
     return NULL;
 }
 
-GenericValue* json_parse_string(char* str) {
+void json_parse_string(GenericValue **result, char* str) {
     size_t number_of_tokens = 0;
     JsonToken* tokens = lex(str, &number_of_tokens);
-    GenericValue* gv = parse(&tokens, true);
-    return gv;
+    *result = parse(&tokens, true);
 }

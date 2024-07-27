@@ -4,10 +4,10 @@
 #include <string.h>
 
 #include "aoc.h"
-#include "get_file.h"
+#include "file4c.h"
 #include "grid.h"
 #include "point.h"
-#include "testutils.h"
+#include "test4c.h"
 
 typedef struct
 {
@@ -173,7 +173,7 @@ void solve_part_one(char **lines, size_t length, SolutionPart *solution_part)
     light_grid_adjust_brightness(actions, length, 0, &enabled_lights);
 
     sprintf(solution_part->result, "%zu", enabled_lights);
-    solution_part_finalize(solution_part);
+    solution_part_finalize(solution_part, "377891");
 }
 
 void solve_part_two(char **lines, size_t length, SolutionPart *solution_part)
@@ -183,7 +183,7 @@ void solve_part_two(char **lines, size_t length, SolutionPart *solution_part)
     light_grid_adjust_brightness(actions, length, 1, &total_brightness);
 
     sprintf(solution_part->result, "%zu", total_brightness);
-    solution_part_finalize(solution_part);
+    solution_part_finalize(solution_part, "14110788");
 }
 
 void test_light_grid_adjust_brightness(TestResults *test_results, Action action, uint32_t is_dimmable, uint64_t expectation)
@@ -260,16 +260,20 @@ int main(int argc, char *argv[])
 {
     test();
 
-    Solution *solution = solution_create(2015, 6);
+    Solution solution;
+    char **lines;
+    size_t number_of_lines;
 
-    size_t length;
-    char **lines = get_file_as_lines(argv[1], &length);
+    solution_create(&solution, 2015, 6);
+    file_read_all_lines(&lines, &number_of_lines, argv[1]);
 
-    solve_part_one(lines, length, &(solution->part_one));
-    solve_part_two(lines, length, &(solution->part_two));
+    solve_part_one(lines, number_of_lines, &(solution.part_one));
+    solve_part_two(lines, number_of_lines, &(solution.part_two));
 
-    solution_finalize(solution);
-    solution_print(solution);
+    solution_finalize(&solution);
+    solution_print(&solution);
+
+    free(lines);
 
     return 0;
 }

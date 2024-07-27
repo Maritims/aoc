@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "aoc.h"
-#include "get_file.h"
+#include "file4c.h"
 #include "math4c.h"
 
 typedef struct RightRectangularPrism
@@ -63,7 +63,7 @@ void solve_part_one(char **lines, size_t length, SolutionPart *solution_part)
 	}
 
 	sprintf(solution_part->result, "%d", total_area);
-	solution_part_finalize(solution_part);
+	solution_part_finalize(solution_part, "1588178");
 }
 
 void solve_part_two(char **lines, size_t length, SolutionPart *solution_part)
@@ -81,21 +81,25 @@ void solve_part_two(char **lines, size_t length, SolutionPart *solution_part)
 	}
 
 	sprintf(solution_part->result, "%d", total_ribbon_length);
-	solution_part_finalize(solution_part);
+	solution_part_finalize(solution_part, "3783758");
 }
 
 int main(int argc, char *argv[])
 {
-	Solution *solution = solution_create(2015, 2);
+    Solution solution;
+    size_t number_of_lines = 0;
+    char **lines;
 
-	size_t length = 0;
-	char **lines = get_file_as_lines(argv[1], &length);
+	solution_create(&solution, 2015, 2);
+    file_read_all_lines(&lines, &number_of_lines, argv[1]);
 
-	solve_part_one(lines, length, &(solution->part_one));
-	solve_part_two(lines, length, &(solution->part_two));
+	solve_part_one(lines, number_of_lines, &(solution.part_one));
+	solve_part_two(lines, number_of_lines, &(solution.part_two));
 
-	solution_finalize(solution);
-	solution_print(solution);
+	solution_finalize(&solution);
+	solution_print(&solution);
+
+    free(lines);
 
 	return 0;
 }

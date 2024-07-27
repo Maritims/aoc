@@ -1,10 +1,9 @@
-#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "testutils.h"
+#include "test4c.h"
 #include "bitutils.h"
 #include "maritims_md5.h"
 
@@ -60,6 +59,32 @@ void test_digest(TestResults *testResults)
 			testResults->succeeded++;
 			free(output);
 		}
+		else
+		{
+			printf("Not OK. Expected ");//%x but got %x\n", testCases[i].expectedResult, output);
+			for(uint32_t j = 0; j < 16; j++) {
+				printf("%02x", testCases[i].expectedResult[j]);
+			}
+			printf(" but got ");
+			for(uint32_t j = 0; j < 16; j++) {
+				printf("%02x", output[j]);
+			}
+			printf("\n");
+			testResults->failed++;
+			free(output);
+			return;
+		}
+	}
+}
+
+void test_md5_digest(const char *str, uint8_t expected_result[16]) {
+    uint8_t *output = md5_digest(str);
+	if (memcmp(output, expected_result, 16) == 0)
+	{
+		printf("%s(\"%s\") passed\n", __func__, str);
+        free(output);
+        return;
+    }
 		else
 		{
 			printf("Not OK. Expected ");//%x but got %x\n", testCases[i].expectedResult, output);

@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "aoc.h"
-#include "get_file.h"
+#include "file4c.h"
 #include "string4c.h"
 
 typedef struct Reindeer {
@@ -48,15 +48,21 @@ int compare_by_points_desc(const void *a, const void *b) {
 }
 
 int main(int argc, char *argv[]) {
-    Solution *solution = solution_create(2015, 14);
+    Solution solution;
+    char **lines;
     size_t number_of_lines = 0;
-    char **lines = get_file_as_lines(argv[1], &number_of_lines);
+
+    solution_create(&solution, 2015, 14);
+    file_read_all_lines(&lines, &number_of_lines, argv[1]);
 
     Reindeer reindeer[number_of_lines];
     for(size_t i = 0; i < number_of_lines; i++) {
         char *line = lines[i];
+        char **tokens;
         size_t number_of_tokens = 0;
-        char **tokens = string_split(line, " ", &number_of_tokens);
+
+        string_split(&tokens, &number_of_tokens, line, " ");
+
         reindeer[i] = (Reindeer){
             .name = tokens[0],
             .velocity_in_kps = atoi(tokens[3]),
@@ -102,15 +108,17 @@ int main(int argc, char *argv[]) {
     }
 
     qsort(reindeer, number_of_lines, sizeof(Reindeer), compare_by_travelled_distance_desc);
-    sprintf(solution->part_one.result, "%d", reindeer[0].travelled_distance);
-    solution_part_finalize(&solution->part_one);
+    sprintf(solution.part_one.result, "%d", reindeer[0].travelled_distance);
+    solution_part_finalize(&solution.part_one, "2640");
 
     qsort(reindeer, number_of_lines, sizeof(Reindeer), compare_by_points_desc);
-    sprintf(solution->part_two.result, "%d", reindeer[0].points);
-    solution_part_finalize(&solution->part_two);
+    sprintf(solution.part_two.result, "%d", reindeer[0].points);
+    solution_part_finalize(&solution.part_two, "1102");
 
-    solution_finalize(solution);
-    solution_print(solution);
+    solution_finalize(&solution);
+    solution_print(&solution);
+
+    free(lines);
 
     return 0;
 }
