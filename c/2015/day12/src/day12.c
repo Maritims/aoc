@@ -56,16 +56,13 @@ int main(int argc, char* argv[]) {
     json_parse_string(&gv, file_content);
 
     sum = traverse(gv, &sum, NULL);
-    sprintf(solution.part_one.result, "%d", sum);
-    solution_part_finalize(&solution.part_one, "191164");
+    solution_part_finalize_with_int(&solution, 0, sum, "191164");
 
     sum = 0;
     sum = traverse(gv, &sum, &is_red);
-    sprintf(solution.part_two.result, "%d", sum);
-    solution_part_finalize(&solution.part_two, "87842");
+    solution_part_finalize_with_int(&solution, 1, sum, "87842");
 
-    solution_finalize(&solution);
-    solution_print(&solution);
+    free(gv);
 
-    return 0;
+    return solution_finalize(&solution);
 }

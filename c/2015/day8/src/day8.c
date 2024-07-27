@@ -39,13 +39,10 @@ int main(int argc, char *argv[]) {
         free(escaped_line);
     }
 
-    sprintf(solution.part_one.result, "%zu", total_for_part_one);
-    solution_part_finalize(&solution.part_one, "1333");
-    sprintf(solution.part_two.result, "%zu", total_for_part_two);
-    solution_part_finalize(&solution.part_two, "2046");
-
-    solution_finalize(&solution);
-    solution_print(&solution);
+    solution_part_finalize_with_int(&solution, 0, total_for_part_one, "1333");
+    solution_part_finalize_with_int(&solution, 1, total_for_part_two, "2046");
 
     free(lines);
+    
+    return solution_finalize(&solution);
 }

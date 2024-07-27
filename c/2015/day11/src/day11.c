@@ -5,6 +5,7 @@
 
 #include "aoc.h"
 #include "file4c.h"
+#include "string4c.h"
 #include "test4c.h"
 
 // Increment password.
@@ -41,20 +42,6 @@ char *increment_password(char *password) {
     return new_password;
 }
 
-bool has_straight_of_three(char *password) {
-    int length = strlen(password);
-    for(int i = 0; i < length - 2; i++) {
-        if(password[i] == password[i + 1] - 1 && password[i] == password[i + 2] - 2) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool has_illegal_character(char *password) {
-    return strchr(password, 'i') || strchr(password, 'l') || strchr(password, 'o');
-}
-
 bool has_two_different_non_overlapping_pairs(char *password) {
     int length = strlen(password);
     for(int i = 0; i < length - 1; i++) {
@@ -70,22 +57,15 @@ bool has_two_different_non_overlapping_pairs(char *password) {
 }
 
 char *create_secure_password(char *password) {
+    char illegal_characters[4] = { 'i', 'l', 'o', '\0' };
     bool is_secure = false;
     while(!is_secure) {
         char *new_password = increment_password(password);
         //free(password);
         password = new_password;
-        is_secure = has_straight_of_three(password) && !has_illegal_character(password) && has_two_different_non_overlapping_pairs(password);
+        is_secure = string_has_straight_of_n(password, 3) && !string_has_any_needle(password, illegal_characters, 3) && has_two_different_non_overlapping_pairs(password);
     }
     return password;
-}
-
-void test_has_straight_of_three(char *password, bool expected_result) {
-    test_string_boolean(__func__, password, expected_result, &has_straight_of_three);
-}
-
-void test_has_illegal_character(char *password, bool expected_result) {
-    test_string_boolean(__func__, password, expected_result, &has_illegal_character);
 }
 
 void test_has_two_different_non_overlapping_pairs(char *password, bool expected_result) {
@@ -97,11 +77,6 @@ void test_create_secure_password(char *password, char *expected_result) {
 }
 
 int main(int argc, char* argv[]) {
-    test_has_straight_of_three("hijklmmn", true);
-    test_has_straight_of_three("abbceffg", false);
-    test_has_straight_of_three("abcdffaa", true);
-    test_has_straight_of_three("ghjaabcc", true);
-    test_has_illegal_character("hijklmmn", true);
     test_has_two_different_non_overlapping_pairs("abbceffg", true);
     test_has_two_different_non_overlapping_pairs("abbcegjk", false);
     test_has_two_different_non_overlapping_pairs("abcdffaa", true);
@@ -115,17 +90,12 @@ int main(int argc, char* argv[]) {
     file_read_all_text(&password, argv[1]);
 
     password = create_secure_password(password);
-    sprintf(solution.part_one.result, "%s", password);
-    solution_part_finalize(&solution.part_one, "hepxxyzz");
+    solution_part_finalize_with_str(&solution, 0, password, "hepxxyzz");
     
     password = create_secure_password(password);
-    sprintf(solution.part_two.result, "%s", password);
-    solution_part_finalize(&solution.part_two, "heqaabcc");
-
-    solution_finalize(&solution);
-    solution_print(&solution);
+    solution_part_finalize_with_str(&solution, 1, password, "heqaabcc");
 
     free(password);
     
-    return 0;
+    return solution_finalize(&solution);
 }

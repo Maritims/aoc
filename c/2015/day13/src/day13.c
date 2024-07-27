@@ -5,8 +5,8 @@
 #include <string.h>
 
 #include "aoc.h"
-#include "combinatorics4c.h"
 #include "file4c.h"
+#include "math4c.h"
 #include "string4c.h"
 
 void calculate_happiness(int *result, char **lines, size_t number_of_lines, bool include_yourself) {
@@ -39,7 +39,6 @@ void calculate_happiness(int *result, char **lines, size_t number_of_lines, bool
     if(include_yourself) {
         for(int i = 0; i < number_of_main_ids; i++) {
             int actual_i = id_map[i];
-            printf("%d = %d\n", i, actual_i);
             map[actual_i][24] = 0;
             map[24][actual_i] = 0;
         }
@@ -49,7 +48,7 @@ void calculate_happiness(int *result, char **lines, size_t number_of_lines, bool
     }
 
     uint64_t *number_of_permutations = malloc(sizeof(uint64_t));
-    int **permutations = combinatorics_permutations_compute_int(number_of_main_ids, &number_of_permutations);
+    int **permutations = math_permutations_compute_int(number_of_main_ids, &number_of_permutations);
     if(permutations == NULL) {
         fprintf(stderr, "%s:%d: Failed to generate permutations\n", __func__, __LINE__);
         return;
@@ -96,17 +95,12 @@ int main(int argc, char *argv[]) {
     file_read_all_lines(&lines, &number_of_lines, argv[1]);
 
     calculate_happiness(&part_one, lines, number_of_lines, false);
-    sprintf(solution.part_one.result, "%d", part_one);
-    solution_part_finalize(&solution.part_one, "664");
+    solution_part_finalize_with_int(&solution, 0, part_one, "664");
 
     calculate_happiness(&part_two, lines, number_of_lines, true);
-    sprintf(solution.part_two.result, "%d", part_two);
-    solution_part_finalize(&solution.part_two, "640");
-
-    solution_finalize(&solution);
-    solution_print(&solution);
+    solution_part_finalize_with_int(&solution, 1, part_two, "640");
 
     free(lines);
-
-    return 0;
+    
+    return solution_finalize(&solution);
 }

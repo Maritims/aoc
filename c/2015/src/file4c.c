@@ -7,8 +7,6 @@
 #include "file4c.h"
 #include "string4c.h"
 
-#define DEBUG 1
-
 /**
  * file_read_all_text: Reads all the content of the file into a string.
  * @param result: The resulting string.
@@ -29,7 +27,7 @@ void file_read_all_text(char **result, char *filename) {
 	
 	fseek(file_ptr, 0, SEEK_END);
 	long file_size = ftell(file_ptr);
-    #ifdef DEBUG
+    #ifdef NDEBUG
     printf("%s:%d: Reading %ld bytes from %s\n", __func__, __LINE__, file_size, filename);
     #endif
 	fseek(file_ptr, 0, SEEK_SET);

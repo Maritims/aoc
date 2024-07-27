@@ -8,8 +8,6 @@ typedef enum COMBINATORICS_RESULT {
     COMBINATORICS_FAILURE
 } COMBINATORICS_RESULT;
 
-uint64_t *combinatorics_factorial_compute(int n);
-
 int **combinatorics_permutations_compute_int(int n, uint64_t **number_of_permutations);
 
 #endif

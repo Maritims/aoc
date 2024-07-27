@@ -6,7 +6,7 @@
 #include "file4c.h"
 #include "maritims_md5.h"
 
-void solve_part_one(char *file_content, SolutionPart *solution_part)
+void solve_part_one(char *file_content, Solution *solution)
 {
     uint32_t number = 0;
     uint32_t first_three_bytes = 0xFFFFFFFF;
@@ -20,11 +20,10 @@ void solve_part_one(char *file_content, SolutionPart *solution_part)
                             ((uint32_t)md5_hash[2] << 8);
     }
 
-    sprintf(solution_part->result, "%d", number);
-    solution_part_finalize(solution_part, "282749");
+    solution_part_finalize_with_int(solution, 0, number, "282749");
 }
 
-void solve_part_two(char *file_content, SolutionPart *solution_part)
+void solve_part_two(char *file_content, Solution *solution)
 {
     uint32_t number = 0;
     uint32_t first_three_bytes = 0xFFFFFFFF;
@@ -38,8 +37,7 @@ void solve_part_two(char *file_content, SolutionPart *solution_part)
                             ((uint32_t)md5_hash[2] << 8);
     }
 
-    sprintf(solution_part->result, "%d", number);
-    solution_part_finalize(solution_part, "9962624");
+    solution_part_finalize_with_int(solution, 1, number, "9962624");
 }
 
 int main(int argc, char *argv[])
@@ -50,11 +48,8 @@ int main(int argc, char *argv[])
     solution_create(&solution, 2015, 4);
     file_read_all_text(&file_content, argv[1]);
 
-    solve_part_one(file_content, &(solution.part_one));
-    solve_part_two(file_content, &(solution.part_two));
+    solve_part_one(file_content, &solution);
+    solve_part_two(file_content, &solution);
 
-    solution_finalize(&solution);
-    solution_print(&solution);
-
-    return 0;
+    return solution_finalize(&solution);
 }

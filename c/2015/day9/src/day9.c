@@ -5,7 +5,6 @@
 
 #include "aoc.h"
 #include "file4c.h"
-#include "hashset.h"
 #include "string4c.h"
 #include "hamiltonian.h"
 
@@ -75,15 +74,10 @@ int main(int argc, char *argv[]) {
         free(tokens);
     }
 
-    sprintf(solution.part_one.result, "%d", hamiltonian_compute(matrix, number_of_cities, HP_NONE));
-    solution_part_finalize(&solution.part_one, "251");
-    sprintf(solution.part_two.result, "%d", hamiltonian_compute(matrix, number_of_cities, HP_FIND_MAXIMUM_COST));
-    solution_part_finalize(&solution.part_two, "898");
-
-    solution_finalize(&solution);
-    solution_print(&solution);
+    solution_part_finalize_with_int(&solution, 0, hamiltonian_compute(matrix, number_of_cities, HP_NONE), "251");
+    solution_part_finalize_with_int(&solution, 1, hamiltonian_compute(matrix, number_of_cities, HP_FIND_MAXIMUM_COST), "898");
 
     free(lines);
-
-    return 0;
+    
+    return solution_finalize(&solution);
 }

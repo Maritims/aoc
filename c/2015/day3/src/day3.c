@@ -45,7 +45,7 @@ void visit(HashTable *visited, Point2D *visitor)
     }
 }
 
-void solve_part_one(char *instructions, SolutionPart *solution_part)
+void solve_part_one(char *instructions, Solution *solution)
 {
     HashTable *visited = hashtable_create(10);
     if(visited == NULL)
@@ -64,11 +64,10 @@ void solve_part_one(char *instructions, SolutionPart *solution_part)
         instruction_number++;
     }
 
-    sprintf(solution_part->result, "%zu", visited->size);
-    solution_part_finalize(solution_part, "2592");
+    solution_part_finalize_with_int(solution, 0, visited->size, "2592");
 }
 
-void solve_part_two(char *instructions, SolutionPart *solution_part)
+void solve_part_two(char *instructions, Solution *solution)
 {
     HashTable *visited = hashtable_create(10);
     if(visited == NULL)
@@ -90,8 +89,7 @@ void solve_part_two(char *instructions, SolutionPart *solution_part)
         instruction_number++;
     }
 
-    sprintf(solution_part->result, "%zu", visited->size);
-    solution_part_finalize(solution_part, "2360");
+    solution_part_finalize_with_int(solution, 1, visited->size, "2360");
 }
 
 int main(int argc, char *argv[])
@@ -104,12 +102,9 @@ int main(int argc, char *argv[])
     file_read_all_text(&instructions, argv[1]);
     tmp = instructions;
 
-    solve_part_one(instructions, &(solution.part_one));
+    solve_part_one(instructions, &solution);
     instructions = tmp;
-    solve_part_two(instructions, &(solution.part_two));
+    solve_part_two(instructions, &solution);
 
-    solution_finalize(&solution);
-    solution_print(&solution);
-
-    return 0;
+    return solution_finalize(&solution);
 }

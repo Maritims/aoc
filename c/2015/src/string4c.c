@@ -378,11 +378,32 @@ bool string_contains_non_overlapping_pair(const char *str) {
             char next_pair[3] = { str[j], str[j + 1], '\0' };
             if(strcmp(pair, next_pair) == 0) {
                 if(str[j - 1] == str[j] && str[j] == str[j + 1]) {
-                    printf("i = %zu, j = %zu, pair = %s, next_pair = %s\n", i, j, pair, next_pair);
                     return false;
                 }
                 return true; 
             }
+        }
+    }
+    return false;
+}
+
+bool string_has_straight_of_n(const char *str, int n) {
+    size_t length = strlen(str);
+
+    for(size_t i = 0; i < length - 2; i++) {
+        if(str[i] == str[i + 1] - 1 && str[i] == str[i + 2] - 2) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool string_has_any_needle(const char *str, char *needles, size_t number_of_needles) {
+    for(size_t i = 0; i < number_of_needles; i++) {
+        char needle = needles[i];
+        if(strchr(str, needle)) {
+            return true;
         }
     }
     return false;

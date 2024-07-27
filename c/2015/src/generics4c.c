@@ -1,4 +1,3 @@
-#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -124,8 +123,6 @@ void generic_add_to_object(GenericObject* generic_object, const char* key, Gener
     }
 
     if (generic_object->size >= generic_object->capacity) {
-        printf("Size %zu exceeds capacity %zu\n", generic_object->size, generic_object->capacity);
-
         generic_object->capacity *= 2;
         generic_object->pairs = realloc(generic_object->pairs, generic_object->capacity * sizeof(KeyValuePair*));
         if(generic_object->pairs == NULL) {

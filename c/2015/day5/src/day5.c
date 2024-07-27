@@ -130,26 +130,24 @@ uint32_t is_nice_line_in_part_two(const char *line)
     return 1;
 }
 
-void solve_part_one(char **lines, size_t length, SolutionPart *solution_part)
+void solve_part_one(char **lines, size_t length, Solution *solution)
 {
     int nice_lines = 0;
     for(int i = 0; i < length; i++)
     {
         nice_lines += is_nice_line_in_part_one(lines[i]);
     }
-    sprintf(solution_part->result, "%d", nice_lines);
-    solution_part_finalize(solution_part, "258");
+    solution_part_finalize_with_int(solution, 0, nice_lines, "258");
 }
 
-void solve_part_two(char **lines, size_t length, SolutionPart *solution_part)
+void solve_part_two(char **lines, size_t length, Solution *solution)
 {
     int nice_lines = 0;
     for(int i = 0; i < length; i++)
     {
         nice_lines += is_nice_line_in_part_two(lines[i]);
     }
-    sprintf(solution_part->result, "%d", nice_lines);
-    solution_part_finalize(solution_part, "53");
+    solution_part_finalize_with_int(solution, 1, nice_lines, "53");
 }
 
 void test_is_nice_line_in_part_two(TestResults *test_results, const char *str, int expectation)
@@ -176,8 +174,7 @@ void test()
     printf("%d tests were executed, %d tests succeeded, %d tests failed.\n", test_results.total, test_results.succeeded, test_results.total - test_results.succeeded);
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     test();
 
     Solution solution;
@@ -187,11 +184,8 @@ int main(int argc, char *argv[])
     solution_create(&solution, 2015, 5);
     file_read_all_lines(&lines, &length, argv[1]);
 
-    solve_part_one(lines, length, &(solution.part_one));
-    solve_part_two(lines, length, &(solution.part_two));
+    solve_part_one(lines, length, &solution);
+    solve_part_two(lines, length, &solution);
 
-    solution_finalize(&solution);
-    solution_print(&solution);
-
-    return 0;
+    return solution_finalize(&solution);
 }

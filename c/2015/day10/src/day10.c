@@ -61,8 +61,7 @@ int main(int argc, char* argv[]) {
     for(int i = 0; i < 50; i++)
     {
         if(i == 40) {
-            sprintf(solution.part_one.result, "%zu", strlen(file_content));
-            solution_part_finalize(&solution.part_one, "360154");
+            solution_part_finalize_with_ui(&solution, 0, strlen(file_content), "360154");
         }
 
         char *next_sequence = look_and_say(file_content);
@@ -70,13 +69,9 @@ int main(int argc, char* argv[]) {
         free(file_content);
         file_content = next_sequence;
     }
-    sprintf(solution.part_two.result, "%zu", strlen(file_content));
-    solution_part_finalize(&solution.part_two, "5103798");
-
-    solution_finalize(&solution);
-    solution_print(&solution);
+    solution_part_finalize_with_ui(&solution, 1, strlen(file_content), "5103798");
 
     free(file_content);
 
-    return 0;
+    return solution_finalize(&solution);
 }

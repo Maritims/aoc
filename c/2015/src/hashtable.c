@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "debug.h"
 #include "fnv.h"
 #include "hashtable.h"
 

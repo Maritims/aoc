@@ -32,4 +32,8 @@ char *string_substring(char *str, size_t inclusive_start, size_t exclusive_end);
 
 bool string_contains_non_overlapping_pair(const char *str);
 
+bool string_has_straight_of_n(const char *str, int n);
+
+bool string_has_any_needle(const char *str, char *needles, size_t number_of_needles);
+
 #endif

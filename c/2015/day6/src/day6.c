@@ -73,13 +73,17 @@ int action_compare(Action *a, Action *b)
     return 0;
 }
 
-char *action_to_string(Action *action)
+void action_to_string(char *result, Action action)
 {
-    char *output = calloc(100, sizeof(char));
-    sprintf(output, "{operation=%s, ", action->operation);
-    sprintf(output + strlen(output), "starting_point=%s, ", point_to_string(&action->starting_point));
-    sprintf(output + strlen(output), "stopping_point=%s}", point_to_string(&action->stopping_point));
-    return output;
+    char starting_point_str[1024];
+    char stopping_point_str[1024];
+
+    point_to_string(starting_point_str, action.starting_point);
+    point_to_string(stopping_point_str, action.stopping_point);
+
+    sprintf(result, "{operation=%s, ", action.operation);
+    sprintf(result + strlen(result), "starting_point=%s, ", starting_point_str);
+    sprintf(result + strlen(result), "stopping_point=%s}", stopping_point_str);
 }
 
 Action **actions_parse(char **lines, size_t length)
@@ -166,24 +170,20 @@ void light_grid_adjust_brightness(Action **actions, size_t number_of_action, uin
     }
 }
 
-void solve_part_one(char **lines, size_t length, SolutionPart *solution_part)
+void solve_part_one(char **lines, size_t length, Solution *solution)
 {
     Action **actions = actions_parse(lines, length);   
     size_t enabled_lights = 0;
     light_grid_adjust_brightness(actions, length, 0, &enabled_lights);
-
-    sprintf(solution_part->result, "%zu", enabled_lights);
-    solution_part_finalize(solution_part, "377891");
+    solution_part_finalize_with_int(solution, 0, enabled_lights, "377891");
 }
 
-void solve_part_two(char **lines, size_t length, SolutionPart *solution_part)
+void solve_part_two(char **lines, size_t length, Solution *solution)
 {
     Action **actions = actions_parse(lines, length);
     size_t total_brightness = 0;
     light_grid_adjust_brightness(actions, length, 1, &total_brightness);
-
-    sprintf(solution_part->result, "%zu", total_brightness);
-    solution_part_finalize(solution_part, "14110788");
+    solution_part_finalize_with_int(solution, 1, total_brightness, "14110788");
 }
 
 void test_light_grid_adjust_brightness(TestResults *test_results, Action action, uint32_t is_dimmable, uint64_t expectation)
@@ -197,7 +197,10 @@ void test_light_grid_adjust_brightness(TestResults *test_results, Action action,
     test_results->total++;
     test_results->succeeded += success;
 
-    printf("%s(%s, %d, %d): %s\n", __func__, action_to_string(&action), is_dimmable, expectation, success ? "OK" : "Not OK");
+    char action_str[1024];
+    action_to_string(action_str, action);
+
+    printf("%s(%s, %d, %lu): %s\n", __func__, action_str, is_dimmable, expectation, success ? "OK" : "Not OK");
     free(actions);
 }
 
@@ -213,7 +216,10 @@ void test_action_parse(TestResults *test_results, char *line, Action expectation
     test_results->total++;
     test_results->succeeded += success;
 
-    printf("%s(%s, %s): %s\n", __func__, line, action_to_string(&action), success ? "OK" : "Not OK");
+    char action_str[1024];
+    action_to_string(action_str, action);
+
+    printf("%s(%s, %s): %s\n", __func__, line, action_str, success ? "OK" : "Not OK");
 }
 
 void test_action_compare(TestResults *test_results, Action *a, Action *b, int expectation)
@@ -222,7 +228,12 @@ void test_action_compare(TestResults *test_results, Action *a, Action *b, int ex
     test_results->total++;
     test_results->succeeded += success;
 
-    printf("%s(%s, %s, %d): %s\n", __func__, action_to_string(a), action_to_string(b), expectation, success ? "OK" : "Not OK");
+    char action_a_str[1024];
+    char action_b_str[1024];
+    action_to_string(action_a_str, *a);
+    action_to_string(action_b_str, *b);
+
+    printf("%s(%s, %s, %d): %s\n", __func__, action_a_str, action_b_str, expectation, success ? "OK" : "Not OK");
 }
 
 void test()
@@ -267,13 +278,10 @@ int main(int argc, char *argv[])
     solution_create(&solution, 2015, 6);
     file_read_all_lines(&lines, &number_of_lines, argv[1]);
 
-    solve_part_one(lines, number_of_lines, &(solution.part_one));
-    solve_part_two(lines, number_of_lines, &(solution.part_two));
-
-    solution_finalize(&solution);
-    solution_print(&solution);
+    solve_part_one(lines, number_of_lines, &solution);
+    solve_part_two(lines, number_of_lines, &solution);
 
     free(lines);
-
-    return 0;
+    
+    return solution_finalize(&solution);
 }

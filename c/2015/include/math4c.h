@@ -4,15 +4,17 @@
 #include <gmp.h>
 #include <stdint.h>
 
-int math_min(int a, int b);
+void math_binomial_coefficient(uint64_t *result, int n, int k);
 
-int math_max(int a, int b);
+int math_divide_and_round_up(int dividend, int divisor);
 
 void math_factorial(mpz_t *result, int n);
 
-void math_binomial_coefficient(uint64_t *result, int n, int k);
+int math_max(int a, int b);
 
-int divide_and_round_up(int dividend, int divisor);
+int math_min(int a, int b);
+
+int **math_permutations_compute_int(int n, uint64_t **number_of_permutations);
 
 void math_stars_and_bars(uint64_t *result, int n, int k);
 

@@ -8,7 +8,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_BUILD_TYPE Debug)
-find_package(OpenSSL REQUIRED)
 
 function(add_aoc_library lib_name)
     add_library(${lib_name})
@@ -25,9 +24,6 @@ target_sources(aoc PUBLIC src/file4c.c)
 add_aoc_library(array)
 target_sources(array PRIVATE ${PROJECT_SOURCE_DIR}/src/array.c)
 
-add_aoc_library(bitutils)
-target_sources(bitutils PRIVATE ${PROJECT_SOURCE_DIR}/src/bitutils.c)
-
 add_aoc_library(math4c)
 target_sources(math4c PRIVATE ${PROJECT_SOURCE_DIR}/src/math4c.c)
 target_link_libraries(math4c gmp)
@@ -40,7 +36,6 @@ target_sources(test4c PRIVATE ${PROJECT_SOURCE_DIR}/src/test4c.c)
 
 add_aoc_library(maritims_md5)
 target_sources(maritims_md5 PRIVATE ${PROJECT_SOURCE_DIR}/src/maritims_md5.c)
-target_link_libraries(maritims_md5 bitutils math4c)
 
 add_aoc_library(hashset)
 target_sources(hashset PRIVATE ${PROJECT_SOURCE_DIR}/src/fnv.c ${PROJECT_SOURCE_DIR}/src/hashset.c)
@@ -68,9 +63,19 @@ add_aoc_library(combinatorics4c)
 target_sources(combinatorics4c PRIVATE src/combinatorics4c.c)
 
 # Enable testing
+add_executable(test_hashtable tests/test_hashtable.c src/fnv.c src/hashtable.c)
+target_include_directories(test_hashtable PRIVATE include)
+
 add_executable(test_json4c tests/test_json4c.c src/json4c.c)
 target_include_directories(test_json4c PRIVATE include)
 target_link_libraries(test_json4c generics4c hashtable string4c)
+
+add_executable(test_maritims_md5 tests/test_maritims_md5.c src/maritims_md5.c)
+target_include_directories(test_maritims_md5 PRIVATE include)
+target_link_libraries(test_maritims_md5 m)
+
+add_executable(test_point tests/test_point.c src/point.c)
+target_include_directories(test_point PRIVATE include)
 
 add_executable(test_string4c tests/test_string4c.c src/string4c.c)
 target_include_directories(test_string4c PRIVATE include)
@@ -78,7 +83,10 @@ target_include_directories(test_string4c PRIVATE include)
 enable_testing()
 
 # Add test cases
+add_test(NAME HashtableTest COMMAND test_hashtable)
 add_test(NAME Json4cTest COMMAND test_json4c)
+add_test(NAME MaritimsMD5Test COMMAND test_maritims_md5)
+add_test(NAME PointTest COMMAND test_point)
 add_test(NAME String4cTest COMMAND test_string4c)
 
 add_subdirectory(day1)

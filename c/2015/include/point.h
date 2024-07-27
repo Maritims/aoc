@@ -1,9 +1,6 @@
 #ifndef POINT
 #define POINT
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 typedef struct
 {
@@ -11,5 +8,5 @@ typedef struct
     long y;
 } Point;
 
-char *point_to_string(Point *point);
+void point_to_string(char *result, Point point);
 #endif

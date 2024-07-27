@@ -89,22 +89,17 @@ int main(int argc, char *argv[])
     }
 
     uint16_t value = resolve(table, "a", cache);
-    sprintf(solution.part_one.result, "%u", value);
-    solution_part_finalize(&solution.part_one, "16076");
+    solution_part_finalize_with_int(&solution, 0, value, "16076");
 
-    HashTableEntry *entry = hashtable_put(table, "b", solution.part_one.result, strlen(solution.part_one.result), 0);
+    HashTableEntry *entry = hashtable_put(table, "b", solution.parts[0].result, strlen(solution.parts[0].result), 0);
     hashtable_destroy(cache);
     cache = hashtable_create(number_of_lines);
     value = resolve(table, "a", cache);
-    sprintf(solution.part_two.result, "%u", value);
-    solution_part_finalize(&solution.part_two, "2797");
-
-    solution_finalize(&solution);
-    solution_print(&solution);
+    solution_part_finalize_with_int(&solution, 1, value, "2797");
 
     free(lines);
     hashtable_destroy(table);
     hashtable_destroy(cache);
 
-    return 0;
+    return solution_finalize(&solution);
 }

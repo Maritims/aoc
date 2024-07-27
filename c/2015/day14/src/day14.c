@@ -108,17 +108,12 @@ int main(int argc, char *argv[]) {
     }
 
     qsort(reindeer, number_of_lines, sizeof(Reindeer), compare_by_travelled_distance_desc);
-    sprintf(solution.part_one.result, "%d", reindeer[0].travelled_distance);
-    solution_part_finalize(&solution.part_one, "2640");
+    solution_part_finalize_with_int(&solution, 0, reindeer[0].travelled_distance, "2640");
 
     qsort(reindeer, number_of_lines, sizeof(Reindeer), compare_by_points_desc);
-    sprintf(solution.part_two.result, "%d", reindeer[0].points);
-    solution_part_finalize(&solution.part_two, "1102");
-
-    solution_finalize(&solution);
-    solution_print(&solution);
+    solution_part_finalize_with_int(&solution, 1, reindeer[0].points, "1102");
 
     free(lines);
 
-    return 0;
+    return solution_finalize(&solution);
 }

@@ -188,17 +188,12 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    sprintf(solution.part_one.result, "%lu", highest_cookie_score);
-    solution_part_finalize(&solution.part_one, "222870");
+    solution_part_finalize_with_ui(&solution, 0, highest_cookie_score, "222870");
+    solution_part_finalize_with_ui(&solution, 1, highest_cookie_score_in_part_two, "117936");
 
-    sprintf(solution.part_two.result, "%lu", highest_cookie_score_in_part_two);
-    solution_part_finalize(&solution.part_two, "117936");
-
-    solution_finalize(&solution);
-    solution_print(&solution);
 
     free(set);
     free(sets);
 
-    return 0;
+    return solution_finalize(&solution);
 }
