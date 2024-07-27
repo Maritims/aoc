@@ -1,26 +1,19 @@
 #include <stdio.h>
 
 #include "aoc.h"
+#include "file4c.h"
 
 int main(int argc, char *argv[]) {
-    Solution *solution = solution_create(2015, X);
+    Solution solution;
+    char *file_content;
+    int part_one;
+    int part_two;
+    
+    solution_create(&solution, 2015, X);
+    file_read_all_text(&file_content, argv[1]);
 
-    /*
-     * Solve part 1
-     * char *part_one = ...;
-     * sprintf(solution->part_one.result, "%s", part_one);
-     */
-    solution_part_finalize(&solution->part_one);
+    solution_part_finalize_with_int(&solution, 0, part_one, "");
+    solution_part_finalize_with_int(&solution, 1, part_two, "");
 
-    /* 
-     * Solve part 2
-     * char *part_two = ...;
-     * sprintf(solution->part_two.result, "%s", part_two);
-     */
-    solution_part_finalize(&solution->part_two);
-
-    solution_finalize(solution);
-    solution_print(solution);
-
-    return 0;
+    return solution_finalize(&solution);
 }

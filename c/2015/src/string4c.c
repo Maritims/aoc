@@ -345,27 +345,26 @@ size_t string_index_of(char *haystack, char needle) {
     size_t index = (size_t)(first_needle - haystack);
     return index;
 }
-char *string_substring(char *str, size_t inclusive_start, size_t exclusive_end)
+
+void string_substring(char **result, char *str, size_t inclusive_start, size_t exclusive_end)
 {
     if (inclusive_start > strlen(str))
     {
         fprintf(stderr, "The starting position %zu exceeds the length %zu of the input string \"%s\"\n", inclusive_start, exclusive_end, str);
-        return NULL;
+        return;
     }
 
     size_t length = exclusive_end - inclusive_start;
 
-    char *output = malloc(length + 1);
-    if (output == NULL)
+    *result = malloc(length + 1);
+    if (*result == NULL)
     {
-        fprintf(stderr, "Unable to allocate memory for output\n");
-        return NULL;
+        fprintf(stderr, "%s:%d: Failed allopcating memory for result: %s\n", __func__, __LINE__, strerror(errno));
+        return;
     }
 
-    strncpy(output, str + inclusive_start, exclusive_end);
-    output[length] = '\0';
-
-    return output;
+    strncpy(*result, str + inclusive_start, exclusive_end);
+    (*result)[length] = '\0';
 }
 
 bool string_contains_non_overlapping_pair(const char *str) {

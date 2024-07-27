@@ -28,7 +28,7 @@ bool string_buffer_append(StringBuffer *buffer, const char *str);
 
 size_t string_index_of(char *haystack, char needle);
 
-char *string_substring(char *str, size_t inclusive_start, size_t exclusive_end);
+void string_substring(char **result, char *str, size_t inclusive_start, size_t exclusive_end);
 
 bool string_contains_non_overlapping_pair(const char *str);
 
