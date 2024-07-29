@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
     free(results_column_sizes);
 
     solution_part_finalize_with_int(&solution, 0, part_one, "1638");
-    solution_part_finalize_with_int(&solution, 1, part_two, "");
+    solution_part_finalize_with_int(&solution, 1, part_two, "17");
 
     return solution_finalize(&solution);
 }
