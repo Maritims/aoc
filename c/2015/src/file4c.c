@@ -50,3 +50,11 @@ void file_read_all_lines(char ***result, size_t *size, char *filename) {
         fprintf(stderr, "%s:%d: No lines were read\n", __func__, __LINE__);
     }
 }
+
+void file_destroy_all_lines(char ***lines, size_t number_of_lines) {
+    for(size_t i = 0; i < number_of_lines; i++) {
+        free((*lines)[i]);
+    }
+    free(*lines);
+    *lines = NULL;
+}

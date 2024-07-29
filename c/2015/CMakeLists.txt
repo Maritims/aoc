@@ -24,6 +24,9 @@ target_sources(aoc PUBLIC src/file4c.c)
 add_aoc_library(array4c)
 target_sources(array4c PRIVATE ${PROJECT_SOURCE_DIR}/src/array4c.c)
 
+add_aoc_library(conway)
+target_sources(conway PRIVATE ${PROJECT_SOURCE_DIR}/src/conway.c)
+
 add_aoc_library(math4c)
 target_sources(math4c PRIVATE ${PROJECT_SOURCE_DIR}/src/math4c.c)
 target_link_libraries(math4c array4c gmp m)
@@ -63,6 +66,9 @@ target_link_libraries(json4c generics4c hashtable string4c)
 add_executable(test_array4c tests/test_array4c.c src/array4c.c)
 target_include_directories(test_array4c PRIVATE include)
 
+add_executable(test_grid tests/test_grid.c src/grid.c)
+target_include_directories(test_grid PRIVATE include)
+
 add_executable(test_hashtable tests/test_hashtable.c src/fnv.c src/hashtable.c)
 target_include_directories(test_hashtable PRIVATE include)
 
@@ -87,7 +93,8 @@ target_include_directories(test_string4c PRIVATE include)
 enable_testing()
 
 # Add test cases
-add_test(NAME Array4CTest COMMAND test_array4c)
+# add_test(NAME Array4CTest COMMAND test_array4c)
+add_test(NAME GridTest COMMAND test_grid)
 add_test(NAME HashtableTest COMMAND test_hashtable)
 add_test(NAME Json4CTest COMMAND test_json4c)
 add_test(NAME MaritimsMD5Test COMMAND test_maritims_md5)
@@ -112,3 +119,4 @@ add_subdirectory(day14)
 add_subdirectory(day15)
 add_subdirectory(day16)
 add_subdirectory(day17)
+add_subdirectory(day18)

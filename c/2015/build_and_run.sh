@@ -5,6 +5,7 @@ usage() {
     echo "Commands:"
     echo "  --build     Build everything."
     echo "  --clean     Clean before building (must be used with --build)."
+    echo "  --debug     Run the appliocation with gdb (must be used with --run and cannot be used with more than one target day)."
     echo "  --test      Run all tests."
     echo "  --run       Run all executables."
     echo "  --days      Specify days to build and/or run (must be used with --build or --run)."
@@ -56,6 +57,14 @@ while [[ $# -gt 0 ]]; do
                 shift
             done
             ;;
+        --debug)
+            if ! $run; then
+                echo "Error: --debug can only be used with --run"
+                usage
+            fi
+            debug=true
+            shift
+            ;;
         *)
             echo "Unknown option: $1"
             usage
@@ -85,9 +94,16 @@ if $build; then
         cmake_cmd="${cmake_cmd} --clean-first"
     fi
 
-    $cmake_cmd
+    cmake_output=$(eval "$cmake_cmd")
 
     if [[ $? -ne 0 ]]; then
+        echo "$cmake_output"
+        echo "---- BUILD FAILED ----"
+        exit 1
+    fi
+
+    if [[ -z $cmake_output ]]; then
+        echo "CMake did not produce any output. Did you forget to add your target(s) to CMakeLists.txt?"
         echo "---- BUILD FAILED ----"
         exit 1
     fi
@@ -124,6 +140,14 @@ if $run; then
 
     for day in ${days[@]}; do
         day_command="bin/day${day} data/day${day}.txt"
+        #if $debug; then
+        #    if [[ ${#days[@]} -eq 1 ]]; then
+                #day_command="gdb -ex run --args $day_command"
+        #    else
+                #echo "--debug cannot be used for more than one target day at a time"
+                #usage
+        #    fi
+        #fi
         echo "Executing ${day_command}..."
         $day_command
         exit_code=$?
