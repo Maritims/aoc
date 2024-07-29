@@ -21,12 +21,12 @@ add_aoc_library(aoc)
 target_sources(aoc PRIVATE src/aoc.c src/string4c.c)
 target_sources(aoc PUBLIC src/file4c.c)
 
-add_aoc_library(array)
-target_sources(array PRIVATE ${PROJECT_SOURCE_DIR}/src/array.c)
+add_aoc_library(array4c)
+target_sources(array4c PRIVATE ${PROJECT_SOURCE_DIR}/src/array4c.c)
 
 add_aoc_library(math4c)
 target_sources(math4c PRIVATE ${PROJECT_SOURCE_DIR}/src/math4c.c)
-target_link_libraries(math4c gmp)
+target_link_libraries(math4c array4c gmp m)
 
 add_aoc_library(string4c)
 target_sources(string4c PRIVATE ${PROJECT_SOURCE_DIR}/src/string4c.c)
@@ -60,6 +60,9 @@ target_sources(json4c PRIVATE src/json4c.c)
 target_link_libraries(json4c generics4c hashtable string4c)
 
 # Enable testing
+add_executable(test_array4c tests/test_array4c.c src/array4c.c)
+target_include_directories(test_array4c PRIVATE include)
+
 add_executable(test_hashtable tests/test_hashtable.c src/fnv.c src/hashtable.c)
 target_include_directories(test_hashtable PRIVATE include)
 
@@ -71,6 +74,10 @@ add_executable(test_maritims_md5 tests/test_maritims_md5.c src/maritims_md5.c)
 target_include_directories(test_maritims_md5 PRIVATE include)
 target_link_libraries(test_maritims_md5 m)
 
+add_executable(test_math4c tests/test_math4c.c src/array4c.c src/math4c.c)
+target_include_directories(test_math4c PRIVATE include)
+target_link_libraries(test_math4c gmp m)
+
 add_executable(test_point tests/test_point.c src/point.c)
 target_include_directories(test_point PRIVATE include)
 
@@ -80,11 +87,13 @@ target_include_directories(test_string4c PRIVATE include)
 enable_testing()
 
 # Add test cases
+add_test(NAME Array4CTest COMMAND test_array4c)
 add_test(NAME HashtableTest COMMAND test_hashtable)
-add_test(NAME Json4cTest COMMAND test_json4c)
+add_test(NAME Json4CTest COMMAND test_json4c)
 add_test(NAME MaritimsMD5Test COMMAND test_maritims_md5)
+add_test(NAME Math4CTest COMMAND test_math4c)
 add_test(NAME PointTest COMMAND test_point)
-add_test(NAME String4cTest COMMAND test_string4c)
+add_test(NAME String4CTest COMMAND test_string4c)
 
 add_subdirectory(day1)
 add_subdirectory(day2)
@@ -102,3 +111,4 @@ add_subdirectory(day13)
 add_subdirectory(day14)
 add_subdirectory(day15)
 add_subdirectory(day16)
+add_subdirectory(day17)

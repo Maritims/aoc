@@ -123,7 +123,9 @@ if $run; then
     echo "---- RUNNING DAYS: ${days[@]} ----"
 
     for day in ${days[@]}; do
-        bin/day${day} data/day${day}.txt
+        day_command="bin/day${day} data/day${day}.txt"
+        echo "Executing ${day_command}..."
+        $day_command
         exit_code=$?
 
         case $exit_code in

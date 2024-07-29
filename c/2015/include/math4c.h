@@ -2,6 +2,7 @@
 #define MATH4C
 
 #include <gmp.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 void math_binomial_coefficient(uint64_t *result, int n, int k);
@@ -9,6 +10,10 @@ void math_binomial_coefficient(uint64_t *result, int n, int k);
 int math_divide_and_round_up(int dividend, int divisor);
 
 void math_factorial(mpz_t *result, int n);
+
+int **math_sets_compute_subsets(int *original_array, size_t original_array_size, size_t *results_size, size_t **results_column_sizes);
+
+bool math_sets_is_subset_sum(int *result, int *set, size_t length, int n, int sum, int index_in_result);
 
 int math_max(int a, int b);
 

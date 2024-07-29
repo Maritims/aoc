@@ -18,3 +18,4 @@
 # Local
 **/.cache
 **/.editorconfig
+**/vgcore*

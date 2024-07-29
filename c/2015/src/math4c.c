@@ -1,8 +1,11 @@
 #include <gmp.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <strings.h>
 
 #include "math4c.h"
 
@@ -55,6 +58,92 @@ void math_factorial(mpz_t *result, int n) {
         mpz_mul_ui(*result, *result, i);
         mpz_clear(multiplier);
     }
+}
+
+/**
+ * results: Helper function for adding a subset to the results.
+ * - Reentrant.
+ *
+ * @param results: An array of int arrays to hold all the subsets.
+ * @param results_size: The size of the results array thus far. Also used as an index when adding a subset to the results. The value of the pointer is incremented once the function has done its work.
+ * @param results_column_sizes: An int array which holds the size of every int array in the results array.
+ * @param subset: The subset to add.
+ * @param subset_size: The size of the subset to add.
+ */
+void sets_add_subset_to_results(int **results, size_t *results_size, size_t *results_column_sizes, int *subset, size_t subset_size) {
+    results[*results_size] = calloc(subset_size, sizeof(int)); // The first subset is always, i.e.when subset_size == 0.
+    if(results[*results_size] == NULL) {
+        fprintf(stderr, "%s:%d: Failed to allocate memory for subset in results at index %zu\n", __func__, __LINE__, *results_size);
+        return;
+    }
+
+    for(size_t i = 0; i < subset_size; i++) {
+        int *result             = results[*results_size];
+        int number_in_subset    = subset[i];
+        result[i]               = number_in_subset;
+    }
+
+    results_column_sizes[*results_size] = subset_size;
+    (*results_size)++;
+}
+
+/**
+ * compute_subsets: Helper function for computing subsets of an original array.
+ * - Recursive.
+ *
+ * @param results: An array of int arrays to hold all the subsets.
+ * @param results_size: The size of the results array thus far.
+ * @param original_array: The original array of which to compute subsets.
+ * @param original_array_size: The size of the original array.
+ * @param subset: The current subset.
+ * @param size_of_subset: The size of the current subset.
+ * @param index: The index of the element in the original array to add to the subset. Also the lowest index of the original array we're interested in to achieve exclusion of elements.
+ */
+void sets_compute_subsets(int **results, size_t *results_size, size_t *results_column_sizes, int *original_array, size_t original_array_size, int *subset, size_t subset_size, size_t index) {
+    sets_add_subset_to_results(results, results_size, results_column_sizes, subset, subset_size);
+
+    for(size_t i = index; i < original_array_size; i++) {
+        subset[subset_size] = original_array[i]; // Append to the end of the subset.
+        sets_compute_subsets(results, results_size, results_column_sizes, original_array, original_array_size, subset, subset_size + 1, i + 1); // Step ahead in the subset and start at the next element in the original array.
+    }
+}
+
+int **math_sets_compute_subsets(int *original_array, size_t original_array_size, size_t *return_results_size, size_t **return_results_column_sizes) {
+    int number_of_subsets           = pow(2, original_array_size);
+    int **results                   = calloc(number_of_subsets, sizeof(int*));
+    *return_results_column_sizes    = calloc(number_of_subsets, sizeof(size_t));
+    int *subset                     = calloc(original_array_size, sizeof(int));
+    size_t results_size             = 0;
+
+    sets_compute_subsets(results, &results_size, *return_results_column_sizes, original_array, original_array_size, subset, 0, 0);
+
+    *return_results_size = results_size;
+    free(subset);
+
+    return results;
+}
+
+bool math_sets_is_subset_sum(int *result, int *set, size_t length, int n, int sum, int index_in_result) {
+    result[index_in_result] = set[n];
+
+    // Base cases.
+    if(sum < 0 || n < 0) {
+        // We've gone too far. Get out!
+        //memset(result, 0, length * sizeof(int));
+        return false;
+    }
+    if(sum > 0 && n == 0) {
+        // We've exhausted the set and the sum has not reached zero.
+        //memset(result, 0, length * sizeof(int));
+        return false;
+    }
+    if(sum == 0) {
+        // The sum has reached zero. This is the way!
+        return true;
+    }
+
+    // The first part follows the path of exclusion while the second part follows the path of inclusion.
+    return math_sets_is_subset_sum(result, set, length, n - 1, sum, index_in_result + 1) || math_sets_is_subset_sum(result, set, length, n - 1, sum - set[n - 1], index_in_result + 1);
 }
 
 int math_max(int a, int b) {
