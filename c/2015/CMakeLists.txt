@@ -71,6 +71,7 @@ target_include_directories(test_grid PRIVATE include)
 
 add_executable(test_hashtable tests/test_hashtable.c src/fnv.c src/hashtable.c)
 target_include_directories(test_hashtable PRIVATE include)
+target_link_libraries(test_hashtable string4c)
 
 add_executable(test_json4c tests/test_json4c.c src/json4c.c)
 target_include_directories(test_json4c PRIVATE include)
@@ -120,3 +121,4 @@ add_subdirectory(day15)
 add_subdirectory(day16)
 add_subdirectory(day17)
 add_subdirectory(day18)
+add_subdirectory(day19)

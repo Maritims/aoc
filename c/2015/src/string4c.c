@@ -4,11 +4,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "debug.h"
 #include "string4c.h"
 
 #define DEBUG 1
+
+int string_compare_asc(const void *str1, const void *str2) {
+    return strcmp(*(const char**)str1, *(const char**)str2);
+}
 
 bool string_is_numeric(char *str)
 {
@@ -340,12 +345,6 @@ bool string_buffer_append(StringBuffer* buffer, const char* str) {
     return true;
 }
 
-size_t string_index_of(char *haystack, char needle) {
-    char *first_needle = strchr(haystack, needle);
-    size_t index = (size_t)(first_needle - haystack);
-    return index;
-}
-
 void string_substring(char **result, char *str, size_t inclusive_start, size_t exclusive_end)
 {
     if (inclusive_start > strlen(str))
@@ -406,4 +405,85 @@ bool string_has_any_needle(const char *str, char *needles, size_t number_of_need
         }
     }
     return false;
+}
+
+ char *string_replace(const char *str, const char *old_str, const char *new_str) {
+    size_t str_length       = strlen(str);
+    size_t old_length       = strlen(old_str);
+    size_t new_length       = strlen(new_str);
+    size_t result_length    = str_length - old_length + new_length;
+    char *result            = malloc(result_length);
+    strcpy(result, str);
+    char *ptr = strstr(result, old_str);
+
+    if(ptr == NULL) {
+        return result;
+    }
+
+    // If the lengths are different we need to move some memory around to make room for all the data.
+    if(old_length != new_length) {
+        // ptr + old_length             = where everything after old_str began
+        // ptr + new_lenth              = where everything after new_str will begin
+        // strlen(ptr + old_length) + 1 = the amount of data to move, the +1 is for the null terminator
+
+        // After this memory has been moved we've essentially made room for new_str where old_str was found
+        memmove(ptr + new_length, ptr + old_length, strlen(ptr + old_length) + 1);
+    }
+
+    // Copy new_str into what was previously known as the starting position of old_str. We won't overwrite the previosly moved old_str since we're writing only new_length amount of data, and old_str has already been moved to ptr + new_length by memmove.
+    memcpy(ptr, new_str, new_length);
+    return result;
+}
+
+char *string_replace_all(const char *str, const char *old_str, const char *new_str) {
+    size_t str_length       = strlen(str);
+    size_t old_length       = strlen(old_str);
+    size_t new_length       = strlen(new_str);
+    size_t old_occurrences  = 0;
+    size_t i                = 0;
+
+    for(i = 0; i < str_length; i++) {
+        // Search str from the position indicated by "i".
+        // If strstr returns a pointer to the position indicated by "i" we know we've found an occurrence of "old_str".
+        // Advance "i" by the length of "old", minus 1 of course so we don't skip a character.
+        if(strstr(&str[i], old_str) == &str[i]) {
+            old_occurrences++;
+            i += old_length;
+        }
+    }
+
+    size_t result_length    = str_length - (old_length * old_occurrences) + (new_length* old_occurrences);
+    char *result            = malloc(result_length);
+
+    // Construct the resulting string
+    // Copy characters into result from str
+    
+    i = 0; // "i" is now used for pointing to a position in "result"
+    while(*str) { // Is there still something to copy from?
+        if(strstr(str, old_str) == str) { // Have we found an occurrence of "old"?
+            strcpy(&result[i], new_str); // Copy the replacement into "result" instead of just taking the current character from "str".
+            i += new_length;
+            str += old_length; // Advance "str" by the length of the old string since we just appended the new string to the result.
+        }
+        else {
+            result[i++] = *str++; // Copy the current character into "result" and move ahead.
+        }
+    }
+
+    result[i] = '\0';
+    return result;
+}
+
+char *string_replace_at(const char *str, const char *new_str, size_t pos, size_t length) {
+    size_t str_length = strlen(str);
+    size_t new_length = strlen(new_str);
+    size_t result_length    = str_length - length + new_length;
+    char *result            = malloc(result_length);
+    strcpy(result, str);
+
+    if(length != new_length) {
+        memmove(result + pos + new_length, result + pos + length, strlen(result + pos + length) + 1);
+    }
+    memcpy(result + pos, new_str, new_length);
+    return result;
 }

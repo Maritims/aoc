@@ -22,14 +22,16 @@ uint16_t resolve(HashTable *table, char *key, HashTable *cache)
     // But is it in the cache?
     HashTableEntry *cached_entry = hashtable_get(cache, key);
     if(cached_entry != NULL) {
-        uint16_t cached_value = *(uint16_t*)cached_entry->value;
+        void *value = hashtable_entry_get_value(cached_entry);
+        uint16_t cached_value = *(uint16_t*)value;
         return cached_value;
     }
 
-    HashTableEntry *entry = hashtable_get(table, key);
+    HashTableEntry *entry   = hashtable_get(table, key);
+    void *value             = hashtable_entry_get_value(entry);
     char **tokens;
     size_t number_of_tokens;
-    string_split(&tokens, &number_of_tokens, entry->value, " ");
+    string_split(&tokens, &number_of_tokens, value, " ");
     uint16_t result;
 
     if (number_of_tokens == 1) {

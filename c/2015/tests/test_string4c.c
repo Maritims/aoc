@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "string4c.h"
 
@@ -21,6 +22,33 @@ void test_string_has_straight_of_n(const char *str, int n, bool expected_result)
     printf("%s(\"%s\", %d) passed\n", __func__, str, n);
 }
 
+void test_string_replace(const char *str, const char *old_str, const char *new_str, const char *expected) {
+    char *result = string_replace(str, old_str, new_str);
+    if(strcmp(expected, result) != 0) {
+        printf("%s failed: string_replace(\"%s\", \"%s\", \"%s\") != %s (%s)\n", __func__, str, old_str, new_str, expected, result);
+        exit(EXIT_FAILURE);
+    }
+    printf("%s passed\n", __func__);
+}
+
+void test_string_replace_all(const char *str, const char *old_str, const char *new_str, const char *expected) {
+    char *result = string_replace_all(str, old_str, new_str);
+    if(strcmp(expected, result) != 0) {
+        printf("%s failed: string_replace_all(\"%s\", \"%s\", \"%s\") != %s (%s)\n", __func__, str, old_str, new_str, expected, result);
+        exit(EXIT_FAILURE);
+    }
+    printf("%s(\"%s\", \"%s\", \"%s\") passed\n", __func__, str, old_str, new_str);
+}
+
+void test_string_replace_at(const char *str, const char *new_str, size_t pos, size_t length, char *expected) {
+    char *result = string_replace_at(str, new_str, pos, length);
+    if(strcmp(expected, result) != 0) {
+        printf("%s failed: string_replace_at(\"%s\", \"%s\", %zu, %zu) != %s (%s)\n", __func__, str, new_str, pos, length, expected, result);
+        exit(EXIT_FAILURE);
+    }
+    printf("%s(\"%s\", \"%s\", %zu, %zu) passed\n", __func__, str, new_str, pos, length);
+}
+
 int main() {
     test_string_contains_non_overlapping_pair("aabaa", true);
     test_string_contains_non_overlapping_pair("cqcq", true);
@@ -32,6 +60,17 @@ int main() {
     test_string_has_straight_of_n("abbceffg", 3, false);
     test_string_has_straight_of_n("abcdffaa", 3, true);
     test_string_has_straight_of_n("ghjaabcc", 3, true);
+
+    test_string_replace("lorem ipsum, lorem ipsum", "lorem", "hello", "hello ipsum, lorem ipsum");
+    test_string_replace("Hello World!", "Hello", "Hi", "Hi World!");
+    test_string_replace_all("foobarbazfoobarbaz", "foo", "loremipsum", "loremipsumbarbazloremipsumbarbaz");
+    test_string_replace_at("Hello World!", "Farewell", 0, 5, "Farewell World!");
+    test_string_replace_at("Lorem Ipsum", "Dolor", 6, 1, "Lorem Dolorpsum");
+    test_string_replace_at("HOH", "HO", 0, 1, "HOOH");
+    test_string_replace_at("HOH", "HO", 2, 1, "HOHO");
+    test_string_replace_at("HOH", "OH", 0, 1, "OHOH");
+    test_string_replace_at("HOH", "OH", 2, 1, "HOOH");
+    test_string_replace_at("HOH", "HH", 1, 1, "HHHH");
 
     printf("All tests passed\n");
     return EXIT_SUCCESS;

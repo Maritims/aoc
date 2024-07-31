@@ -64,7 +64,7 @@ void solve_part_one(char *instructions, Solution *solution)
         instruction_number++;
     }
 
-    solution_part_finalize_with_int(solution, 0, visited->size, "2592");
+    solution_part_finalize_with_int(solution, 0, hashtable_get_size(visited), "2592");
 }
 
 void solve_part_two(char *instructions, Solution *solution)
@@ -89,7 +89,7 @@ void solve_part_two(char *instructions, Solution *solution)
         instruction_number++;
     }
 
-    solution_part_finalize_with_int(solution, 1, visited->size, "2360");
+    solution_part_finalize_with_int(solution, 1, hashtable_get_size(visited), "2360");
 }
 
 int main(int argc, char *argv[])

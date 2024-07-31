@@ -9,8 +9,8 @@
 
 /**
  * file_read_all_text: Reads all the content of the file into a string.
- * @param result: The resulting string.
- * @param filename: The name of the file to read.
+ * @param result The resulting string.
+ * @param filename The name of the file to read.
 */
 void file_read_all_text(char **result, char *filename) {
 	if(filename == NULL) {
@@ -40,10 +40,22 @@ void file_read_all_text(char **result, char *filename) {
 }
 
 void file_read_all_lines(char ***result, size_t *size, char *filename) {
-	char *file_content;
+	char *file_content = NULL;
 
     file_read_all_text(&file_content, filename);
+    if(file_content == NULL) {
+        fprintf(stderr, "%s:%d: failed to read file content from file %s\n", __func__, __LINE__, filename);
+        return;
+    }
+
     string_split(result, size, file_content, "\r\n");
+
+    if(*size == 0) {
+        fprintf(stderr, "%s:%d: read %zu lines from file %s\n", __func__, __LINE__, *size, filename);
+        free(file_content);
+        return;
+    }
+
     free(file_content);
 
     if(result == NULL) {

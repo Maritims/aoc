@@ -28,7 +28,7 @@ void ingredient_parse(Ingredient *result, char *str) {
     char **tokens;
     
     string_split(&tokens, &number_of_tokens, str, " ");
-    string_substring(&name, tokens[0], 0, string_index_of(tokens[0], ':'));
+    string_substring(&name, tokens[0], 0, (size_t)(strchr(tokens[0], ':') - tokens[0]));
 
     *result = (Ingredient){
         .name = name,

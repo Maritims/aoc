@@ -84,49 +84,42 @@ uint32_t is_nice_line_in_part_two(const char *line)
     size_t line_length = strlen(line);
 
     /* A line is nice if it contains at least one letter which repeats with exactly one letter between them, like xyx, abcdefeghi (efe), or even aaa. */
-    for (uint32_t i = 2; i < line_length; i++)
-    {
-        if (line[i - 2] == line[i])
-        {
+    for (uint32_t i = 2; i < line_length; i++) {
+        if (line[i - 2] == line[i]) {
             //printf("Line %s: First criteria is met because %c%c%c\n", line, line[i - 2], line[i - 1], line[i]);
             is_first_criteria_met = 1;
             break;
         }
     }
-    if (is_first_criteria_met != 1)
-    {
+    if (is_first_criteria_met != 1) {
         return 0;
     }
 
     /* It contains a pair of any two letters that appears at least twice in the string without overlapping, like xyxy (xy) or aabcdefgaa (aa), but not like aaa (aa, but it overlaps). */
     HashTable *hashtable = hashtable_create(10);
-    if(hashtable == NULL)
-    {
+    if(hashtable == NULL) {
         return 0;
     }
 
     if(!string_contains_non_overlapping_pair(line)) {
         return 0;
+    
     }
 
-    for (size_t i = 0; i < hashtable->capacity; i++)
-    {
-        HashTableEntry *entry = hashtable->entries[i];
-        while(entry != NULL) {
-            if ((*(uint64_t *)entry->value) > 1)
-            {
-                //printf("Second criteria is met because there are %lu occurrences of %s in %s\n", *(uint64_t*)entry->value, entry->key, line);
-                is_second_criteria_met = 1;
-                break;
-            }
-            entry = entry->next;
-        }
-        if(is_second_criteria_met) {
+    HashTableIterator *iterator = hashtable_create_iterator(hashtable);
+    HashTableEntry *entry       = hashtable_iterator_next(iterator);
+    while(entry != NULL) {
+        void *value = hashtable_entry_get_value(entry);
+        if ((*(uint64_t *)value) > 1) {
+            //printf("Second criteria is met because there are %lu occurrences of %s in %s\n", *(uint64_t*)entry->value, entry->key, line);
+            is_second_criteria_met = 1;
             break;
         }
     }
-
+   
     hashtable_destroy(hashtable);
+    hashtable_iterator_destroy(iterator);
+
     return 1;
 }
 

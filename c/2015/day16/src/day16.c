@@ -68,14 +68,14 @@ int main(int argc, char *argv[]) {
         char *id;
 
         string_split(&tokens, &number_of_tokens, line, " ");
-        string_substring(&id, tokens[1], 0, string_index_of(tokens[1], ':'));
+        string_substring(&id, tokens[1], 0, (size_t)(strchr(tokens[1], ':') - tokens[1]));
 
         bool is_match_in_part_one = true;
         bool is_match_in_part_two = true;
 
         for(size_t j = 2; j < number_of_tokens - 1; j += 2) {
             char *token;
-            string_substring(&token, tokens[j], 0, string_index_of(tokens[j], ':'));
+            string_substring(&token, tokens[j], 0, (size_t)(strchr(tokens[j], ':') - tokens[j]));
             char *next_token = tokens[j + 1];
             int value = atoi(next_token);
 

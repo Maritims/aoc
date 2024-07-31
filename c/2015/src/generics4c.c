@@ -50,6 +50,24 @@ GenericValue* generic_create_string(const char* value) {
     return generic_value;
 }
 
+GenericValue *generic_create_array_value(GenericArray *value) {
+    if(value == NULL) {
+        fprintf(stderr, "%s:%d: The parameter \"value\" cannot be NULL", __func__, __LINE__);
+        return NULL;
+    }
+
+    GenericValue *gv = malloc(sizeof(GenericValue));
+    if(gv == NULL) {
+        fprintf(stderr, "%s:%d: Failed to allocate memory for the generic value\n", __func__, __LINE__);
+        return NULL;
+    }
+
+    gv->type = TYPE_ARRAY;
+    gv->data.array_value = value;
+    gv->destructor = destroy_generic_value;
+    return gv;
+}
+
 GenericValue *generic_create_object_value(GenericObject *value) {
     if(value == NULL) {
         debug_print("The parameter \"value\" cannot be NULL.\n", "");
@@ -195,7 +213,7 @@ void generic_add_to_array(GenericArray* generic_array, GenericValue* generic_val
         size_t new_capacity = generic_array->capacity * 2;
         GenericValue **new_elements = realloc(generic_array->elements, new_capacity * sizeof(GenericValue*));
         if(new_elements == NULL) {
-            debug_print("Failed to allocate additional memory for array elements.\n", "");
+            fprintf(stderr, "%s:%d: Failed to allocate additional memory with capacity for %zu array elements in total\n", __func__, __LINE__, new_capacity);
             return;
         }
 

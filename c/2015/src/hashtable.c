@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -7,48 +8,60 @@
 #define FNV_OFFSET_BASIS 14695981039346656037UL
 #define FNV_PRIME 1099511628211UL
 
-#define DEBUG 1
+struct HashTable {
+    size_t capacity;
+    size_t size;
+    HashTableEntry **entries;
+};
 
-void hashtable_print_result(HASHTABLE_RESULT hashtable_result)
-{
-    switch (hashtable_result)
-    {
-    case UNABLE_TO_ALLOCATE_HASHTABLE:
-        fprintf(stderr, "Memory allocation for the hashtable structure was unsuccessful (result code: %d)\n", hashtable_result);
-        break;
-    case UNABLE_TO_ALLOCATE_ENTRIES:
-        fprintf(stderr, "Memory allocation for the hashtable entries was unsuccessful (result code: %d)\n", hashtable_result);
-        break;
-    case KEY_IS_NULL:
-        fprintf(stderr, "The specified key was NULL (result code: %d)\n", hashtable_result);
-        break;
-    case KEY_IS_EMPTY:
-        fprintf(stderr, "The specified key was empty (result code: %d)\n", hashtable_result);
-        break;
-    default:
-        fprintf(stderr, "An unknown result was encountered (result code: %d)\n", hashtable_result);
-        break;
+struct HashTableEntry {
+    char *key;
+    uint64_t key_hash;
+    void *value;
+    struct HashTableEntry *next;
+};
+
+struct HashTableIterator {
+    size_t current_index;
+    HashTable *hashtable;
+    HashTableEntry *current_entry;
+};
+
+char **hashtable_get_keys(HashTable *hashtable) {
+    HashTableIterator *iterator = hashtable_create_iterator(hashtable);
+    char **keys                 = calloc(hashtable->size, sizeof(char*));
+    size_t i                    = 0;
+    HashTableEntry *entry;
+
+    while((entry = hashtable_iterator_next(iterator)) != NULL) {
+        keys[i++] = hashtable_entry_get_key(entry);
     }
+
+    return keys;
 }
 
-/*
-    Upon success this function returns a newly allocated hashtable with the given initial capacity, otherwise it returns a NULL pointer.
-*/
-HashTable *hashtable_create(uint32_t initial_capacity)
-{
+size_t hashtable_get_capacity(HashTable *hashtable) {
+    return hashtable->capacity;
+}
+
+size_t hashtable_get_size(HashTable *hashtable) {
+    return hashtable->size;
+}
+
+HashTable *hashtable_create(size_t initial_capacity) {
     HashTable *hashtable = malloc(sizeof(HashTable));
-    if (hashtable == NULL)
-    {
-        fprintf(stderr, "Unable to allocate memory for hashtable.\n");
+    if(hashtable == NULL) {
+        fprintf(stderr, "%s:%d: Failed to allocate memory for hashtable\n", __func__, __LINE__);
         return NULL;
     }
 
     hashtable->capacity = initial_capacity;
-    hashtable->size = 0;
-    hashtable->entries = (HashTableEntry **)calloc(hashtable->capacity, sizeof(HashTableEntry *));
+    hashtable->size     = 0;
+    hashtable->entries  = calloc(hashtable->capacity, sizeof(HashTableEntry*));
+
     if (hashtable->entries == NULL)
     {
-        fprintf(stderr, "Unable to allocate memory for hashtable entries.\n");
+        fprintf(stderr, "%s:%d: Failed to allocate memory for hashtable entries\n", __func__, __LINE__);
         free(hashtable);
         return NULL;
     }
@@ -61,20 +74,8 @@ HashTable *hashtable_create(uint32_t initial_capacity)
     return hashtable;
 }
 
-HASHTABLE_RESULT hashtable_destroy(HashTable *hashtable)
+void hashtable_destroy(HashTable *hashtable)
 {
-    if(hashtable == NULL)
-    {
-        fprintf(stderr, "hashtable is NULL\n");
-        return FAILURE;
-    }
-
-    if(hashtable->entries == NULL)
-    {
-        fprintf(stderr, "hashtable entries are NULL\n");
-        return FAILURE;
-    }
-
     for (size_t i = 0; i < hashtable->capacity; i++)
     {
         HashTableEntry *entry = hashtable->entries[i];
@@ -89,25 +90,14 @@ HASHTABLE_RESULT hashtable_destroy(HashTable *hashtable)
     }
 
     free(hashtable->entries);
-    free(hashtable);
-
-    return SUCCESS;
 }
 
-/*
-    Upon success the hash of the given char array is returned, otherwise a NULL pointer is returned.
-    Callers must remember to free() the return value.
-*/
 uint64_t *hashtable_hash(const char *key)
 {
     return fnv1a(key);
 }
 
-/*
-    Upon success the a pointer to the element with the given key is returned, otherwise a NULL pointer is returned.
-*/
-HashTableEntry *hashtable_get(const HashTable *hashtable, const char *key)
-{
+HashTableEntry *hashtable_get(const HashTable *hashtable, const char *key) {
     uint64_t *hash = hashtable_hash(key);
     size_t index = *hash % hashtable->capacity;
     free(hash);
@@ -124,13 +114,14 @@ HashTableEntry *hashtable_get(const HashTable *hashtable, const char *key)
     return NULL;
 }
 
-HASHTABLE_RESULT hashtable_rehash(HashTable *hashtable)
+static bool hashtable_rehash(HashTable *hashtable)
 {
     size_t new_capacity = hashtable->capacity * 2;
     HashTableEntry **new_entries = calloc(new_capacity, sizeof(HashTableEntry*));
     if(new_entries == NULL)
     {
-        return UNABLE_TO_ALLOCATE_ENTRIES;
+        fprintf(stderr, "%s:%d: Failed to allocate memory for hashtable entries\n", __func__, __LINE__);
+        return false;
     }
 
     for(size_t i = 0; i < hashtable->capacity; i++)
@@ -150,52 +141,37 @@ HASHTABLE_RESULT hashtable_rehash(HashTable *hashtable)
     hashtable->entries = new_entries;
     hashtable->capacity = new_capacity;
 
-    return SUCCESS;
+    return true;
 }
 
-/*
-    Upon successful insertion the new entry is returned.
-    If an entry with the given key already exists, that element's value is updated and the updated entry is returned.
-    If insertion fails, a NULL pointer is returned.
-*/
-HashTableEntry *hashtable_put(HashTable *hashtable, char *key, void *value, size_t value_size, uint32_t flags)
-{
-    if(value == 0)
-    {
+HashTableEntry *hashtable_put(HashTable *hashtable, char *key, void *value, size_t value_size, uint32_t flags) {
+    if(value == 0) {
         fprintf(stderr, "%s(): Unable to insert element into the hashtable. The value argument cannot be 0.\n", __func__);
         return NULL;
     }
 
     HashTableEntry *existing_entry = hashtable_get(hashtable, key);
-    if (existing_entry != NULL)
-    {
+    if (existing_entry != NULL) {
         free(existing_entry->value);
         existing_entry->value = malloc(value_size);
-        sprintf(existing_entry->value, "%s", value);
+        sprintf(existing_entry->value, "%s", (char*)value);
         return existing_entry;
     }
     
-    if (hashtable->size >= hashtable->capacity)
-    {
-        HASHTABLE_RESULT hashtable_rehash_result = hashtable_rehash(hashtable);
-        if(hashtable_rehash_result != SUCCESS)
-        {
-            fprintf(stderr, "%s(): Unable to rehash the hashtable. Aborting insertion.\n", __func__);
-            return NULL;
-        }
+    if (hashtable->size >= hashtable->capacity && !hashtable_rehash(hashtable)) {
+        fprintf(stderr, "%s:%d: Failed to rehash the hashtable. Aborting insertion of entry with key \"%s\"\n", __func__, __LINE__, key);
+        return NULL;
     }
 
     uint64_t *hash = hashtable_hash(key);
-    if(hash == NULL)
-    {
-        fprintf(stderr, "%s(): Unable to hash the given key \"%s\"\n", __func__, key);
+    if(hash == NULL) {
+        fprintf(stderr, "%s:%d: Failed to hash the key \"%s\". Aborting insertion of entry with key \"%s\"\n", __func__, __LINE__, key, key);
         return NULL;
     }
 
     size_t index = *hash % hashtable->capacity;
     HashTableEntry *new_entry = malloc(sizeof(HashTableEntry));
-    if(new_entry == NULL)
-    {
+    if(new_entry == NULL) {
         fprintf(stderr, "%s(): Unable to allocate memory for new entry.\n", __func__);
         return NULL;
     }
@@ -207,9 +183,10 @@ HashTableEntry *hashtable_put(HashTable *hashtable, char *key, void *value, size
         free(new_entry);
         return NULL;
     }
+
     new_entry->key_hash = *hash;
     new_entry->value = malloc(value_size);
-    sprintf(new_entry->value, "%s", value);
+    sprintf(new_entry->value, "%s", (char*)value);
     new_entry->next = hashtable->entries[index];
     hashtable->entries[index] = new_entry;
     hashtable->size++;
@@ -219,25 +196,29 @@ HashTableEntry *hashtable_put(HashTable *hashtable, char *key, void *value, size
     return new_entry;
 }
 
-/*
-    Upon encountering an element with the given key, the corresponding element is returned.
-    If no element is found, a new element is inserted into the hashtable and returned.
-    If insertion fails, a NULL pointer is returned.
-*/
 HashTableEntry *hashtable_put_if_absent(HashTable *hashtable, char *key, void *value, size_t value_size, uint32_t flags)
 {
     HashTableEntry *entry = hashtable_get(hashtable, key);
     return entry == NULL ? hashtable_put(hashtable, key, value, value_size, flags) : entry;
 }
 
-HASHTABLE_RESULT hashtable_create_iterator(HashTable *hashtable, HashTableIterator **out_hashtable_iterator)
-{
-    *out_hashtable_iterator = malloc(sizeof(HashTableIterator));
-    (*out_hashtable_iterator)->hashtable = hashtable;
-    (*out_hashtable_iterator)->current_index = 0;
-    (*out_hashtable_iterator)->current_entry = NULL;
+HashTableIterator *hashtable_create_iterator(HashTable *hashtable) {
+    HashTableIterator *iterator = malloc(sizeof(HashTableIterator));
+    
+    if(iterator == NULL) {
+        fprintf(stderr, "%s:%d: Failed to allocate memory for hashtable iterator\n", __func__, __LINE__);
+        return NULL;
+    }
 
-    return SUCCESS;
+    iterator->hashtable = hashtable;
+    iterator->current_index = 0;
+    iterator->current_entry = NULL;
+
+    return iterator;
+}
+
+void hashtable_iterator_destroy(HashTableIterator *iterator) {
+    free(iterator);
 }
 
 HashTableEntry *hashtable_iterator_next(HashTableIterator *hashtable_iterator)
@@ -272,4 +253,12 @@ HashTableEntry *hashtable_entry_create(char *key, void *value)
     entry->key = key;
     entry->value = value;
     return entry;
+}
+
+char *hashtable_entry_get_key(HashTableEntry *entry) {
+    return entry->key;
+}
+
+void *hashtable_entry_get_value(HashTableEntry *entry) {
+    return entry->value;
 }
