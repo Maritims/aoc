@@ -407,36 +407,64 @@ bool string_has_any_needle(const char *str, char *needles, size_t number_of_need
     return false;
 }
 
- char *string_replace(const char *str, const char *old_str, const char *new_str) {
+char *string_replace(char *str, const char *old_str, const char *new_str) {
+    if(!str || !old_str || !new_str) {
+        return str;
+    }
+
+    char *ptr = strstr(str, old_str);
+    if(!ptr) {
+        return str;
+    }
+
     size_t str_length       = strlen(str);
     size_t old_length       = strlen(old_str);
     size_t new_length       = strlen(new_str);
-    size_t result_length    = str_length - old_length + new_length;
-    char *result            = malloc(result_length);
-    strcpy(result, str);
-    char *ptr = strstr(result, old_str);
 
-    if(ptr == NULL) {
-        return result;
+    if(new_length > old_length) {
+        size_t result_length    = str_length + (new_length - old_length);
+        char *temp              = malloc(result_length + 1); // +1 for \0
+
+        if(!temp) {
+            fprintf(stderr, "%s:%d: Failed to allocate memory for temporary string\n", __func__, __LINE__);
+            return str;
+        }
+
+        if(ptr != str) {
+            memcpy(temp, str, ptr - str);  // Write all of str up until the occurrence of old_str into the temp string.
+        }
+        
+        temp[ptr - str] = '\0';         // Clear the temp string of anything after the occurrence of old_str.
+        strcat(temp, new_str);          // Add new_str to the temp string.
+        strcat(temp, ptr + old_length); // Add old_str to the temp string.
+        
+        char *result = realloc(str, result_length + 1);
+        if(!result) {
+            fprintf(stderr, "%s:%d: Failed to allocate additional memory for resulting string\n", __func__, __LINE__);
+            free(temp);
+            return str;
+        }
+
+        str = result;
+        strcpy(str, temp);              // Move the temp string into the original string.
+        free(temp);
+    }
+    else {
+        if(old_length != new_length) {
+            memmove(ptr + new_length, ptr + old_length, strlen(ptr + old_length) + 1);
+        }
+        memcpy(ptr, new_str, new_length);
     }
 
-    // If the lengths are different we need to move some memory around to make room for all the data.
-    if(old_length != new_length) {
-        // ptr + old_length             = where everything after old_str began
-        // ptr + new_lenth              = where everything after new_str will begin
-        // strlen(ptr + old_length) + 1 = the amount of data to move, the +1 is for the null terminator
-
-        // After this memory has been moved we've essentially made room for new_str where old_str was found
-        memmove(ptr + new_length, ptr + old_length, strlen(ptr + old_length) + 1);
-    }
-
-    // Copy new_str into what was previously known as the starting position of old_str. We won't overwrite the previosly moved old_str since we're writing only new_length amount of data, and old_str has already been moved to ptr + new_length by memmove.
-    memcpy(ptr, new_str, new_length);
-    return result;
+    return str;
 }
 
-char *string_replace_all(const char *str, const char *old_str, const char *new_str) {
-    size_t str_length       = strlen(str);
+char *string_replace_all(char *str, const char *old_str, const char *new_str) {
+    if(!str || !old_str || !new_str) {
+        return str;
+    }
+
+    /*size_t str_length       = strlen(str);
     size_t old_length       = strlen(old_str);
     size_t new_length       = strlen(new_str);
     size_t old_occurrences  = 0;
@@ -450,14 +478,15 @@ char *string_replace_all(const char *str, const char *old_str, const char *new_s
             old_occurrences++;
             i += old_length;
         }
+    }*/
+
+    while(strstr(str, old_str) != NULL) {
+        str = string_replace(str, old_str, new_str);
     }
 
+/*
     size_t result_length    = str_length - (old_length * old_occurrences) + (new_length* old_occurrences);
-    char *result            = malloc(result_length);
 
-    // Construct the resulting string
-    // Copy characters into result from str
-    
     i = 0; // "i" is now used for pointing to a position in "result"
     while(*str) { // Is there still something to copy from?
         if(strstr(str, old_str) == str) { // Have we found an occurrence of "old"?
@@ -472,6 +501,8 @@ char *string_replace_all(const char *str, const char *old_str, const char *new_s
 
     result[i] = '\0';
     return result;
+*/
+    return str;
 }
 
 char *string_replace_at(const char *str, const char *new_str, size_t pos, size_t length) {

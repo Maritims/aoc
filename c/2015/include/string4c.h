@@ -47,18 +47,18 @@ bool string_has_any_needle(const char *str, char *needles, size_t number_of_need
  * @param str The original string.
  * @param old_str The string to replace.
  * @param new_str The replacement string.
- * @return Returns a copy of the original string.
+ * @return Returns the string with the replacement.
  */
-char *string_replace(const char *str, const char *old_str, const char *new_str);
+char *string_replace(char *str, const char *old_str, const char *new_str);
 
 /**
  * string_replace_all: Replace all occurrences of a string with another string.
  * @param str The original string.
  * @param old_str The string to replace.
  * @param new_str The replacement string.
- * @return Returns a copy of the original string.
+ * @return Returns the string with replacements.
  */
-char *string_replace_all(const char *str, const char *old_str, const char *new_str);
+char *string_replace_all(char *str, const char *old_str, const char *new_str);
 
 /**
  * string_replace_at: Replace a string at a specific position with another string.
