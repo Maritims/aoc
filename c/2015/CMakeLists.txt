@@ -4,9 +4,9 @@ project(AdventOfCode2015)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_C_STANDARD 99) # This project uses C99.
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
 set(CMAKE_BUILD_TYPE Debug)
 
 function(add_aoc_library lib_name)
@@ -27,6 +27,26 @@ target_sources(array4c PRIVATE ${PROJECT_SOURCE_DIR}/src/array4c.c)
 add_aoc_library(conway)
 target_sources(conway PRIVATE ${PROJECT_SOURCE_DIR}/src/conway.c)
 
+add_library(generics)
+target_sources(generics PRIVATE ${PROJECT_SOURCE_DIR}/src/generics/array.c ${PROJECT_SOURCE_DIR}/src/generics/object.c ${PROJECT_SOURCE_DIR}/src/generics/value.c)
+target_include_directories(generics PRIVATE include)
+
+add_aoc_library(grid)
+target_sources(grid PRIVATE ${PROJECT_SOURCE_DIR}/src/grid.c)
+
+add_aoc_library(hamiltonian)
+target_sources(hamiltonian PRIVATE ${PROJECT_SOURCE_DIR}/src/hamiltonian.c)
+
+add_aoc_library(hashset)
+target_sources(hashset PRIVATE ${PROJECT_SOURCE_DIR}/src/fnv.c ${PROJECT_SOURCE_DIR}/src/hashset.c)
+
+add_aoc_library(hashtable)
+target_sources(hashtable PRIVATE ${PROJECT_SOURCE_DIR}/src/fnv.c ${PROJECT_SOURCE_DIR}/src/hashtable.c)
+
+add_aoc_library(json)
+target_sources(json PRIVATE ${PROJECT_SOURCE_DIR}/src/json/lexer.c ${PROJECT_SOURCE_DIR}/src/json/parser.c ${PROJECT_SOURCE_DIR}/src/json/token.c)
+target_link_libraries(json generics string4c)
+
 add_aoc_library(math4c)
 target_sources(math4c PRIVATE ${PROJECT_SOURCE_DIR}/src/math4c.c)
 target_link_libraries(math4c array4c gmp m)
@@ -40,42 +60,30 @@ target_sources(test4c PRIVATE ${PROJECT_SOURCE_DIR}/src/test4c.c)
 add_aoc_library(maritims_md5)
 target_sources(maritims_md5 PRIVATE ${PROJECT_SOURCE_DIR}/src/maritims_md5.c)
 
-add_aoc_library(hashset)
-target_sources(hashset PRIVATE ${PROJECT_SOURCE_DIR}/src/fnv.c ${PROJECT_SOURCE_DIR}/src/hashset.c)
-
-add_aoc_library(hashtable)
-target_sources(hashtable PRIVATE ${PROJECT_SOURCE_DIR}/src/fnv.c ${PROJECT_SOURCE_DIR}/src/hashtable.c)
-
 add_aoc_library(point)
 target_sources(point PRIVATE ${PROJECT_SOURCE_DIR}/src/point.c)
-
-add_aoc_library(grid)
-target_sources(grid PRIVATE ${PROJECT_SOURCE_DIR}/src/grid.c)
-
-add_aoc_library(hamiltonian)
-target_sources(hamiltonian PRIVATE ${PROJECT_SOURCE_DIR}/src/hamiltonian.c)
-
-add_aoc_library(generics4c)
-target_sources(generics4c PRIVATE ${PROJECT_SOURCE_DIR}/src/generics4c.c)
-
-add_aoc_library(json4c)
-target_sources(json4c PRIVATE src/json4c.c)
-target_link_libraries(json4c generics4c hashtable string4c)
 
 # Enable testing
 add_executable(test_array4c tests/test_array4c.c src/array4c.c)
 target_include_directories(test_array4c PRIVATE include)
 
+add_executable(test_grammar tests/test_grammar.c src/grammar/grammar.c src/grammar/rule.c)
+target_include_directories(test_grammar PRIVATE include)
+target_link_libraries(test_grammar hashset hashtable string4c)
+
 add_executable(test_grid tests/test_grid.c src/grid.c)
 target_include_directories(test_grid PRIVATE include)
+
+add_executable(test_hashset tests/test_hashset.c src/fnv.c src/hashset.c)
+target_include_directories(test_hashset PRIVATE include)
 
 add_executable(test_hashtable tests/test_hashtable.c src/fnv.c src/hashtable.c)
 target_include_directories(test_hashtable PRIVATE include)
 target_link_libraries(test_hashtable string4c)
 
-add_executable(test_json4c tests/test_json4c.c src/json4c.c)
-target_include_directories(test_json4c PRIVATE include)
-target_link_libraries(test_json4c generics4c hashtable string4c)
+add_executable(test_json tests/test_json.c)
+target_include_directories(test_json PRIVATE include)
+target_link_libraries(test_json json generics)
 
 add_executable(test_maritims_md5 tests/test_maritims_md5.c src/maritims_md5.c)
 target_include_directories(test_maritims_md5 PRIVATE include)
@@ -95,9 +103,11 @@ enable_testing()
 
 # Add test cases
 # add_test(NAME Array4CTest COMMAND test_array4c)
+add_test(NAME GrammarTest COMMAND test_grammar)
 add_test(NAME GridTest COMMAND test_grid)
-add_test(NAME HashtableTest COMMAND test_hashtable)
-add_test(NAME Json4CTest COMMAND test_json4c)
+add_test(NAME HashSetTest COMMAND test_hashset)
+add_test(NAME HashTableTest COMMAND test_hashtable)
+add_test(NAME JsonTest COMMAND test_json)
 add_test(NAME MaritimsMD5Test COMMAND test_maritims_md5)
 add_test(NAME Math4CTest COMMAND test_math4c)
 add_test(NAME PointTest COMMAND test_point)

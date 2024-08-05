@@ -72,4 +72,20 @@ char *string_replace_all(char *str, const char *old_str, const char *new_str);
  */
 char *string_replace_at(const char *str, const char *new_str, size_t pos, size_t length);
 
+/**
+ * string_prepend: Prepend a character to a string.
+ * @param str A pointer to the string.
+ * @param c The character.
+ * @return A pointer to the modified string.
+ */
+char *string_prepend_char(char **str, const char c);
+
+/**
+ * string_slice: Get a slice of a string.
+ * @param start Where to slice from, inclusive.
+ * @param end How far to slice, exclusive.
+ * @return The slice.
+ */
+char *string_slice(const char *str, size_t start, size_t end);
+
 #endif

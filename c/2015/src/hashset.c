@@ -6,6 +6,15 @@
 #include "fnv.h"
 #include "hashset.h"
 
+size_t hashset_get_size(HashSet *hashset) {
+    if(hashset == NULL) {
+        fprintf(stderr, "%s:%d: Parameter \"hashset\" cannot be NULL\n", __func__, __LINE__);
+        return 0;
+    }
+
+    return hashset->size;
+}
+
 HashSet *hashset_create(size_t capacity)
 {
     HashSet *hashset = malloc(sizeof(HashSet));
@@ -37,12 +46,11 @@ uint64_t *hashset_hash(void *value, Type type)
 {
     switch (type)
     {
-    case TYPE_STRING:
-        char *key = (char *)value;
-        return fnv1a(key);
-    default:
-        fprintf(stderr, "Unsupported entry type: %d\n", type);
-        return NULL;
+        case TYPE_STRING:
+            return fnv1a((char*)value);
+        default:
+            fprintf(stderr, "Unsupported entry type: %d\n", type);
+            return NULL;
     }
 }
 
@@ -57,6 +65,7 @@ size_t hashset_index_of(HashSet *hashset, void *value, Type type)
 
     return *hash % hashset->capacity;
 }
+
 bool hashset_contains(HashSet *hashset, void *value, Type type)
 {
     uint64_t *hash = hashset_hash(value, type);
@@ -74,6 +83,9 @@ bool hashset_contains(HashSet *hashset, void *value, Type type)
     }
 
     HashSetEntry *entry = hashset->entries[index];
+    while(entry != NULL && *hash != entry->hash) {
+        entry = entry->next;
+    }
     return entry == NULL ? false : true;
 }
 

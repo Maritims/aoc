@@ -57,6 +57,16 @@ void test_string_replace_at(const char *str, const char *new_str, size_t pos, si
     printf("%s(\"%s\", \"%s\", %zu, %zu) passed\n", __func__, str, new_str, pos, length);
 }
 
+void test_string_slice(const char *str, size_t start, size_t end, char *expected) {
+    char *slice = string_slice(str, start, end);
+    if(strcmp(slice, expected) != 0) {
+        printf("%s failed: string_slice(\"%s\", %zu, %zu) != %s (was %s)\n", __func__, str, start, end, expected, slice);
+        exit(EXIT_FAILURE);
+    }
+
+    printf("%s(\"%s\", %zu, %zu, \"%s\") passed\n", __func__, str, start, end, expected);
+}
+
 int main() {
     test_string_contains_non_overlapping_pair("aabaa", true);
     test_string_contains_non_overlapping_pair("cqcq", true);
@@ -80,6 +90,8 @@ int main() {
     test_string_replace_at("HOH", "OH", 0, 1, "OHOH");
     test_string_replace_at("HOH", "OH", 2, 1, "HOOH");
     test_string_replace_at("HOH", "HH", 1, 1, "HHHH");*/
+
+    test_string_slice("foo bar baz", 4, 7, "bar");
 
     printf("All tests passed\n");
     return EXIT_SUCCESS;

@@ -1,26 +1,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
-#include "generics/types.h"
+#include "token.h"
 
 #define JSON_QUOTE '"'
-
-typedef enum JsonTokenType {
-    JSON_TOKEN_TYPE_COLON,
-    JSON_TOKEN_TYPE_COMMA,
-    JSON_TOKEN_TYPE_LEFT_BRACE,
-    JSON_TOKEN_TYPE_LEFT_BRACKET,
-    JSON_TOKEN_TYPE_NUMBER,
-    JSON_TOKEN_TYPE_RIGHT_BRACE,
-    JSON_TOKEN_TYPE_RIGHT_BRACKET,
-    JSON_TOKEN_TYPE_STRING,
-    JSON_TOKEN_TYPE_BOOL,
-    JSON_TOKEN_TYPE_NULL
-} JsonTokenType;
-
-typedef struct {
-    JsonTokenType type;
-    generic_value_t *value;
-} JsonToken;
 
 /**
  * Get the value between two quotes and advance the pointer past the ending quote. Allocates a new string on the heap containing a copy of the quoted string.
@@ -50,12 +32,4 @@ bool *json_lex_bool(char **str);
  */
 bool json_lex_null(char **str);
 
-JsonToken *json_lex(char *str, size_t *out_length);
-
-generic_value_t *json_parse(JsonToken **tokens, bool is_root);
-
-generic_value_t *json_parse_array(JsonToken **tokens);
-
-generic_value_t *json_parse_object(JsonToken **tokens);
-
-void json_parse_string(generic_value_t **result, char *str);
+json_token_t *json_lex(char *str, size_t *out_length);

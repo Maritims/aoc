@@ -4,7 +4,9 @@
 
 #include "aoc.h"
 #include "file4c.h"
-#include "generics4c.h"
+#include "generics/array.h"
+#include "generics/object.h"
+#include "generics/value.h"
 #include "hashtable.h"
 #include "string4c.h"
 
@@ -64,9 +66,9 @@ KeyPosition **key_position_parse(char **keys, size_t keys_length, const char *st
  * @param translation_key_index The index in the tokens array describing where the translation key is contained.
  * @param translation_value_index The index in the tokens array describing where the translation value is contained.
  */
-void parse_lines(char **lines, size_t number_of_lines, HashTable **key_table, GenericObject **translation_map, size_t translation_key_index, size_t translation_value_index) {
+void parse_lines(char **lines, size_t number_of_lines, HashTable **key_table, generic_object_t **translation_map, size_t translation_key_index, size_t translation_value_index) {
     *key_table          = hashtable_create(number_of_lines - 1);
-    *translation_map    = generic_create_object(10);
+    *translation_map    = generic_object_create(10);
 
     for(size_t i = 0; i < number_of_lines - 1; i++) {
         lines[i] = string_replace_all(lines[i], "Rn", "(");
@@ -77,20 +79,21 @@ void parse_lines(char **lines, size_t number_of_lines, HashTable **key_table, Ge
         size_t number_of_tokens;
 
         string_split(&tokens, &number_of_tokens, lines[i], " ");
-        KeyValuePair *kvp = generic_get_pair_from_object(*translation_map, tokens[0]);
+        generic_value_t *translation        = generic_object_get(*translation_map, tokens[translation_key_index]);
+        generic_array_t *translation_array = NULL;
         
-        if(kvp == NULL) {
-            GenericArray *ga = generic_create_array(10);
-            GenericValue *gv = generic_create_array_value(ga);
-            generic_add_to_object(*translation_map, tokens[translation_key_index], gv);
-            kvp = generic_get_pair_from_object(*translation_map, tokens[translation_key_index]);
+        if(translation == NULL) {
+            translation_array   = generic_array_create(10);
+            generic_object_add(*translation_map, tokens[translation_key_index], generic_value_create_array(translation_array));
+        }
+        else {
+            translation_array   = generic_value_get_array(translation);
         }
 
-        hashtable_put_if_absent(*key_table, kvp->key, kvp->key, sizeof(char*), 0);
+        hashtable_put_if_absent(*key_table, tokens[translation_key_index], tokens[translation_key_index], sizeof(char*), 0);
         
-        GenericValue *gv_string = generic_create_string(tokens[translation_value_index]);
-        GenericArray *gv_array = kvp->value->data.array_value;
-        generic_add_to_array(gv_array, gv_string);
+        generic_value_t *gv_string = generic_value_create_string(tokens[translation_value_index]);
+        generic_array_add(translation_array, gv_string);
 
         for(size_t j = 0; j < number_of_tokens; j++) {
             free(tokens[j]);
@@ -101,7 +104,7 @@ void parse_lines(char **lines, size_t number_of_lines, HashTable **key_table, Ge
 }
 
 int solve_part_one(char **lines, size_t number_of_lines) {
-    GenericObject *translation_map;
+    generic_object_t *translation_map;
     HashTable *key_table;
     parse_lines(lines, number_of_lines, &key_table, &translation_map, 0, 2);
 
@@ -112,16 +115,18 @@ int solve_part_one(char **lines, size_t number_of_lines) {
     HashTable *results          = hashtable_create(10);
 
     for(size_t k = 0; k < keys_length; k++) {
-        KeyPosition *key_position   = key_positions[k];
-        size_t key_length           = strlen(key_position->key);
-        KeyValuePair *kvp           = generic_get_pair_from_object(translation_map, key_position->key);
-        GenericArray *array         = kvp->value->data.array_value;
+        KeyPosition *key_position           = key_positions[k];
+        size_t key_length                   = strlen(key_position->key);
+        generic_value_t *translation        = generic_object_get(translation_map, key_position->key);
+        generic_array_t *translation_array  = generic_value_get_array(translation);
+        size_t array_size                   = generic_array_get_size(translation_array);
 
         for(size_t p = 0; p < key_position->count; p++) {
             //printf("%s => \n", kvp->key);
-            for(size_t t = 0; t < array->size; t++) {
-                char *translation = array->elements[t]->data.string_value;
-                char *result = string_replace_at(base, translation, key_position->positions[p], key_length);
+            for(size_t t = 0; t < array_size; t++) {
+                generic_value_t *element    = generic_array_get(translation_array, t);
+                char *translation           = generic_value_get_string(element);
+                char *result                = string_replace_at(base, translation, key_position->positions[p], key_length);
                 //printf("\t%s => %s\n", translation, result);
                 hashtable_put(results, result, result, strlen(result), 0);
 
@@ -138,26 +143,86 @@ int solve_part_one(char **lines, size_t number_of_lines) {
     return result;
 }
 
+void replace_from_right(char *molecule, char **start, char **end, generic_object_t *translation_map) {
+    generic_value_t *gv      = NULL;
+    size_t buffer_length    = 0;
+    char *buffer            = NULL;
+
+    while(gv == NULL && *start != molecule) {
+        if(buffer) {
+            free(buffer);
+            buffer = NULL;
+        }
+
+        (*start)--;
+        size_t length   = (*end) - (*start) + 1;
+        buffer          = malloc(length + 1); // +1 for the null terminator.
+        memcpy(buffer, *start, length);
+        buffer[length]  = '\0';
+
+        if(strlen(buffer)) {
+            gv = generic_object_get(translation_map, buffer);
+            if(gv) {
+                printf("%s:%d: %s yielded a result with type = %d\n", __func__, __LINE__, buffer, generic_value_get_type(gv));
+            }
+        }
+    }
+
+    generic_array_t *ga = generic_value_get_array(gv);
+    if(ga == NULL) {
+        fprintf(stderr, "%s:%d: Unable to get array from generic value\n", __func__, __LINE__);
+        exit(EXIT_FAILURE);
+    }
+
+    generic_value_t *translation    = generic_array_get(ga, 0);
+    char *translation_string        = generic_value_get_string(translation);
+    if(strcmp(translation_string, buffer) == 0) {
+        printf("%s == %s - something's very wrong here\n", translation_string, buffer);
+        free(buffer);
+        exit(EXIT_FAILURE);
+    }
+    printf("%s => %s\n", buffer, translation_string);
+    string_replace(*start, buffer, translation_string);
+    *end = *start - 1;
+    if(buffer) {
+        free(buffer);
+    }
+
+    //generic_print_value(gv);
+    free(gv);
+}
+
 int solve_part_two(char **lines, size_t number_of_lines) {
-    GenericObject *translation_map;
+    generic_object_t *translation_map;
     HashTable *key_table;
     parse_lines(lines, number_of_lines, &key_table, &translation_map, 2, 0);
     
-    char *result    = strdup(lines[number_of_lines - 1]);
-    result          = string_replace_all(result, "Rn", "(");
-    result          = string_replace_all(result, "Y", ",");
-    result          = string_replace_all(result, "Ar", ")");
-    size_t step     = 0;
+    char *result            = strdup(lines[number_of_lines - 1]);
+    result                  = string_replace_all(result, "Rn", "(");
+    result                  = string_replace_all(result, "Y", ",");
+    result                  = string_replace_all(result, "Ar", ")");
+    size_t result_length    = strlen(result);
+    //char *ptr             = result + result_length;
+    //size_t i              = strlen(result);
+    size_t step             = 0;
+    char *start             = result + result_length;
+    char *end               = result + result_length;
+
+    generic_value_t *gv = generic_value_create_object(translation_map);
+    //generic_print_value(gv);
 
     while(strcmp(result, "e") != 0) {
-        for(size_t i = 0; i < translation_map->size; i++) {
-            KeyValuePair *kvp   = translation_map->pairs[i];
-            result              = string_replace_all(result, kvp->key, kvp->value->data.array_value->elements[0]->data.string_value);
-            step++;
-
-            if(strcmp(result, "e") == 0) {
-                return step;
-            }
+        step++;
+        replace_from_right(result, &start, &end, translation_map);
+    
+        if(strcmp(result, "e") == 0) {
+            break;
+        }
+        
+        if(*start == *end) {
+            printf("Resetting pointers\n");
+            start = result + result_length;
+            end = result + result_length;
         }
     }
 

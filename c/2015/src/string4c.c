@@ -6,10 +6,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "debug.h"
 #include "string4c.h"
-
-#define DEBUG 1
 
 int string_compare_asc(const void *str1, const void *str2) {
     return strcmp(*(const char**)str1, *(const char**)str2);
@@ -296,7 +293,7 @@ char *string_escape(const char *str)
 StringBuffer* string_buffer_create(size_t total_size) {
     StringBuffer* buffer = malloc(sizeof(StringBuffer));
     if(buffer == NULL) {
-        debug_print("Failed to allocate memory for buffer.\n", "");
+        fprintf(stderr, "Failed to allocate memory for buffer.\n", __func__, __LINE__);
         return NULL;
     }
     
@@ -304,7 +301,7 @@ StringBuffer* string_buffer_create(size_t total_size) {
     buffer->actual_length = 0;
     buffer->content = calloc(buffer->total_size, sizeof(char));
     if(buffer->content == NULL) {
-        debug_print("Failed to allocate memory for buffer content.\n", "");
+        fprintf(stderr, "%s:%d: Failed to allocate memory for buffer content.\n", __func__, __LINE__);
         free(buffer);
         return NULL;
     }
@@ -321,7 +318,7 @@ bool string_buffer_realloc(StringBuffer* buffer, size_t additional_length) {
 
         char *new_content = realloc(buffer->content, new_size);
         if(new_content == NULL) {
-            debug_print("Failed to allocate additional memory for buffer content.\n", "");
+            fprintf(stderr, "%s:%d: Failed to allocate additional memory for buffer content.\n", __func__, __LINE__);
             return false;
         }
 
@@ -335,7 +332,7 @@ bool string_buffer_realloc(StringBuffer* buffer, size_t additional_length) {
 bool string_buffer_append(StringBuffer* buffer, const char* str) {
     size_t length = strlen(str);
     if(!string_buffer_realloc(buffer, length)) {
-        debug_print("Failed to reallocate additional memory for string buffer.\n", "");
+        fprintf(stderr, "%s:%d: Failed to reallocate additional memory for string buffer.\n", __func__, __LINE__);
         return false;
     }
 
@@ -464,44 +461,10 @@ char *string_replace_all(char *str, const char *old_str, const char *new_str) {
         return str;
     }
 
-    /*size_t str_length       = strlen(str);
-    size_t old_length       = strlen(old_str);
-    size_t new_length       = strlen(new_str);
-    size_t old_occurrences  = 0;
-    size_t i                = 0;
-
-    for(i = 0; i < str_length; i++) {
-        // Search str from the position indicated by "i".
-        // If strstr returns a pointer to the position indicated by "i" we know we've found an occurrence of "old_str".
-        // Advance "i" by the length of "old", minus 1 of course so we don't skip a character.
-        if(strstr(&str[i], old_str) == &str[i]) {
-            old_occurrences++;
-            i += old_length;
-        }
-    }*/
-
     while(strstr(str, old_str) != NULL) {
         str = string_replace(str, old_str, new_str);
     }
 
-/*
-    size_t result_length    = str_length - (old_length * old_occurrences) + (new_length* old_occurrences);
-
-    i = 0; // "i" is now used for pointing to a position in "result"
-    while(*str) { // Is there still something to copy from?
-        if(strstr(str, old_str) == str) { // Have we found an occurrence of "old"?
-            strcpy(&result[i], new_str); // Copy the replacement into "result" instead of just taking the current character from "str".
-            i += new_length;
-            str += old_length; // Advance "str" by the length of the old string since we just appended the new string to the result.
-        }
-        else {
-            result[i++] = *str++; // Copy the current character into "result" and move ahead.
-        }
-    }
-
-    result[i] = '\0';
-    return result;
-*/
     return str;
 }
 
@@ -517,4 +480,52 @@ char *string_replace_at(const char *str, const char *new_str, size_t pos, size_t
     }
     memcpy(result + pos, new_str, new_length);
     return result;
+}
+
+char *string_prepend_char(char **str, const char c) {
+    size_t length   = strlen(*str);
+    char *new_str   = malloc(length + 2); // Add room for the new character and the NULL terminator.
+    new_str[0]      = c;
+    memcpy(new_str + 1, *str, length);
+    new_str[length + 1] = '\0';
+    *str = new_str;
+    return *str;
+}
+
+char *string_slice(const char *str, size_t start, size_t end) {
+    if(str == NULL) {
+        fprintf(stderr, "%s:%d: str is NULL\n", __func__, __LINE__);
+        return NULL;
+    }
+
+    size_t len = strlen(str);
+
+    if(len == 0) {
+        return NULL;
+    }
+
+    if(start == end) {
+        return NULL;
+    }
+    
+    if(start >= len) {
+        fprintf(stderr, "%s:%d: invalid starting position (%zu)\n", __func__, __LINE__, start);
+        return NULL;
+    }
+
+    if(end >= len) {
+        fprintf(stderr, "%s:%d: invalid ending position (%zu)\n", __func__, __LINE__, end);
+        return NULL;
+    }
+
+    size_t slice_len = end - start;
+    char *slice = malloc(slice_len);
+    
+    if(slice == NULL) {
+        fprintf(stderr, "%s:%d: failed to allocate memory for slice\n", __func__, __LINE__);
+        return NULL;
+    }
+
+    strncpy(slice, str + start, slice_len);
+    return slice;
 }
