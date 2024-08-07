@@ -127,7 +127,7 @@ fi
 if $run; then
     if [[ ${#days[@]} -eq 0 ]]; then
         shopt -s extglob            # Enable more advanced pattern matching.
-        dirs=$(ls -d1v day*[0-9])   # Get all directories.
+        dirs=$(ls -d1v build/day*[0-9])   # Get all days.
         shopt -u extglob            # Restore default behaviour.
         
         for dir in $dirs; do

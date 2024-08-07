@@ -8,7 +8,7 @@
 #include "test4c.h"
 
 bool is_red(json_object_entry_t *entry) {
-    if(strcmp(entry->key, "red") == 0 || (entry->value->type == JSON_NODE_TYPE_STRING && strcmp((char*)entry->value, "red") == 0)) {
+    if(strcmp(entry->key, "red") == 0 || (entry->value->type == JSON_NODE_TYPE_STRING && strcmp((char*)entry->value->value, "red") == 0)) {
         return true;
     }
     return false;
