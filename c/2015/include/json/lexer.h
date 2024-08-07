@@ -32,4 +32,4 @@ bool *json_lex_bool(char **str);
  */
 bool json_lex_null(char **str);
 
-json_token_t *json_lex(char *str, size_t *out_length);
+json_token_t **json_lex(char *str, size_t *out_length);

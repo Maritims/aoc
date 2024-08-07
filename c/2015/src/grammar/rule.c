@@ -48,7 +48,7 @@ HashTable *grammar_rule_parse(char **lines, size_t lines_length) {
             continue;
         }
 
-        hashtable_put(rules, tokens[0], tokens[1], sizeof(tokens[1]), 0);
+        hashtable_put(rules, tokens[0], tokens[1], sizeof(tokens[1]));
         free(tokens);
     }
 

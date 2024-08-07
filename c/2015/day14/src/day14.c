@@ -48,6 +48,7 @@ int compare_by_points_desc(const void *a, const void *b) {
 }
 
 int main(int argc, char *argv[]) {
+    (void)argc;
     Solution solution;
     char **lines;
     size_t number_of_lines = 0;

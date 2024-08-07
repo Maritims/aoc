@@ -226,7 +226,7 @@ char *string_unescape(const char *str)
         }
         str_copy++;
     }
-    sprintf(result + strlen(result), "\0");
+    result[strlen(result)] = '\0';
 
     return result;
 }
@@ -285,7 +285,8 @@ char *string_escape(const char *str)
         }
         str_copy++;
     }
-    sprintf(result + strlen(result), "\"\0");
+    sprintf(result + strlen(result), "\"");
+    result[strlen(result)] = '\0';
 
     return result;
 }
@@ -293,7 +294,7 @@ char *string_escape(const char *str)
 StringBuffer* string_buffer_create(size_t total_size) {
     StringBuffer* buffer = malloc(sizeof(StringBuffer));
     if(buffer == NULL) {
-        fprintf(stderr, "Failed to allocate memory for buffer.\n", __func__, __LINE__);
+        fprintf(stderr, "%s:%s:%d: failed to allocate memory for buffer\n", __FILE__, __func__, __LINE__);
         return NULL;
     }
     
@@ -382,7 +383,7 @@ bool string_contains_non_overlapping_pair(const char *str) {
     return false;
 }
 
-bool string_has_straight_of_n(const char *str, int n) {
+bool string_has_straight(const char *str) {
     size_t length = strlen(str);
 
     for(size_t i = 0; i < length - 2; i++) {

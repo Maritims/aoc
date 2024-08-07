@@ -8,8 +8,7 @@
 #include "string4c.h"
 #include "hamiltonian.h"
 
-void print_mask(int mask, int number_of_nodes)
-{
+void print_mask(int mask, int number_of_nodes) {
     for (int i = number_of_nodes - 1; i >= 0; i--)
     {
         printf("%d", (mask & (1 << i)) ? 1 : 0);
@@ -17,8 +16,7 @@ void print_mask(int mask, int number_of_nodes)
     printf("\n");
 }
 
-size_t get_city_index(char cities[][20], size_t *number_of_cities, char *city)
-{
+size_t get_city_index(char cities[][20], size_t *number_of_cities, char *city) {
     for(size_t i = 0; i < *number_of_cities; i++)
     {
         if(strcmp(cities[i], city) == 0)
@@ -36,6 +34,7 @@ size_t get_city_index(char cities[][20], size_t *number_of_cities, char *city)
  * Day 9: This problem is a variant of the Hamiltonian path and Hamiltonian cycle problems.
  */
 int main(int argc, char *argv[]) {
+    (void)argc;
     Solution solution;
     char **lines;
     size_t number_of_lines;

@@ -40,8 +40,8 @@ void solve_part_two(char *file_content, Solution *solution)
     solution_part_finalize_with_int(solution, 1, number, "9962624");
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
+    (void)argc;
     Solution solution;
     char *file_content;
 

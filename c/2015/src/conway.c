@@ -1,27 +1,28 @@
 #include <limits.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
-
+#include <stdlib.h>
 #include "conway.h"
 #include "grid.h"
 
 struct conway_t {
-    bool verbose;
-    int** grid;
-    size_t grid_rows;
-    size_t grid_cols;
-    size_t grid_enabled_cells;
-    int **grid_always_enabled_cells;
-    size_t grid_always_enabled_cells_size;
-    int total_rounds;
-    int current_round;
+    bool        verbose;
+    uint32_t**  grid;
+    uint32_t    grid_rows;
+    uint32_t    grid_cols;
+    uint32_t    grid_enabled_cells;
+    uint32_t**  grid_always_enabled_cells;
+    uint32_t    grid_always_enabled_cells_size;
+    uint32_t    total_rounds;
+    uint32_t    current_round;
 };
 
-size_t conway_get_grid_cols(conway_t *conway) {
+uint32_t conway_get_grid_cols(conway_t *conway) {
     return conway->grid_cols;
 }
 
-int conway_get_total_rounds(conway_t *conway) {
+uint32_t conway_get_total_rounds(conway_t *conway) {
     return conway->total_rounds;
 }
 
@@ -29,7 +30,7 @@ void conway_set_verbose(conway_t *conway, bool verbose) {
     conway->verbose = verbose;
 }
 
-conway_t *conway_create(char **lines, size_t number_of_lines, char on, int total_rounds, int **always_enabled, size_t always_enabled_size) {
+conway_t *conway_create(char **lines, uint32_t number_of_lines, char on, uint32_t total_rounds, uint32_t **always_enabled, uint32_t always_enabled_size) {
     conway_t *conway = malloc(sizeof(conway_t));
     size_t number_of_columns;
 
@@ -51,9 +52,9 @@ conway_t *conway_create(char **lines, size_t number_of_lines, char on, int total
     
     if(always_enabled_size > 0) {
         conway->grid_always_enabled_cells = calloc(always_enabled_size, sizeof(int*));
-        for(size_t i = 0; i < always_enabled_size; i++) {
-            int grid_row = always_enabled[i][0];
-            int grid_col = always_enabled[i][1];
+        for(uint32_t i = 0; i < always_enabled_size; i++) {
+            uint32_t grid_row = always_enabled[i][0];
+            uint32_t grid_col = always_enabled[i][1];
 
             if(conway->verbose) {
                 printf("%s:%d: (%d,%d) is always enabled\n", __func__, __LINE__, grid_row, grid_col);
@@ -70,8 +71,8 @@ conway_t *conway_create(char **lines, size_t number_of_lines, char on, int total
         conway->grid_always_enabled_cells = NULL;
     }
 
-    for(size_t row = 0; row < conway->grid_rows; row++) {
-        for(size_t col = 0; col < conway->grid_cols; col++) {
+    for(uint32_t row = 0; row < conway->grid_rows; row++) {
+        for(uint32_t col = 0; col < conway->grid_cols; col++) {
             if(conway->grid[row][col] == 1) {
                 conway->grid_enabled_cells++;
             }
@@ -85,7 +86,7 @@ void conway_destroy(conway_t *conway) {
     grid_destroy(conway->grid, conway->grid_rows);
     
     if(conway->grid_always_enabled_cells_size > 0) {
-        for(size_t i = 0; i < conway->grid_always_enabled_cells_size; i++) {
+        for(uint32_t i = 0; i < conway->grid_always_enabled_cells_size; i++) {
             free(conway->grid_always_enabled_cells[i]);
         }
         free(conway->grid_always_enabled_cells);
@@ -94,17 +95,17 @@ void conway_destroy(conway_t *conway) {
     free(conway);
 }
 
-static bool conway_grid_cell_is_always_enabled(conway_t *conway, size_t target_row, size_t target_col) {
+static bool conway_grid_cell_is_always_enabled(conway_t *conway, uint32_t target_row, uint32_t target_col) {
     if(conway->grid_always_enabled_cells_size == 0) {
         if(conway->verbose) {
-            printf("%s:%d: %zu == 0\n", __func__, __LINE__, conway->grid_always_enabled_cells_size);
+            printf("%s:%s:%d: %d == 0\n", __FILE__, __func__, __LINE__, conway->grid_always_enabled_cells_size);
         }
         return false;
     }
 
-    for(size_t row = 0; row < conway->grid_always_enabled_cells_size; row++) {
-        int grid_row = conway->grid_always_enabled_cells[row][0];
-        int grid_col = conway->grid_always_enabled_cells[row][1];
+    for(uint32_t row = 0; row < conway->grid_always_enabled_cells_size; row++) {
+        uint32_t grid_row = conway->grid_always_enabled_cells[row][0];
+        uint32_t grid_col = conway->grid_always_enabled_cells[row][1];
         if(target_row == grid_row && target_col == grid_col) {
             return true;
         }
@@ -114,16 +115,16 @@ static bool conway_grid_cell_is_always_enabled(conway_t *conway, size_t target_r
 }
 
 void conway_play_round(conway_t *conway) {
-    int **cloned_grid = grid_clone(conway->grid, conway->grid_rows, conway->grid_cols);
+    uint32_t **cloned_grid = grid_clone(conway->grid, conway->grid_rows, conway->grid_cols);
 
-    for(size_t row = 0; row < conway->grid_rows; row++) {
-        for(size_t col = 0; col < conway->grid_cols; col++) {
+    for(uint32_t row = 0; row < conway->grid_rows; row++) {
+        for(uint32_t col = 0; col < conway->grid_cols; col++) {
             size_t number_of_neighbours;
-            int **neighbours        = grid_get_neighbours(cloned_grid, conway->grid_rows, conway->grid_cols, row, col, &number_of_neighbours);
-            int enabled_neighbours  = 0;
-            int is_enabled          = cloned_grid[row][col];
+            int **neighbours   = grid_get_neighbours(conway->grid_rows, conway->grid_cols, row, col, &number_of_neighbours);
+            uint32_t enabled_neighbours  = 0;
+            uint32_t is_enabled          = cloned_grid[row][col];
 
-            for(size_t i = 0; i < 8; i++) {
+            for(uint32_t i = 0; i < 8; i++) {
                 int neighbour_row = neighbours[i][0];
                 int neighbour_col = neighbours[i][1];
 
@@ -171,8 +172,8 @@ void conway_play_round(conway_t *conway) {
     conway->current_round++;
 }
 
-int conway_play_all_rounds(conway_t *conway) {
-    int total_rounds = conway_get_total_rounds(conway);
+uint32_t conway_play_all_rounds(conway_t *conway) {
+    uint32_t total_rounds = conway_get_total_rounds(conway);
     
     if(conway->verbose) {
         printf("Initial setup:\n");
@@ -180,7 +181,7 @@ int conway_play_all_rounds(conway_t *conway) {
         printf("\n");
     }
 
-    for(int i = 0; i < total_rounds; i++) {
+    for(uint32_t i = 0; i < total_rounds; i++) {
         conway_play_round(conway);
     }
     return conway->grid_enabled_cells;

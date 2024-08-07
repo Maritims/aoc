@@ -136,6 +136,7 @@ void compute_sets(int n, int k, int current_k, int current_sum, int *set, int **
  * Day 15: This problem is a variation of the "Knapsack problem".
  */
 int main(int argc, char *argv[]) {
+    (void)argc;
     Solution solution;
     char **lines;
     size_t number_of_lines = 0;
@@ -152,7 +153,7 @@ int main(int argc, char *argv[]) {
     }
 
     int **sets = calloc(combinations, sizeof(int*));
-    for(int i = 0; i < combinations; i++) {
+    for(uint64_t i = 0; i < combinations; i++) {
         sets[i] = calloc(number_of_lines, sizeof(int));
     }
     
@@ -166,10 +167,10 @@ int main(int argc, char *argv[]) {
    
     uint64_t highest_cookie_score = 0;
     uint64_t highest_cookie_score_in_part_two = 0;
-    for(int i = 0; i < combinations; i++) {
+    for(uint64_t i = 0; i < combinations; i++) {
         set = sets[i];
         CookieIngredient cookie_ingredients[number_of_lines];
-        for(int j = 0; j < number_of_lines; j++) {
+        for(size_t j = 0; j < number_of_lines; j++) {
             cookie_ingredients[j] = (CookieIngredient){
                 .amount = set[j],
                 .ingredient = ingredients[j]

@@ -96,6 +96,7 @@ HashSet *grammar_get_terminals(grammar_t *grammar) {
     return grammar->T;
 }
 
+/*
 void grammar_derive_with_leftmost_derivation(grammar_t *grammar, char *target_string){
 }
 
@@ -103,4 +104,4 @@ void grammar_derive_with_rightmost_derivation(grammar_t *grammar, char *target_s
 }
 
 void grammar_derive_with_parse_tree(grammar_t *grammar, char *target_string) {
-}
+}*/

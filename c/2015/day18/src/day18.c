@@ -7,19 +7,19 @@
 #include "grid.h"
 
 int main(int argc, char *argv[]) {
+    (void)argc;
     Solution solution;
     solution_create(&solution, 2015, 18);
     
     char **lines;
     size_t number_of_lines;
-    size_t number_of_columns;
     
     file_read_all_lines(&lines, &number_of_lines, argv[1]);
 
     int part_one;
     int part_two;
     conway_t *conway;
-    int **always_enabled_cells;
+    uint32_t **always_enabled_cells;
 
     conway = conway_create(lines, number_of_lines, '#', 100, NULL, 0);
     part_one = conway_play_all_rounds(conway);

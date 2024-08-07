@@ -1,4 +1,5 @@
 #include <limits.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,19 +14,19 @@
 
 CREATE_GRID_IMPL_FOR(GridU64, uint64_t);
 
-int **grid_create(size_t rows, size_t cols) {
-    int **grid = calloc(rows, sizeof(int*));
+uint32_t **grid_create(uint32_t rows, uint32_t cols) {
+    uint32_t **grid = calloc(rows, sizeof(uint32_t*));
     if(grid == NULL) {
-        fprintf(stderr, "%s:%d: Failed to allocate memory for grid\n", __func__, __LINE__);
+        fprintf(stderr, "%s:%s:%d: failed to allocate memory for grid\n", __FILE__, __func__, __LINE__);
         return NULL;
     }
 
-    for(size_t row = 0; row < rows; row++) {
-        grid[row] = calloc(cols, sizeof(int*));
+    for(uint32_t row = 0; row < rows; row++) {
+        grid[row] = calloc(cols, sizeof(uint32_t*));
     
         if(grid[row] == NULL) {
-            fprintf(stderr, "%s:%d: Failed to allocate memory for row %zu in grid\n", __func__, __LINE__);
-            for(size_t i = 0; i < row; i++) {
+            fprintf(stderr, "%s:%s:%d: Failed to allocate memory for row %d in grid\n", __FILE__, __func__, __LINE__, row);
+            for(uint32_t i = 0; i < row; i++) {
                 free(grid[i]);
             }
             free(grid);
@@ -36,14 +37,14 @@ int **grid_create(size_t rows, size_t cols) {
     return grid;
 }
 
-void grid_destroy(int **grid, size_t rows) {
-    for(size_t row = 0; row < rows; row++) {
+void grid_destroy(uint32_t **grid, uint32_t rows) {
+    for(uint32_t row = 0; row < rows; row++) {
         free(grid[row]);
     }
     free(grid);
 }
 
-int **grid_parse(char **lines, size_t number_of_lines, size_t *number_of_columns, char on) {
+uint32_t **grid_parse(char **lines, size_t number_of_lines, size_t *number_of_columns, char on) {
     if(lines == NULL) {
         fprintf(stderr, "%s:%d: Parameter \"lines\" cannot be NULL\n", __func__, __LINE__);
         return NULL;
@@ -55,7 +56,7 @@ int **grid_parse(char **lines, size_t number_of_lines, size_t *number_of_columns
     }
 
     *number_of_columns = strlen(lines[0]);
-    int **grid = grid_create(number_of_lines, *number_of_columns);
+    uint32_t **grid = grid_create(number_of_lines, *number_of_columns);
 
     if(grid == NULL) {
         fprintf(stderr, "%s:%d: Failed to create grid with %zu rows and %zu cols\n", __func__, __LINE__, number_of_lines, *number_of_columns);
@@ -63,7 +64,7 @@ int **grid_parse(char **lines, size_t number_of_lines, size_t *number_of_columns
     }
 
     for(size_t i = 0; i < number_of_lines; i++) {
-        for(size_t j = 0; j < *number_of_columns; j++) {
+        for(uint32_t j = 0; j < *number_of_columns; j++) {
             grid[i][j] = lines[i][j] == on ? 1 : 0;
         }
     }
@@ -71,36 +72,36 @@ int **grid_parse(char **lines, size_t number_of_lines, size_t *number_of_columns
     return grid;
 }
 
-void grid_print(int **grid, size_t rows, size_t cols, char on) {
-    for(size_t row = 0; row < rows; row++) {
-        for(size_t col = 0; col < cols; col++) {
-            printf("%c", grid[row][col] == 1 ? '#' : '.');
+void grid_print(uint32_t **grid, uint32_t rows, uint32_t cols, char on) {
+    for(uint32_t row = 0; row < rows; row++) {
+        for(uint32_t col = 0; col < cols; col++) {
+            printf("%c", grid[row][col] == 1 ? on : '.');
         }
         printf("\n");
     }
 }
 
-int **grid_clone(int **grid, size_t rows, size_t cols) {
-    int **cloned_grid = calloc(rows, sizeof(int*));
+uint32_t **grid_clone(uint32_t **grid, uint32_t rows, uint32_t cols) {
+    uint32_t **cloned_grid = calloc(rows, sizeof(uint32_t*));
 
     if(cloned_grid == NULL) {
         fprintf(stderr, "%s:%d: Failed to allocate memory for cloned grid\n", __func__, __LINE__);
         return NULL;
     }
 
-    for(size_t row = 0; row < rows; row++) {
+    for(uint32_t row = 0; row < rows; row++) {
         cloned_grid[row] = calloc(cols, sizeof(int));
     
         if(cloned_grid[row] == NULL) {
-            fprintf(stderr, "%s:%d: Failed to allocate memory for row %zu in grid\n", __func__, __LINE__);
-            for(size_t i = 0; i < row; i++) {
+            fprintf(stderr, "%s:%s:%d: failed to allocate memory for row %d in grid\n", __FILE__, __func__, __LINE__, row);
+            for(uint32_t i = 0; i < row; i++) {
                 free(cloned_grid[i]);
             }
             free(cloned_grid);
             return NULL;
         }
 
-        for(size_t col = 0; col < cols; col++) {
+        for(uint32_t col = 0; col < cols; col++) {
             cloned_grid[row][col] = grid[row][col];
         }
     }
@@ -108,10 +109,10 @@ int **grid_clone(int **grid, size_t rows, size_t cols) {
     return cloned_grid;
 }
 
-int **grid_get_corners(size_t rows, size_t cols) {
-    int **corners = calloc(4, sizeof(int*));
-    for(size_t i = 0; i < 4; i++) {
-        corners[i] = calloc(2, sizeof(int));
+uint32_t **grid_get_corners(uint32_t rows, uint32_t cols) {
+    uint32_t **corners = calloc(4, sizeof(uint32_t*));
+    for(uint32_t i = 0; i < 4; i++) {
+        corners[i] = calloc(2, sizeof(uint32_t));
     }
 
     // Top left corner.
@@ -133,14 +134,14 @@ int **grid_get_corners(size_t rows, size_t cols) {
     return corners;
 }
 
-void grid_destroy_corners(int **corners) {
-    for(size_t i = 0; i < 4; i++) {
+void grid_destroy_corners(uint32_t **corners) {
+    for(uint32_t i = 0; i < 4; i++) {
         free(corners[i]);
     }
     free(corners);
 }
 
-int **grid_get_neighbours(int **grid, size_t rows, size_t cols, size_t row, size_t col, size_t *number_of_neighbours) {
+int **grid_get_neighbours(int rows, int cols, uint32_t row, uint32_t col, size_t *number_of_neighbours) {
     *number_of_neighbours = 0;
 
     int dx[]            = { NORTH, NORTH, NORTH, NONE, NONE, SOUTH, SOUTH, SOUTH };
@@ -152,14 +153,14 @@ int **grid_get_neighbours(int **grid, size_t rows, size_t cols, size_t row, size
         return NULL;
     }
 
-    for(int n = 0; n < 8; n++) {
+    for(uint32_t n = 0; n < 8; n++) {
         int new_row     = row + dx[n];
         int new_col     = col + dy[n];
         neighbours[n]   = calloc(2, sizeof(int));
         
         if(neighbours[n] == NULL) {
             fprintf(stderr, "%s:%d: Failed to allocate memory for grid neighbour (%d,%d) next to grid cell (%d,%d)\n", __func__, __LINE__, new_row, new_col, row, col);
-            for(size_t i = 0; i < n; i++) {
+            for(uint32_t i = 0; i < n; i++) {
                 free(neighbours[i]);
             }
             free(neighbours);
@@ -180,7 +181,7 @@ int **grid_get_neighbours(int **grid, size_t rows, size_t cols, size_t row, size
     return neighbours;
 }
 
-const char *grid_neighbour_str(int n) {
+const char *grid_neighbour_str(uint32_t n) {
     switch(n) {
         case 0:
         return "NorthWest";

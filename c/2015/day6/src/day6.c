@@ -26,10 +26,8 @@ typedef GRID_OF_TYPE(Light) LightGrid;
 
 CREATE_GRID_IMPL_FOR(LightGrid, Light)
 
-int action_parse(const char *line, Action *action)
-{
-    if (strncmp(line, "turn", 4) == 0)
-    {
+int action_parse(const char *line, Action *action) {
+    if (strncmp(line, "turn", 4) == 0) {
         line += 5;
     }
 
@@ -149,11 +147,9 @@ void light_adjust_brightness(Light *light, Action *action)
 void light_grid_adjust_brightness(Action **actions, size_t number_of_action, uint32_t is_dimmable, size_t *out_result)
 {
     LightGrid *grid = grid_create_LightGrid(1000, 1000, (Light){is_dimmable, 0});
-    for (uint32_t i = 0; i < number_of_action; i++)
-    {
+    for (uint32_t i = 0; i < number_of_action; i++) {
         Action *action = actions[i];
-        for (uint64_t y = action->starting_point.y; y <= action->stopping_point.y; y++)
-        {
+        for (uint64_t y = action->starting_point.y; y <= action->stopping_point.y; y++) {
             for (uint64_t x = action->starting_point.x; x <= action->stopping_point.x; x++)
             {
                 light_adjust_brightness(&grid->table[y][x], action);
@@ -188,12 +184,11 @@ void solve_part_two(char **lines, size_t length, Solution *solution)
 
 void test_light_grid_adjust_brightness(TestResults *test_results, Action action, uint32_t is_dimmable, uint64_t expectation)
 {
-    LightGrid *grid = grid_create_LightGrid(1000, 1000, (Light){is_dimmable, 0});
-    size_t result = 0;
-    Action **actions = calloc(1, sizeof(Action *));
-    actions[0] = &action;
+    size_t result       = 0;
+    Action **actions    = calloc(1, sizeof(Action *));
+    actions[0]          = &action;
     light_grid_adjust_brightness(actions, 1, is_dimmable, &result);
-    int success = result == expectation ? 1 : 0;
+    int success         = result == expectation ? 1 : 0;
     test_results->total++;
     test_results->succeeded += success;
 
@@ -269,6 +264,7 @@ void test()
 
 int main(int argc, char *argv[])
 {
+    (void)argc;
     test();
 
     Solution solution;

@@ -82,8 +82,9 @@ void solve_part_two(char **lines, size_t length, Solution *solution)
 	solution_part_finalize_with_int(solution, 1, total_ribbon_length, "3783758");
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
+    (void)argc;
+
     Solution solution;
     size_t number_of_lines = 0;
     char **lines;

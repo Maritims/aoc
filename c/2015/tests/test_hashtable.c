@@ -17,11 +17,10 @@ void test_hashtable_create() {
 void test_hashtable_put_and_hashtable_get_size(size_t expected) {
     HashTable *hashtable = hashtable_create(expected);
     for(size_t i = 0; i < expected; i++) {
-        char key[5];
+        char key[100];
         sprintf(key, "%s%zu", "foo", i);
         char value[4] = { 'b', 'a', 'r', '\0' };
-        HashTableEntry *entry = hashtable_entry_create(key, value);
-        hashtable_put(hashtable, key, value, sizeof(value), 0);
+        hashtable_put(hashtable, key, value, sizeof(value));
     }
    
     size_t hashtable_size = hashtable_get_size(hashtable);
@@ -36,7 +35,7 @@ void test_hashtable_put_and_hashtable_get_size(size_t expected) {
 void test_hashtable_get_keys(char **keys, size_t keys_length) {
     HashTable *hashtable = hashtable_create(keys_length);
     for(size_t i = 0; i < keys_length; i++) {
-        hashtable_put(hashtable, keys[i], keys[i], sizeof(char*), 0);
+        hashtable_put(hashtable, keys[i], keys[i], sizeof(char*));
     }
 
     char **actual_keys = hashtable_get_keys(hashtable);

@@ -41,7 +41,7 @@ void visit(HashTable *visited, Point2D *visitor)
     sprintf(key, "%d,%d", visitor->x, visitor->y);
     if(hashtable_get(visited, key) == NULL)
     {
-        hashtable_put(visited, key, &visitor, sizeof(Point2D), 0);
+        hashtable_put(visited, key, &visitor, sizeof(Point2D));
     }
 }
 
@@ -55,13 +55,11 @@ void solve_part_one(char *instructions, Solution *solution)
 
     Point2D visitor = {.x = 0, .y = 0};
     char instruction;
-    uint32_t instruction_number = 0;
     while((instruction = *instructions) != '\0')
     {
         visit(visited, &visitor);
         point2d_move(&visitor, instruction);
         instructions++;
-        instruction_number++;
     }
 
     solution_part_finalize_with_int(solution, 0, hashtable_get_size(visited), "2592");
@@ -92,8 +90,9 @@ void solve_part_two(char *instructions, Solution *solution)
     solution_part_finalize_with_int(solution, 1, hashtable_get_size(visited), "2360");
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
+    (void)argc;
+
     Solution solution;
     char *instructions;
     char *tmp;

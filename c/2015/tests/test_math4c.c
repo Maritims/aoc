@@ -4,7 +4,7 @@
 
 #include "math4c.h"
 
-void test_math_sets_compute_subsets(int *set, size_t length) {
+void test_math_sets_compute_subsets() {
     int *original_array     = (int[]){ 2, 4 };
     size_t return_results_size;
     size_t *return_results_column_sizes;
@@ -50,12 +50,12 @@ void test_math_sets_is_subset_sum(int *set, size_t length, int sum) {
     printf("%s passed: math_sets_is_subset_sum(%s, %zu) == %d\n", __func__, set_as_str, length, sum);
 }
 
-void test_math_stars_and_bars(int n, int k, int expected_result) {
+void test_math_stars_and_bars(int n, int k, uint64_t expected_result) {
     uint64_t combinations;
     math_stars_and_bars(&combinations, n, k);
 
     if(combinations != expected_result) {
-        printf("%s failed: math_stars_and_bars(%d, %d) != %d\n", __func__, n, k, expected_result);
+        printf("%s failed: math_stars_and_bars(%d, %d) != %lu\n", __func__, n, k, expected_result);
         exit(EXIT_FAILURE);
     }
 
@@ -63,7 +63,7 @@ void test_math_stars_and_bars(int n, int k, int expected_result) {
 }
 
 int main() {
-    test_math_sets_compute_subsets((int[]){ 2, 4 }, 2);
+    test_math_sets_compute_subsets();
     test_math_sets_is_subset_sum((int[]){ 1, 2, 3 }, 3, 5);
     test_math_sets_is_subset_sum((int[]){ 20, 15, 10, 5, 5 }, 5, 25);
     test_math_stars_and_bars(5, 3, 21);

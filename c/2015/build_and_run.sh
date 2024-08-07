@@ -139,7 +139,7 @@ if $run; then
     echo "---- RUNNING DAYS: ${days[@]} ----"
 
     for day in ${days[@]}; do
-        day_command="bin/day${day} data/day${day}.txt"
+        day_command="build/day${day} data/day${day}.txt"
         #if $debug; then
         #    if [[ ${#days[@]} -eq 1 ]]; then
                 #day_command="gdb -ex run --args $day_command"

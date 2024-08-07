@@ -14,7 +14,7 @@ void test_string_contains_non_overlapping_pair(const char *str, bool expected_re
 }
 
 void test_string_has_straight_of_n(const char *str, int n, bool expected_result) {
-    if(string_has_straight_of_n(str, n) != expected_result) {
+    if(string_has_straight(str) != expected_result) {
         printf("%s failed: string_has_straight_of_n(\"%s\", %d) != %d\n", __func__, str, n, expected_result);
         exit(EXIT_FAILURE);
     }

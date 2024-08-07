@@ -6,6 +6,7 @@
 #include "string4c.h"
 
 int main(int argc, char *argv[]) {
+    (void)argc;
     Solution solution;
     char **lines;
     size_t number_of_lines;

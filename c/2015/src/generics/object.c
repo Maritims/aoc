@@ -60,16 +60,16 @@ void generic_object_destroy(generic_value_t *wrapped_object) {
     }
 
     for(size_t i = 0; i < object->size; i++) {
-        generic_object_key_value_pair_t *kvp   = object->pairs[i];
-        generic_value_t *value  = kvp->value;
+        generic_object_key_value_pair_t *kvp    = object->pairs[i];
+        generic_value_t *kvp_value              = kvp->value;
+
         free(kvp->key);
-        generic_value_destroy(value);
+        generic_value_destroy(kvp_value);
         free(kvp);
     }
 
     free(object->pairs);
     free(object);
-    free(wrapped_object);
 }
 
 generic_value_t *generic_object_get(generic_object_t *o, const char *p) {

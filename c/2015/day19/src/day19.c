@@ -90,7 +90,7 @@ void parse_lines(char **lines, size_t number_of_lines, HashTable **key_table, ge
             translation_array   = generic_value_get_array(translation);
         }
 
-        hashtable_put_if_absent(*key_table, tokens[translation_key_index], tokens[translation_key_index], sizeof(char*), 0);
+        hashtable_put_if_absent(*key_table, tokens[translation_key_index], tokens[translation_key_index], sizeof(char*));
         
         generic_value_t *gv_string = generic_value_create_string(tokens[translation_value_index]);
         generic_array_add(translation_array, gv_string);
@@ -128,7 +128,7 @@ int solve_part_one(char **lines, size_t number_of_lines) {
                 char *translation           = generic_value_get_string(element);
                 char *result                = string_replace_at(base, translation, key_position->positions[p], key_length);
                 //printf("\t%s => %s\n", translation, result);
-                hashtable_put(results, result, result, strlen(result), 0);
+                hashtable_put(results, result, result, strlen(result));
 
                 free(result);
             }
@@ -144,9 +144,8 @@ int solve_part_one(char **lines, size_t number_of_lines) {
 }
 
 void replace_from_right(char *molecule, char **start, char **end, generic_object_t *translation_map) {
-    generic_value_t *gv      = NULL;
-    size_t buffer_length    = 0;
-    char *buffer            = NULL;
+    generic_value_t *gv = NULL;
+    char *buffer        = NULL;
 
     while(gv == NULL && *start != molecule) {
         if(buffer) {
@@ -208,7 +207,7 @@ int solve_part_two(char **lines, size_t number_of_lines) {
     char *start             = result + result_length;
     char *end               = result + result_length;
 
-    generic_value_t *gv = generic_value_create_object(translation_map);
+    //generic_value_t *gv = generic_value_create_object(translation_map);
     //generic_print_value(gv);
 
     while(strcmp(result, "e") != 0) {
@@ -230,6 +229,7 @@ int solve_part_two(char **lines, size_t number_of_lines) {
 }
 
 int main(int argc, char *argv[]) {
+    (void)argc;
     Solution solution;
     char **lines = NULL;
     size_t number_of_lines;

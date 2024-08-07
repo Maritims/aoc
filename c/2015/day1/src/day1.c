@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 #include "aoc.h"
 #include "file4c.h"
 
@@ -54,10 +52,11 @@ void solve_part_two(char *instructions, Solution *solution)
 }
 
 int main(int argc, char* argv[]) {
+    (void)argc;
+
     Solution solution;
     char *instructions;
     char *tmp;
-    int exit_code;
 
 	solution_create(&solution, 2015, 1);
 	file_read_all_text(&instructions, argv[1]);

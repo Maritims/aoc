@@ -29,7 +29,13 @@ generic_value_t* generic_value_create() {
         return NULL;
     }
 
-    return NULL;
+    v->data         = (generic_value_data_t){
+        .boolean_value = false
+    };
+    v->type         = GENERIC_VALUE_TYPE_UNDEFINED;
+    v->destructor   = NULL;
+
+    return v;
 }
 
 void generic_value_destroy(generic_value_t *v) {
@@ -38,12 +44,17 @@ void generic_value_destroy(generic_value_t *v) {
         return;
     }
 
+    void (*destructor)(generic_value_t*) = NULL;
+
     switch(v->type) {
         case GENERIC_VALUE_TYPE_ARRAY:
-            generic_value_get_destructor(v)(v);
-        break;
         case GENERIC_VALUE_TYPE_OBJECT:
-            generic_value_get_destructor(v)(v);
+            destructor = generic_value_get_destructor(v);
+            if(destructor == NULL) {
+                fprintf(stderr, "%s:%s:%d: destruction cannot be performed as destructor was null, but a destructor was expected for a value with type %s\n", __FILE__, __func__, __LINE__, generic_value_type_to_string(v->type));
+                return;
+            }
+            destructor(v);
         break;
         case GENERIC_VALUE_TYPE_STRING:
             free(v->data.string_value);
@@ -107,6 +118,18 @@ generic_value_t *generic_value_create_object(generic_object_t *object) {
         fprintf(stderr, "%s:%s:%d: parameter object was null\n", __FILE__, __func__, __LINE__);
         return NULL;
     }
+
+    generic_value_t *value = generic_value_create();
+    if(value == NULL) {
+        fprintf(stderr, "%s:%s:%d: failed to create wrapper\n", __FILE__, __func__, __LINE__);
+        return NULL;
+    }
+
+    generic_value_set_type(value, GENERIC_VALUE_TYPE_OBJECT);
+    generic_value_set_object(value, object);
+    generic_value_set_destructor(value, generic_object_destroy);
+
+    return value;
 }
 
 generic_value_t *generic_value_create_string(char *value) {
@@ -118,7 +141,6 @@ generic_value_t *generic_value_create_string(char *value) {
 
     generic_value_set_type(v, GENERIC_VALUE_TYPE_STRING);
     generic_value_set_string(v, value);
-    generic_value_set_destructor(v, generic_object_destroy);
 
     return v;
 }
@@ -179,6 +201,7 @@ void generic_value_set_array(generic_value_t *v, generic_array_t *a) {
     v->data = (generic_value_data_t){
         .array_value = a
     };
+    v->destructor = generic_array_destroy;
 }
 
 bool generic_value_get_bool(generic_value_t *v) {
@@ -274,6 +297,7 @@ void generic_value_set_object(generic_value_t *v, generic_object_t *o) {
     v->data = (generic_value_data_t){
         .object_value = o
     };
+    v->destructor = generic_object_destroy;
 }
 
 char *generic_value_get_string(generic_value_t *v) {
@@ -301,9 +325,10 @@ void generic_value_set_string(generic_value_t *v, char *value) {
         return;
     }
 
-    v->data = (generic_value_data_t){
-        .string_value = value
-    };
+    size_t length = strlen(value);
+    v->data.string_value = malloc(length + 1);
+    strcpy(v->data.string_value, value);
+    v->data.string_value[length] = '\0';
 }
 
 generic_value_type_t generic_value_get_type(generic_value_t *v) {
@@ -311,6 +336,11 @@ generic_value_type_t generic_value_get_type(generic_value_t *v) {
 }
 
 void generic_value_set_type(generic_value_t *v, generic_value_type_t t) {
+    if(v == NULL) {
+        fprintf(stderr, "%s:%s:%d: parameter v was null\n", __FILE__, __func__, __LINE__);
+        return;
+    }
+
     v->type = t;
 }
 
@@ -404,4 +434,23 @@ char *generic_value_to_string(generic_value_t *v) {
         return NULL;
     }
     return buffer_content;
+}
+
+const char *generic_value_type_to_string(generic_value_type_t type) {
+    switch(type) {
+        case GENERIC_VALUE_TYPE_UNDEFINED:
+            return "UNDEFINED";
+        case GENERIC_VALUE_TYPE_BOOL:
+            return "BOOL";
+        case GENERIC_VALUE_TYPE_INT:
+            return "INT";
+        case GENERIC_VALUE_TYPE_STRING:
+            return "STRING";
+        case GENERIC_VALUE_TYPE_OBJECT:
+            return "OBJECT";
+        case GENERIC_VALUE_TYPE_ARRAY:
+            return "ARRAY";
+        default:
+            return "UNRECOGNISED TYPE";
+    }
 }

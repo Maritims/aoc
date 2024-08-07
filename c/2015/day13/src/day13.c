@@ -37,7 +37,7 @@ void calculate_happiness(int *result, char **lines, size_t number_of_lines, bool
     }
 
     if(include_yourself) {
-        for(int i = 0; i < number_of_main_ids; i++) {
+        for(size_t i = 0; i < number_of_main_ids; i++) {
             int actual_i = id_map[i];
             map[actual_i][24] = 0;
             map[24][actual_i] = 0;
@@ -55,11 +55,10 @@ void calculate_happiness(int *result, char **lines, size_t number_of_lines, bool
     }
 
     *result = INT_MIN;
-    char id_string[number_of_main_ids];
     for(uint64_t i = 0; i < *number_of_permutations; i++) {
         int *ids = permutations[i];
         int total_happiness = 0;
-        for(int j = 0; j < number_of_main_ids; j++) {
+        for(size_t j = 0; j < number_of_main_ids; j++) {
             int main_id_key = ids[j] - 1;
             int left_id_key = (ids[(j - 1 + number_of_main_ids) % number_of_main_ids] - 1); // Correct handling of negative index
             int right_id_key = ids[(j + 1) % number_of_main_ids] - 1;
@@ -84,6 +83,7 @@ void calculate_happiness(int *result, char **lines, size_t number_of_lines, bool
 }
 
 int main(int argc, char *argv[]) {
+    (void)argc;
     Solution solution;
     char **lines;
     size_t number_of_lines;

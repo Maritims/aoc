@@ -4,7 +4,6 @@
 
 #include "aoc.h"
 #include "file4c.h"
-#include "hashtable.h"
 #include "string4c.h"
 
 typedef struct AuntSue {
@@ -39,6 +38,7 @@ void auntsue_print(AuntSue aunt) {
 }
 
 int main(int argc, char *argv[]) {
+    (void)argc;
     Solution solution;
     char **lines;
     size_t number_of_lines;
@@ -47,7 +47,6 @@ int main(int argc, char *argv[]) {
     
     solution_create(&solution, 2015, 16);
     file_read_all_lines(&lines, &number_of_lines, argv[1]);
-    HashTable *aunts = hashtable_create(number_of_lines);
 
     int children = 3;
     int cats = 7;

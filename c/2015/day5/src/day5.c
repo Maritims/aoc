@@ -11,8 +11,7 @@
 
 #define DEBUG 1
 
-uint32_t get_vowels(const char *input)
-{
+uint32_t get_vowels(const char *input) {
     uint32_t vowels = 0;
     for (uint32_t i = 0; i < strlen(input); i++)
     {
@@ -24,21 +23,16 @@ uint32_t get_vowels(const char *input)
     return vowels;
 }
 
-uint32_t has_repeating_characters(const char *input)
-{
-    uint32_t repetitions = 0;
-    for (uint32_t i = 0; i < strlen(input); i++)
-    {
-        if (i > 0 && input[i - 1] == input[i])
-        {
+uint32_t has_repeating_characters(const char *input) {
+    for (uint32_t i = 0; i < strlen(input); i++) {
+        if (i > 0 && input[i - 1] == input[i]) {
             return 1;
         }
     }
     return 0;
 }
 
-char **get_forbidden_strings(const char *input, size_t *out_length)
-{
+char **get_forbidden_strings(const char *input, size_t *out_length) {
     char **buffer = 0;
     uint32_t current_buffer_length = 0;
     uint32_t current_buffer_position = 0;
@@ -60,27 +54,22 @@ char **get_forbidden_strings(const char *input, size_t *out_length)
     return buffer;
 }
 
-uint32_t is_nice_line_in_part_one(const char *line)
-{
-    if (get_vowels(line) < 3 || has_repeating_characters(line) == 0)
-    {
+uint32_t is_nice_line_in_part_one(const char *line) {
+    if (get_vowels(line) < 3 || has_repeating_characters(line) == 0) {
         return 0;
     }
 
     size_t number_of_forbidden_strings = 0;
-    char **forbidden_strings = get_forbidden_strings(line, &number_of_forbidden_strings);
-    if (number_of_forbidden_strings > 0)
-    {
+    get_forbidden_strings(line, &number_of_forbidden_strings);
+    if (number_of_forbidden_strings > 0) {
         return 0;
     }
 
     return 1;
 }
 
-uint32_t is_nice_line_in_part_two(const char *line)
-{
+uint32_t is_nice_line_in_part_two(const char *line) {
     uint32_t is_first_criteria_met = 0;
-    uint32_t is_second_criteria_met = 0;
     size_t line_length = strlen(line);
 
     /* A line is nice if it contains at least one letter which repeats with exactly one letter between them, like xyx, abcdefeghi (efe), or even aaa. */
@@ -112,7 +101,6 @@ uint32_t is_nice_line_in_part_two(const char *line)
         void *value = hashtable_entry_get_value(entry);
         if ((*(uint64_t *)value) > 1) {
             //printf("Second criteria is met because there are %lu occurrences of %s in %s\n", *(uint64_t*)entry->value, entry->key, line);
-            is_second_criteria_met = 1;
             break;
         }
     }
@@ -126,7 +114,7 @@ uint32_t is_nice_line_in_part_two(const char *line)
 void solve_part_one(char **lines, size_t length, Solution *solution)
 {
     int nice_lines = 0;
-    for(int i = 0; i < length; i++)
+    for(size_t i = 0; i < length; i++)
     {
         nice_lines += is_nice_line_in_part_one(lines[i]);
     }
@@ -136,16 +124,16 @@ void solve_part_one(char **lines, size_t length, Solution *solution)
 void solve_part_two(char **lines, size_t length, Solution *solution)
 {
     int nice_lines = 0;
-    for(int i = 0; i < length; i++)
+    for(size_t i = 0; i < length; i++)
     {
         nice_lines += is_nice_line_in_part_two(lines[i]);
     }
     solution_part_finalize_with_int(solution, 1, nice_lines, "53");
 }
 
-void test_is_nice_line_in_part_two(TestResults *test_results, const char *str, int expectation)
+void test_is_nice_line_in_part_two(TestResults *test_results, const char *str, uint32_t expectation)
 {
-    int success = is_nice_line_in_part_two(str) == expectation ? 1 : 0;
+    uint32_t success = is_nice_line_in_part_two(str) == expectation ? 1 : 0;
     test_results->total++;
     test_results->succeeded += success;
 
@@ -168,6 +156,7 @@ void test()
 }
 
 int main(int argc, char *argv[]) {
+    (void)argc;
     test();
 
     Solution solution;

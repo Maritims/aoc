@@ -63,7 +63,7 @@ char *create_secure_password(char *password) {
         char *new_password = increment_password(password);
         //free(password);
         password = new_password;
-        is_secure = string_has_straight_of_n(password, 3) && !string_has_any_needle(password, illegal_characters, 3) && has_two_different_non_overlapping_pairs(password);
+        is_secure = string_has_straight(password) && !string_has_any_needle(password, illegal_characters, 3) && has_two_different_non_overlapping_pairs(password);
     }
     return password;
 }
@@ -77,6 +77,7 @@ void test_create_secure_password(char *password, char *expected_result) {
 }
 
 int main(int argc, char* argv[]) {
+    (void)argc;
     test_has_two_different_non_overlapping_pairs("abbceffg", true);
     test_has_two_different_non_overlapping_pairs("abbcegjk", false);
     test_has_two_different_non_overlapping_pairs("abcdffaa", true);

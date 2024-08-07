@@ -1,10 +1,10 @@
 #ifndef JSON_TOKEN_H
 #define JSON_TOKEN_H
 
-#include <stdlib.h>
-#include "generics/types.h"
+#include <stdbool.h>
 
 typedef enum json_token_type_t {
+    JSON_TOKEN_TYPE_UNDEFINED = 1,
     JSON_TOKEN_TYPE_COLON,
     JSON_TOKEN_TYPE_COMMA,
     JSON_TOKEN_TYPE_LEFT_BRACE,
@@ -17,50 +17,62 @@ typedef enum json_token_type_t {
     JSON_TOKEN_TYPE_NULL
 } json_token_type_t;
 
+typedef union json_token_value_t json_token_value_t; 
+
 typedef struct json_token_t json_token_t;
 
 /**
- * Create a new JSON token.
+ * Create a JSON token with a specific type and string value.
  * @param type Token type.
  * @param value Token value.
- * @return The new token allocated on the heap. It's the responsibility of the caller to free the memory.
+ * @return A new JSON token. It's the responsibility of the caller to free the allocated memoryl.
  */
-json_token_t *json_token_create(json_token_type_t type, generic_value_t *value);
+json_token_t *json_token_create(json_token_type_t type, const char *value);
 
 /**
- * Create a new array of JSON tokens.
- * @param capacity Array capacity.
- * @return The new array allocated on the heap. It's the responsibility of the caller to free the memory.
+ * Create a JSON token with a boolean value.
+ * @param value True or false.
+ * @return A new JSON token. It's the responsibility of the caller to free the allocated memory.
  */
-json_token_t *json_token_array_create(size_t capacity);
+json_token_t *json_token_create_bool(bool value);
 
 /**
- * Add token to JSON token array.
- * @param tokens Token array.
- * @param capacity Token array capacity.
- * @param token New token.
- * @param i New token position in array.
+ * Create a JSON token with an int value.
+ * @param value Any int.
+ * @return A new JSON token. It's the responsibility of the caller to free the allocated memory.
  */
-void json_token_array_add(json_token_t **tokens, size_t *capacity, json_token_t *token, size_t i);
+json_token_t *json_token_create_int(int value);
 
 /**
- * Advance the token array pointer by one.
- * @param Token array.
+ * Create a JSON token with a string value.
+ * @param value Any string. Can be NULL.
+ * @return A new JSON token. It's the responsibility of the caller to free the allocated memory.
  */
-void json_token_array_advance(json_token_t **tokens);
+json_token_t *json_token_create_string(char *value);
 
 /**
- * Get the type of a JSON token.
- * @param JSON token.
- * @return Type of JSON token.
+ * Create JSON token with a null value.
+ * @return A new JSON token. It's the responsibility of the caller to free the allocated memory.
  */
-json_token_type_t json_token_get_type(json_token_t *token);
+json_token_t *json_token_create_null();
 
-/*
- * Get the value of a JSON token.
- * @param JSON token.
- * @return Value of JSON token.
+/**
+ * Free the memory used by the token.
+ * @param Token.
  */
-generic_value_t *json_token_get_value(json_token_t *token);
+void json_token_destroy(json_token_t *token);
+/**
+ * Get a human friendly representation of a JSON token type.
+ * @param result String to store the representation in.
+ * @param type JSON token type to be understood.
+ * @return A string repsentation of the JSON token type.
+ */
+const char *json_token_type_to_string(json_token_type_t type);
+
+
+json_token_type_t   json_token_get_type(json_token_t *token);
+bool                json_token_get_bool(json_token_t *token);
+int                 json_token_get_int(json_token_t *token);
+char*               json_token_get_string(json_token_t *token);
 
 #endif

@@ -45,11 +45,11 @@ HashSet *hashset_create(size_t capacity);
 
 uint64_t *hashset_hash(void *value, Type type);
 
-size_t hashset_index_of(HashSet *hashset, void *value, Type type);
+int hashset_index_of(HashSet *hashset, void *value, Type type);
 
 bool hashset_contains(HashSet *hashset, void *data, Type type);
 
-size_t hashset_add(HashSet *hashset, void *data, Type type);
+int hashset_add(HashSet *hashset, void *data, Type type);
 
 HashSetIterator *hashset_iterator_create(HashSet *hashset);
 

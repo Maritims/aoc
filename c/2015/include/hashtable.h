@@ -58,24 +58,24 @@ uint64_t *hashtable_hash(const char *key);
 HashTableEntry *hashtable_get(const HashTable *hashtable, const char *key);
 
 /**
- * hashtable_put: Put an entry into the hashtable.
+ * Put an entry into the hashtable.
  * @param hashtable The hashtable instance.
  * @param key The entry key.
  * @param value The entry value.
  * @param value_size Size of the entry value.
  * @return Returns a pointer to the entry.
  */
-HashTableEntry *hashtable_put(HashTable *hashtable, char *key, void *value, size_t value_size, uint32_t flags);
+HashTableEntry *hashtable_put(HashTable *hashtable, char *key, void *value, size_t value_size);
 
 /**
- * hashtable_put_if_absent: Put an entry into the hashtable if it isn't there already.
+ * Put an entry into the hashtable if it isn't there already.
  * @param hashtable The hashtable instance.
  * @param key The entry key.
  * @param value The entry value.
  * @param value_size Size of the entry value.
  * @return Returns a pointer to the entry.
  */
-HashTableEntry *hashtable_put_if_absent(HashTable *hashtable, char *key, void *value, size_t value_size, uint32_t flags);
+HashTableEntry *hashtable_put_if_absent(HashTable *hashtable, char *key, void *value, size_t value_size);
 
 HashTableIterator *hashtable_create_iterator(HashTable *hashtable);
 

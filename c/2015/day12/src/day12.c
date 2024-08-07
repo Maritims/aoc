@@ -67,6 +67,7 @@ int traverse(generic_value_t *source, int *sum, bool (*skip)(generic_object_key_
 }
 
 int main(int argc, char* argv[]) {
+    (void)argc;
     Solution solution;
     char *file_content;
     generic_value_t *gv;

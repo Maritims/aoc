@@ -47,6 +47,7 @@ void test_look_and_say(char* input, char* expected_result) {
 }
 
 int main(int argc, char* argv[]) {
+    (void)argc;
     test_look_and_say("1", "11");
     test_look_and_say("11", "21");
     test_look_and_say("21", "1211");

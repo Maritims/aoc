@@ -54,7 +54,7 @@ uint64_t *hashset_hash(void *value, Type type)
     }
 }
 
-size_t hashset_index_of(HashSet *hashset, void *value, Type type)
+int hashset_index_of(HashSet *hashset, void *value, Type type)
 {
     uint64_t *hash = hashset_hash(value, type);
     if (hash == NULL)
@@ -75,7 +75,7 @@ bool hashset_contains(HashSet *hashset, void *value, Type type)
         return NULL;
     }
 
-    size_t index = hashset_index_of(hashset, value, type);
+    int index = hashset_index_of(hashset, value, type);
     if(index == -1)
     {
         fprintf(stderr, "Unable to get index of given value.\n");
@@ -134,9 +134,9 @@ HASHSET_RESULT hashset_rehash(HashSet *hashset)
     return HASHSET_RESULT_SUCCESS;
 }
 
-size_t hashset_add(HashSet *hashset, void *value, Type type)
+int hashset_add(HashSet *hashset, void *value, Type type)
 {
-    size_t index_of = hashset_index_of(hashset, value, type);
+    int index_of = hashset_index_of(hashset, value, type);
     if (index_of > -1)
     {
         return index_of;

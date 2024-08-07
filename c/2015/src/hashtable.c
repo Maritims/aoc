@@ -144,7 +144,7 @@ static bool hashtable_rehash(HashTable *hashtable)
     return true;
 }
 
-HashTableEntry *hashtable_put(HashTable *hashtable, char *key, void *value, size_t value_size, uint32_t flags) {
+HashTableEntry *hashtable_put(HashTable *hashtable, char *key, void *value, size_t value_size) {
     if(value == 0) {
         fprintf(stderr, "%s(): Unable to insert element into the hashtable. The value argument cannot be 0.\n", __func__);
         return NULL;
@@ -196,10 +196,10 @@ HashTableEntry *hashtable_put(HashTable *hashtable, char *key, void *value, size
     return new_entry;
 }
 
-HashTableEntry *hashtable_put_if_absent(HashTable *hashtable, char *key, void *value, size_t value_size, uint32_t flags)
+HashTableEntry *hashtable_put_if_absent(HashTable *hashtable, char *key, void *value, size_t value_size)
 {
     HashTableEntry *entry = hashtable_get(hashtable, key);
-    return entry == NULL ? hashtable_put(hashtable, key, value, value_size, flags) : entry;
+    return entry == NULL ? hashtable_put(hashtable, key, value, value_size) : entry;
 }
 
 HashTableIterator *hashtable_create_iterator(HashTable *hashtable) {

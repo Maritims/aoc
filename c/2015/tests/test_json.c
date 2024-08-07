@@ -45,22 +45,31 @@ void assert_size_and_type(const char *test_name, generic_value_t *value, generic
     }
 }
 
+void free_tokens(json_token_t **tokens, size_t length) {
+    for(size_t i = 0; i < length; i++) {
+        json_token_destroy(tokens[i]);
+    }
+    free(tokens);
+}
+
 void test_empty_object() {
     size_t number_of_tokens = 0;
-    json_token_t *tokens    = json_lex("{}", &number_of_tokens);
+    json_token_t **tokens   = json_lex("{}", &number_of_tokens);
+    //json_token_t **start    = tokens;
     generic_value_t *value  = json_parse(&tokens, true);
-    char result[1024];
 
     assert_size_and_type(__func__, value, GENERIC_VALUE_TYPE_OBJECT, 0);
 
     printf("%s passed\n", __func__);
+    generic_value_destroy(value);
+    //free_tokens(start, number_of_tokens);
 }
 
 void test_basic_object() {
     size_t number_of_tokens = 0;
-    json_token_t *tokens    = json_lex("{\"foo\": \"bar\"}", &number_of_tokens);
+    json_token_t **tokens   = json_lex("{\"foo\": \"bar\"}", &number_of_tokens);
+    //json_token_t **start    = tokens;
     generic_value_t *value  = json_parse(&tokens, true);
-    char result[1024];
 
     assert_size_and_type(__func__, value, GENERIC_VALUE_TYPE_OBJECT, 1);
 
@@ -77,19 +86,20 @@ void test_basic_object() {
         exit(EXIT_FAILURE);
     }
 
-    if(!strcmp(bar, "bar")) {
+    if(strcmp(bar, "bar") != 0) {
         printf("%s failed: string value != bar (%s)\n", __func__, bar);
         exit(EXIT_FAILURE);
     }
 
     printf("%s passed\n", __func__);
+    generic_value_destroy(value);
+    //free_tokens(start, number_of_tokens);
 }
 
 void test_basic_object_with_single_character_property() {
     size_t number_of_tokens = 0;
-    json_token_t *tokens    = json_lex("{\"f\": \"b\"}", &number_of_tokens);
+    json_token_t **tokens   = json_lex("{\"f\": \"b\"}", &number_of_tokens);
     generic_value_t *value  = json_parse(&tokens, true);
-    char result[1024];
 
     assert_size_and_type(__func__, value, GENERIC_VALUE_TYPE_OBJECT, 1);
 
@@ -106,19 +116,19 @@ void test_basic_object_with_single_character_property() {
         exit(EXIT_FAILURE);
     }
 
-    if(!strcmp(b, "b")) {
+    if(strcmp(b, "b") != 0) {
         printf("%s failed: string value != b (%s)\n", __func__, b);
         exit(EXIT_FAILURE);
     }
 
     printf("%s passed\n", __func__);
+    generic_value_destroy(value);
 }
 
 void test_number_object() {
     size_t number_of_tokens = 0;
-    json_token_t *tokens    = json_lex("{\"foo\": 1}", &number_of_tokens);
+    json_token_t **tokens   = json_lex("{\"foo\": 1}", &number_of_tokens);
     generic_value_t *value  = json_parse(&tokens, true);
-    char result[1024];
 
     assert_size_and_type(__func__, value, GENERIC_VALUE_TYPE_OBJECT, 1);
 
@@ -136,11 +146,12 @@ void test_number_object() {
     }
 
     printf("%s passed\n", __func__);
+    generic_value_destroy(value);
 }
 
 void test_empty_array() {
     size_t number_of_tokens = 0;
-    json_token_t *tokens    = json_lex("{\"foo\": []}", &number_of_tokens);
+    json_token_t **tokens   = json_lex("{\"foo\": []}", &number_of_tokens);
     generic_value_t *value  = json_parse(&tokens, true);
 
     assert_size_and_type(__func__, value, GENERIC_VALUE_TYPE_OBJECT, 1);
@@ -151,11 +162,12 @@ void test_empty_array() {
     assert_size_and_type(__func__, foo, GENERIC_VALUE_TYPE_ARRAY, 0);
 
     printf("%s() passed\n", __func__);
+    generic_value_destroy(value);
 }
 
 void test_basic_array() {
     size_t number_of_tokens = 0;
-    json_token_t *tokens    = json_lex("{\"foo\": [1,2,\"three\"]}", &number_of_tokens);
+    json_token_t **tokens   = json_lex("{\"foo\": [1,2,\"three\"]}", &number_of_tokens);
     generic_value_t *value  = json_parse(&tokens, true);
 
     assert_size_and_type(__func__, value, GENERIC_VALUE_TYPE_OBJECT, 1);
@@ -166,11 +178,12 @@ void test_basic_array() {
     assert_size_and_type(__func__, foo, GENERIC_VALUE_TYPE_ARRAY, 3);
 
     printf("%s passed\n", __func__);
+    generic_value_destroy(value);
 }
 
 void test_nested_object() {
     size_t number_of_tokens = 0;
-    json_token_t *tokens    = json_lex("{\"foo\": {\"bar\": 2}}", &number_of_tokens);
+    json_token_t **tokens   = json_lex("{\"foo\": {\"bar\": 2}}", &number_of_tokens);
     generic_value_t *value  = json_parse(&tokens, true);
 
     assert_size_and_type(__func__, value, GENERIC_VALUE_TYPE_OBJECT, 1);
@@ -181,7 +194,7 @@ void test_nested_object() {
     assert_size_and_type(__func__, foo, GENERIC_VALUE_TYPE_OBJECT, 1);
 
     generic_object_t *foo_object    = generic_value_get_object(foo);
-    generic_value_t *bar            = generic_object_get(object, "bar");
+    generic_value_t *bar            = generic_object_get(foo_object, "bar");
     int number                      = generic_value_get_int(bar);
     if(number != 2) {
         printf("%s failed: number != 2 (%d)\n", __func__, number);
@@ -189,15 +202,15 @@ void test_nested_object() {
     }
     
     printf("%s passed\n", __func__);
+    generic_value_destroy(value);
 }
 
 void test_bool(char *bool_value, bool expected) {
     char json_string[1024];
     sprintf(json_string, "{\"foo\": %s}", bool_value);
     size_t number_of_tokens = 0;
-    json_token_t *tokens    = json_lex(json_string, &number_of_tokens);
+    json_token_t **tokens   = json_lex(json_string, &number_of_tokens);
     generic_value_t *value  = json_parse(&tokens, true);
-    char result[1024];
 
     assert_size_and_type(__func__, value, GENERIC_VALUE_TYPE_OBJECT, 1);
 
@@ -211,11 +224,12 @@ void test_bool(char *bool_value, bool expected) {
     }
 
     printf("%s passed\n", __func__);
+    generic_value_destroy(value);
 }
 
 void test_null() {
     size_t number_of_tokens = 0;
-    json_token_t *tokens    = json_lex("{\"foo\": null}", &number_of_tokens);
+    json_token_t **tokens   = json_lex("{\"foo\": null}", &number_of_tokens);
     generic_value_t *value  = json_parse(&tokens, true);
 
     assert_size_and_type(__func__, value, GENERIC_VALUE_TYPE_OBJECT, 1);
@@ -229,24 +243,26 @@ void test_null() {
     }
 
     printf("%s passed\n", __func__);
+    generic_value_destroy(value);
 }
 
 void test_object_with_multiple_properties() {
     size_t number_of_tokens = 0;
-    json_token_t *tokens    = json_lex("{\"e\": \"green\", \"a\": 77}", &number_of_tokens);
+    json_token_t **tokens   = json_lex("{\"e\": \"green\", \"a\": 77}", &number_of_tokens);
     generic_value_t *value  = json_parse(&tokens, true);
-    char result[1024];
 
     assert_size_and_type(__func__, value, GENERIC_VALUE_TYPE_OBJECT, 2);
 
     generic_object_t *object    = generic_value_get_object(value);
     generic_value_t *e          = generic_object_get(object, "e");
     char *e_value               = generic_value_get_string(e);
+    
     if(e_value == NULL) {
         printf("%s failed: e was null\n", __func__);
         exit(EXIT_FAILURE);
     }
-    if(!strcmp(e_value, "green")) {
+    
+    if(strcmp(e_value, "green") != 0) {
         printf("%s failed: e != green (%s)\n", __func__, e_value);
         exit(EXIT_FAILURE);
     }
@@ -259,6 +275,7 @@ void test_object_with_multiple_properties() {
     }
 
     printf("%s passed\n", __func__);
+    generic_value_destroy(value);
 }
 
 int main(void) {

@@ -49,7 +49,6 @@ void generic_array_destroy(generic_value_t *wrapped_array) {
 
     free(array->elements);
     free(array);
-    free(wrapped_array);
 }
 
 size_t generic_array_get_size(generic_array_t *array) {

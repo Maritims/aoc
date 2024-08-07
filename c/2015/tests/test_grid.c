@@ -8,7 +8,7 @@
 void test_grid_parse(char **lines, size_t number_of_lines) {
     size_t number_of_columns;
     
-    int **grid = grid_parse(lines, number_of_lines, &number_of_columns, '#');
+    uint32_t **grid = grid_parse(lines, number_of_lines, &number_of_columns, '#');
     if(grid == NULL) {
         printf("%s failed: unable to create grid\n", __func__);
         exit(EXIT_FAILURE);
@@ -17,9 +17,9 @@ void test_grid_parse(char **lines, size_t number_of_lines) {
     printf("%s passed\n", __func__);
 }
 
-void test_grid_get_neighbours(int **grid, size_t rows, size_t cols, int row, int col, int expected_neighbours[][2], size_t expected_number_of_neighbours) {
+void test_grid_get_neighbours(size_t rows, size_t cols, int row, int col, int expected_neighbours[][2], size_t expected_number_of_neighbours) {
     size_t number_of_neighbours;
-    int **neighbours = grid_get_neighbours(grid, rows, cols, row, col, &number_of_neighbours);
+    int **neighbours = grid_get_neighbours(rows, cols, row, col, &number_of_neighbours);
     
     if(neighbours == NULL) {
         printf("%s failed: no neighbours was NULL\n", __func__);
@@ -72,8 +72,7 @@ int main() {
         "#.#..#",
         "####.."
     }, 6);
-    int **six_by_six_grid = grid_create(6, 6);
-    test_grid_get_neighbours(six_by_six_grid, 6, 6, 0, 1, (int[8][2]){
+    test_grid_get_neighbours(6, 6, 0, 1, (int[8][2]){
         { GRID_CELL_UNDEFINED, GRID_CELL_UNDEFINED },   // NW
         { GRID_CELL_UNDEFINED, GRID_CELL_UNDEFINED },   // N
         { GRID_CELL_UNDEFINED, GRID_CELL_UNDEFINED },   // NE

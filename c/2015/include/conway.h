@@ -1,5 +1,5 @@
 #include <stdbool.h>
-#include <stdlib.h>
+#include <stdint.h>
 
 /**
  * conway: A type representing an instance of Conway's Game of Life.
@@ -11,13 +11,13 @@ typedef struct conway_t conway_t;
  * @param conway: The game instance.
  * @return Returns the number of columns on each row in the grid.
  */
-size_t conway_get_grid_cols(conway_t *conway);
+uint32_t conway_get_grid_cols(conway_t *conway);
 
 /**
  * conway_get_total_rounds: Get the total rounds to play.
  * @return Returns an integer with the number of total rounds to play.
  */
-int conway_get_total_rounds(conway_t *conway);
+uint32_t conway_get_total_rounds(conway_t *conway);
 
 /**
  * @company_set_verbose: Sets the verbose property to the provided value.
@@ -35,7 +35,7 @@ void conway_set_verbose(conway_t *conway, bool verbose);
  * @param always_enabled A 2D array representing cells which are always enabled. These cells will never be turned off.
  * @param always_enabled_size Size of first array dimension in the always_enabled 2D array.
  */
-conway_t *conway_create(char **lines, size_t number_of_lines, char on, int total_rounds, int **always_enabled, size_t always_enabled_size);
+conway_t *conway_create(char **lines, uint32_t number_of_lines, char on, uint32_t total_rounds, uint32_t **always_enabled, uint32_t always_enabled_size);
 
 /**
  * conway_destroy: Destroy an instance of Conway's Game of Life.
@@ -54,4 +54,4 @@ void conway_play_round(conway_t *conway);
  * @param conway: The game instance.
  * @return Returns the number of enabled cells after having played all the rounds of the game.
  */
-int conway_play_all_rounds(conway_t *conway);
+uint32_t conway_play_all_rounds(conway_t *conway);

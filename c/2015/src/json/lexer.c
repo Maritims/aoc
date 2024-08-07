@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "generics/value.h"
 #include "json/lexer.h"
 #include "json/token.h"
 
@@ -129,7 +128,7 @@ bool json_lex_null(char** str) {
     return false;
 }
 
-json_token_t *json_lex(char *str, size_t *out_length) {
+json_token_t **json_lex(char *str, size_t *out_length) {
     char* buffer = strdup(str);
     if(buffer == NULL) {
         fprintf(stderr, "%s:%s:%d: failed to duplicate string\n", __FILE__, __func__, __LINE__);
@@ -137,7 +136,7 @@ json_token_t *json_lex(char *str, size_t *out_length) {
     }
 
     size_t capacity             = 1024;
-    json_token_t *json_tokens   = json_token_array_create(capacity);
+    json_token_t **json_tokens  = calloc(capacity, sizeof(json_token_t*));
     if(json_tokens == NULL) {
         fprintf(stderr, "%s:%s:%d: failed to create JSON token array\n", __FILE__, __func__, __LINE__);
         free(buffer);
@@ -157,58 +156,71 @@ json_token_t *json_lex(char *str, size_t *out_length) {
             break;
         }
 
+        if(i >= capacity) {
+            size_t new_capacity = capacity * 2;
+            json_token_t **new_tokens = realloc(json_tokens, new_capacity = sizeof(json_token_t*));
+            if(new_tokens == NULL) {
+                fprintf(stderr, "%s:%s:%d: failed to allocate additional memory for JSON tokens\n", __FILE__, __func__, __LINE__);
+                for(size_t j = 0; j < i; j++) {
+                    free(json_tokens[j]);
+                }
+                free(json_tokens);
+                free(buffer);
+                return NULL;
+            }
+
+            json_tokens = new_tokens;
+        }
+
         char *json_string = json_lex_string(&ptr);
         if (json_string != NULL) {
-            generic_value_t *string_value   = generic_value_create_string(json_string);
-            json_token_t *token             = json_token_create(JSON_TOKEN_TYPE_STRING, string_value);
-            json_token_array_add(&json_tokens, &capacity, token, i);
+            json_token_t *token             = json_token_create_string(json_string);
+            json_tokens[i++] = token;
             free(json_string);
             continue;
         }
 
         int *json_number = json_lex_number(&ptr);
         if (json_number != NULL) {
-            generic_value_t *int_value      = generic_value_create_int(*json_number);
-            json_token_t *token             = json_token_create(JSON_TOKEN_TYPE_NUMBER, int_value);
-            json_token_array_add(&json_tokens, &capacity, token, i);
+            json_token_t *token = json_token_create_int(*json_number);
+            json_tokens[i++]    = token;
             free(json_number);
             continue;
         }
 
         bool* json_bool = json_lex_bool(&ptr);
         if(json_bool != NULL) {
-            generic_value_t *bool_value     = generic_value_create_bool(*json_bool);
-            json_token_t *token             = json_token_create(JSON_TOKEN_TYPE_BOOL, bool_value);
-            json_token_array_add(&json_tokens, &capacity, token, i);
+            json_token_t *token = json_token_create_bool(*json_bool);
+            json_tokens[i++]    = token;
             free(json_bool);
             continue;
         }
 
         if(json_lex_null(&ptr)) {
-            json_token_t *token = json_token_create(JSON_TOKEN_TYPE_NULL, NULL);
-            json_token_array_add(&json_tokens, &capacity, token, i);
+            json_token_t *token = json_token_create_null();
+            json_tokens[i++]    = token;
             continue;
         }
 
         json_token_t *token = NULL;
         switch (*ptr) {
             case ',':
-                token = json_token_create(JSON_TOKEN_TYPE_COMMA, generic_value_create_string(","));
+                token = json_token_create(JSON_TOKEN_TYPE_COMMA, ",");
                 break;
             case ':':
-                token = json_token_create(JSON_TOKEN_TYPE_COLON, generic_value_create_string(":"));
+                token = json_token_create(JSON_TOKEN_TYPE_COLON, ":");
                 break;
             case '[':
-                token = json_token_create(JSON_TOKEN_TYPE_LEFT_BRACKET, generic_value_create_string("["));
+                token = json_token_create(JSON_TOKEN_TYPE_LEFT_BRACKET, "[");
                 break;
             case ']':
-                token = json_token_create(JSON_TOKEN_TYPE_RIGHT_BRACKET, generic_value_create_string("]"));
+                token = json_token_create(JSON_TOKEN_TYPE_RIGHT_BRACKET, "]");
                 break;
             case '{':
-                token = json_token_create(JSON_TOKEN_TYPE_LEFT_BRACE, generic_value_create_string("{"));
+                token = json_token_create(JSON_TOKEN_TYPE_LEFT_BRACE, "{");
                 break;
             case '}':
-                token = json_token_create(JSON_TOKEN_TYPE_RIGHT_BRACE, generic_value_create_string("}"));
+                token = json_token_create(JSON_TOKEN_TYPE_RIGHT_BRACE, "}");
                 break;
             default:
                 fprintf(stderr, "%s:%s:%d: unexpected character encountered: %c\n", __FILE__, __func__, __LINE__, *ptr);
@@ -217,8 +229,7 @@ json_token_t *json_lex(char *str, size_t *out_length) {
                 return NULL;
         }
 
-        json_token_array_add(&json_tokens, &capacity, token, i);
-
+        json_tokens[i++] = token;
         ptr++;
     }
 

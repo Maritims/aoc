@@ -12,8 +12,7 @@
 #define DEBUG 1
 
 // Recursive function for resolving an instruction from Little Bobby's booklet.
-uint16_t resolve(HashTable *table, char *key, HashTable *cache)
-{
+uint16_t resolve(HashTable *table, char *key, HashTable *cache) {
     // We finally arrived at an actual value and not another reference!
     if (string_is_numeric(key)) {
         return (uint16_t)atoi(key);
@@ -59,12 +58,13 @@ uint16_t resolve(HashTable *table, char *key, HashTable *cache)
     }
 
     // Cache the resulting value.
-    hashtable_put(cache, key, &result, sizeof(uint16_t), 0);
+    hashtable_put(cache, key, &result, sizeof(uint16_t));
     return result;
 }
 
 int main(int argc, char *argv[])
 {
+    (void)argc;
     Solution solution;
     char **lines;
     size_t number_of_lines;
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
         string_split(&tokens, &number_of_tokens, line, "->");
         char *trimmed_value = string_trim(tokens[0]);
         char *trimmed_key = string_trim(tokens[1]);
-        hashtable_put(table, string_trim(trimmed_key), string_trim(trimmed_value), strlen(trimmed_value), 0);
+        hashtable_put(table, string_trim(trimmed_key), string_trim(trimmed_value), strlen(trimmed_value));
 
         free(trimmed_value);
         free(tokens);
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
     uint16_t value = resolve(table, "a", cache);
     solution_part_finalize_with_int(&solution, 0, value, "16076");
 
-    HashTableEntry *entry = hashtable_put(table, "b", solution.parts[0].result, strlen(solution.parts[0].result), 0);
+    hashtable_put(table, "b", solution.parts[0].result, strlen(solution.parts[0].result));
     hashtable_destroy(cache);
     cache = hashtable_create(number_of_lines);
     value = resolve(table, "a", cache);
