@@ -5,17 +5,6 @@
 #include <string.h>
 #include "json/token.h"
 
-union json_token_value_t {
-    bool    boolean_value;
-    int     int_value;
-    char*   string_value;
-};
-
-struct json_token_t {
-    json_token_type_t type;
-    json_token_value_t value;
-};
-
 const char *json_token_type_to_string(json_token_type_t type) {
     switch(type) {
         case JSON_TOKEN_TYPE_COLON:
@@ -61,11 +50,6 @@ json_token_t *json_token_create(json_token_type_t type, const char *str) {
         return NULL;
     }
 
-    token->value.string_value = malloc(strlen(str) + 1);
-    if(token->value.string_value == NULL) {
-        fprintf(stderr, "%s:%s:%d: failed to allocate memory for string value\n", __FILE__, __func__, __LINE__);
-        return NULL;
-    }
     strcpy(token->value.string_value, str);
     token->value.string_value[strlen(str)] = '\0';
     return token;
@@ -100,20 +84,8 @@ json_token_t *json_token_create_string(char *value) {
         return NULL;
     }
 
-    if(value == NULL) {
-        token->value.string_value = NULL;
-    }
-    else {
-        token->value.string_value = malloc(strlen(value) + 1);
-        if(token->value.string_value == NULL) {
-            fprintf(stderr, "%s:%s:%d: failed to allocate memory for string value\n", __FILE__, __func__, __LINE__);
-            free(token);
-            return NULL;
-        }
-
-        strcpy(token->value.string_value, value);
-        token->value.string_value[strlen(value)] = '\0';
-    }
+    strcpy(token->value.string_value, value);
+    token->value.string_value[strlen(value)] = '\0';
 
     return token;
 }
@@ -126,19 +98,6 @@ json_token_t *json_token_create_null() {
     }
 
     return token;
-}
-
-void json_token_destroy(json_token_t *token) {
-    if(token == NULL) {
-        fprintf(stderr, "%s:%s:%d: parameter token was null\n", __FILE__, __func__, __LINE__);
-        return;
-    }
-
-    if(token->type == JSON_TOKEN_TYPE_STRING) {
-        free(token->value.string_value);
-    }
-
-    free(token);
 }
 
 json_token_t **json_token_array_create(size_t capacity) {

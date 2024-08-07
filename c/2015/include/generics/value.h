@@ -4,17 +4,6 @@
 #include <stdbool.h>
 #include "generics/types.h"
 
-typedef enum generic_value_type_t {
-    GENERIC_VALUE_TYPE_UNDEFINED = 1,
-    GENERIC_VALUE_TYPE_BOOL,
-    GENERIC_VALUE_TYPE_INT,
-    GENERIC_VALUE_TYPE_STRING,
-    GENERIC_VALUE_TYPE_OBJECT,
-    GENERIC_VALUE_TYPE_ARRAY
-} generic_value_type_t;
-
-typedef union generic_value_data_t generic_value_data_t;
-
 generic_value_t *generic_value_create();
 
 void generic_value_destroy(generic_value_t *v);

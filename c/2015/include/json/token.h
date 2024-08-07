@@ -17,9 +17,16 @@ typedef enum json_token_type_t {
     JSON_TOKEN_TYPE_NULL
 } json_token_type_t;
 
-typedef union json_token_value_t json_token_value_t; 
+typedef union json_token_value_t {
+    bool    boolean_value;
+    int     int_value;
+    char    string_value[1024];
+} json_token_value_t; 
 
-typedef struct json_token_t json_token_t;
+typedef struct json_token_t {
+    json_token_type_t   type;
+    json_token_value_t  value;
+} json_token_t;
 
 /**
  * Create a JSON token with a specific type and string value.
@@ -68,11 +75,5 @@ void json_token_destroy(json_token_t *token);
  * @return A string repsentation of the JSON token type.
  */
 const char *json_token_type_to_string(json_token_type_t type);
-
-
-json_token_type_t   json_token_get_type(json_token_t *token);
-bool                json_token_get_bool(json_token_t *token);
-int                 json_token_get_int(json_token_t *token);
-char*               json_token_get_string(json_token_t *token);
 
 #endif

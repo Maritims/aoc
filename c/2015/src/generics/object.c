@@ -5,23 +5,6 @@
 #include "generics/value.h"
 #include "generics/types.h"
 
-struct generic_object_key_value_pair_t {
-    char*               key;
-    generic_value_t*    value;
-};
-
-struct generic_object_t {
-    generic_object_key_value_pair_t**   pairs;
-    size_t                              capacity;
-    size_t                              size;
-};
-
-struct generic_object_iterator_t {
-    size_t                              current_index;
-    generic_object_t*                   object;
-    generic_object_key_value_pair_t*    current_entry;
-};
-
 generic_object_t *generic_object_create(size_t capacity) {
     if(capacity == 0) {
         fprintf(stderr, "%s:%s:%d: parameter capacity was 0\n", __FILE__, __func__, __LINE__);

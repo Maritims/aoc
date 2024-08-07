@@ -8,20 +8,6 @@
 #include "generics/value.h"
 #include "string4c.h"
 
-union generic_value_data_t {
-    bool                boolean_value;
-    int                 int_value;
-    char*               string_value;
-    generic_array_t*    array_value;
-    generic_object_t*   object_value;
-};
-
-struct generic_value_t {
-    generic_value_data_t data;
-    generic_value_type_t type;
-    void (*destructor)(struct generic_value_t*);
-};
-
 generic_value_t* generic_value_create() {
     generic_value_t *v = malloc(sizeof(generic_value_t));
     if(v == NULL) {
@@ -326,7 +312,6 @@ void generic_value_set_string(generic_value_t *v, char *value) {
     }
 
     size_t length = strlen(value);
-    v->data.string_value = malloc(length + 1);
     strcpy(v->data.string_value, value);
     v->data.string_value[length] = '\0';
 }

@@ -4,12 +4,6 @@
 #include "generics/types.h"
 #include "generics/value.h"
 
-struct generic_array_t {
-    size_t              capacity;
-    generic_value_t**   elements;
-    size_t              size;
-};
-
 generic_array_t* generic_array_create(size_t capacity) {
     generic_array_t *a = malloc(sizeof(generic_array_t)); 
     if(a == NULL) {

@@ -4,9 +4,11 @@
 #include <stdlib.h>
 #include "generics/types.h"
 
-typedef struct generic_object_key_value_pair_t generic_object_key_value_pair_t;
-
-typedef struct generic_object_iterator_t generic_object_iterator_t;
+typedef struct generic_object_iterator_t {
+    size_t                          current_index;
+    generic_object_t                object;
+    generic_object_key_value_pair_t current_entry;
+} generic_object_iterator_t;
 
 generic_object_t*   generic_object_create(size_t capacity);
 void                generic_object_destroy(generic_value_t *wrapped_object);
