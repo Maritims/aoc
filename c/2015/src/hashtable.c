@@ -90,6 +90,7 @@ void hashtable_destroy(HashTable *hashtable)
     }
 
     free(hashtable->entries);
+    free(hashtable);
 }
 
 uint64_t *hashtable_hash(const char *key)
@@ -144,7 +145,7 @@ static bool hashtable_rehash(HashTable *hashtable)
     return true;
 }
 
-HashTableEntry *hashtable_put(HashTable *hashtable, char *key, void *value, size_t value_size) {
+HashTableEntry *hashtable_put(HashTable *hashtable, char *key, void *value, size_t length) {
     if(value == 0) {
         fprintf(stderr, "%s(): Unable to insert element into the hashtable. The value argument cannot be 0.\n", __func__);
         return NULL;
@@ -153,8 +154,9 @@ HashTableEntry *hashtable_put(HashTable *hashtable, char *key, void *value, size
     HashTableEntry *existing_entry = hashtable_get(hashtable, key);
     if (existing_entry != NULL) {
         free(existing_entry->value);
-        existing_entry->value = malloc(value_size);
+        existing_entry->value = malloc(length + 1);
         sprintf(existing_entry->value, "%s", (char*)value);
+        ((char*)existing_entry->value)[length] = '\0';
         return existing_entry;
     }
     
@@ -185,14 +187,14 @@ HashTableEntry *hashtable_put(HashTable *hashtable, char *key, void *value, size
     }
 
     new_entry->key_hash = *hash;
-    new_entry->value = malloc(value_size);
+    new_entry->value = malloc(length + 1);
     sprintf(new_entry->value, "%s", (char*)value);
+    ((char*)new_entry->value)[length] = '\0';
     new_entry->next = hashtable->entries[index];
     hashtable->entries[index] = new_entry;
     hashtable->size++;
 
     free(hash);
-
     return new_entry;
 }
 

@@ -15,11 +15,8 @@ void calculate_happiness(int *result, char **lines, size_t number_of_lines, bool
     char current_main_id = ' ';
     size_t number_of_main_ids = 0;
     for(size_t i = 0; i < number_of_lines; i++) {
-        char *line = lines[i];
-        char **tokens;
         size_t number_of_tokens = 0;
-
-        string_split(&tokens, &number_of_tokens, line, " ");
+        char **tokens = string_split(&number_of_tokens, lines[i], " ");
         
         char main_id = tokens[0][0]; // First letter of the person we're currently looking at.
         char minor_id = tokens[10][0]; // First letter of the person they could be sitting next to.
@@ -84,23 +81,20 @@ void calculate_happiness(int *result, char **lines, size_t number_of_lines, bool
 
 int main(int argc, char *argv[]) {
     (void)argc;
-    Solution solution;
-    char **lines;
-    size_t number_of_lines;
-    int part_one;
-    int part_two;
 
-    
-    solution_create(&solution, 2015, 13);
-    file_read_all_lines(&lines, &number_of_lines, argv[1]);
+    solution_t *solution = solution_create(2015, 13);
+    size_t number_of_lines = 0;
+    char **lines = file_read_all_lines(&number_of_lines, argv[1]);
 
+    int part_one = 0;
     calculate_happiness(&part_one, lines, number_of_lines, false);
-    solution_part_finalize_with_int(&solution, 0, part_one, "664");
+    solution_part_finalize_with_int(solution, 0, part_one, "664");
 
+    int part_two = 0;
     calculate_happiness(&part_two, lines, number_of_lines, true);
-    solution_part_finalize_with_int(&solution, 1, part_two, "640");
+    solution_part_finalize_with_int(solution, 1, part_two, "640");
 
-    free(lines);
-    
-    return solution_finalize(&solution);
+
+    file_destroy_all_lines(lines, number_of_lines); 
+    return solution_finalize_and_destroy(solution);
 }

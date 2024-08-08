@@ -147,6 +147,7 @@ void light_adjust_brightness(Light *light, Action *action)
 void light_grid_adjust_brightness(Action **actions, size_t number_of_action, uint32_t is_dimmable, size_t *out_result)
 {
     LightGrid *grid = grid_create_LightGrid(1000, 1000, (Light){is_dimmable, 0});
+    
     for (uint32_t i = 0; i < number_of_action; i++) {
         Action *action = actions[i];
         for (uint64_t y = action->starting_point.y; y <= action->stopping_point.y; y++) {
@@ -163,23 +164,35 @@ void light_grid_adjust_brightness(Action **actions, size_t number_of_action, uin
         {
             (*out_result) += grid->table[y][x].brightness;
         }
+        free(grid->table[y]);
     }
+
+    free(grid->table);
+    free(grid);
 }
 
-void solve_part_one(char **lines, size_t length, Solution *solution)
+void solve_part_one(char **lines, size_t length, solution_t *solution)
 {
     Action **actions = actions_parse(lines, length);   
     size_t enabled_lights = 0;
     light_grid_adjust_brightness(actions, length, 0, &enabled_lights);
     solution_part_finalize_with_int(solution, 0, enabled_lights, "377891");
+    for(size_t i = 0; i < length; i++) {
+        free(actions[i]);
+    }
+    free(actions);
 }
 
-void solve_part_two(char **lines, size_t length, Solution *solution)
+void solve_part_two(char **lines, size_t length, solution_t *solution)
 {
     Action **actions = actions_parse(lines, length);
     size_t total_brightness = 0;
     light_grid_adjust_brightness(actions, length, 1, &total_brightness);
     solution_part_finalize_with_int(solution, 1, total_brightness, "14110788");
+    for(size_t i = 0; i < length; i++) {
+        free(actions[i]);
+    }
+    free(actions);
 }
 
 void test_light_grid_adjust_brightness(TestResults *test_results, Action action, uint32_t is_dimmable, uint64_t expectation)
@@ -262,22 +275,17 @@ void test()
     printf("%d tests were executed, %d tests succeeded, %d tests failed.\n", test_results.total, test_results.succeeded, test_results.total - test_results.succeeded);
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     (void)argc;
     test();
 
-    Solution solution;
-    char **lines;
-    size_t number_of_lines;
+    solution_t *solution = solution_create(2015, 6);
+    size_t number_of_lines = 0;
+    char **lines = file_read_all_lines(&number_of_lines, argv[1]);
 
-    solution_create(&solution, 2015, 6);
-    file_read_all_lines(&lines, &number_of_lines, argv[1]);
+    solve_part_one(lines, number_of_lines, solution);
+    solve_part_two(lines, number_of_lines, solution);
 
-    solve_part_one(lines, number_of_lines, &solution);
-    solve_part_two(lines, number_of_lines, &solution);
-
-    free(lines);
-    
-    return solution_finalize(&solution);
+    file_destroy_all_lines(lines, number_of_lines);
+    return solution_finalize_and_destroy(solution);
 }

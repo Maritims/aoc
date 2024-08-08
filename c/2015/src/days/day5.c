@@ -60,11 +60,16 @@ uint32_t is_nice_line_in_part_one(const char *line) {
     }
 
     size_t number_of_forbidden_strings = 0;
-    get_forbidden_strings(line, &number_of_forbidden_strings);
+    char **buffer = get_forbidden_strings(line, &number_of_forbidden_strings);
     if (number_of_forbidden_strings > 0) {
+        for(size_t i = 0; i < number_of_forbidden_strings; i++) {
+            free(buffer[i]);
+        }
+        free(buffer);
         return 0;
     }
 
+    free(buffer);
     return 1;
 }
 
@@ -91,6 +96,7 @@ uint32_t is_nice_line_in_part_two(const char *line) {
     }
 
     if(!string_contains_non_overlapping_pair(line)) {
+        hashtable_destroy(hashtable);
         return 0;
     
     }
@@ -111,7 +117,7 @@ uint32_t is_nice_line_in_part_two(const char *line) {
     return 1;
 }
 
-void solve_part_one(char **lines, size_t length, Solution *solution)
+void solve_part_one(char **lines, size_t length, solution_t *solution)
 {
     int nice_lines = 0;
     for(size_t i = 0; i < length; i++)
@@ -121,7 +127,7 @@ void solve_part_one(char **lines, size_t length, Solution *solution)
     solution_part_finalize_with_int(solution, 0, nice_lines, "258");
 }
 
-void solve_part_two(char **lines, size_t length, Solution *solution)
+void solve_part_two(char **lines, size_t length, solution_t *solution)
 {
     int nice_lines = 0;
     for(size_t i = 0; i < length; i++)
@@ -159,15 +165,13 @@ int main(int argc, char *argv[]) {
     (void)argc;
     test();
 
-    Solution solution;
-    size_t length = 0;
-    char **lines;
+    solution_t *solution = solution_create(2015, 5);
+    size_t number_of_lines = 0;
+    char **lines = file_read_all_lines(&number_of_lines, argv[1]);
 
-    solution_create(&solution, 2015, 5);
-    file_read_all_lines(&lines, &length, argv[1]);
+    solve_part_one(lines, number_of_lines, solution);
+    solve_part_two(lines, number_of_lines, solution);
 
-    solve_part_one(lines, length, &solution);
-    solve_part_two(lines, length, &solution);
-
-    return solution_finalize(&solution);
+    file_destroy_all_lines(lines, number_of_lines);
+    return solution_finalize_and_destroy(solution);
 }

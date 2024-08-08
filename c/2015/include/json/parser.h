@@ -1,6 +1,9 @@
+#ifndef JSON_PARSER_H
+#define JSON_PARSER_H
+
 #include <stdbool.h>
 #include <stdio.h>
-#include "json/token.h"
+#include "lexer.h"
 
 typedef enum json_node_type_t {
     JSON_NODE_TYPE_UNDEFINED = 1,
@@ -67,3 +70,5 @@ json_object_t *json_parse_object(json_token_t *tokens, size_t *current_token_ind
  * @param str The JSON string to parse.
  */
 json_node_t *json_parse_string(char *str);
+
+#endif

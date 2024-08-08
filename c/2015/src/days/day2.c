@@ -53,19 +53,20 @@ RightRectangularPrism *create_right_rectangular_prism(char *line)
 	return prism;
 }
 
-void solve_part_one(char **lines, size_t length, Solution *solution)
+void solve_part_one(char **lines, size_t length, solution_t *solution)
 {
 	uint32_t total_area = 0;
 	for(size_t i = 0; i < length; i++)
 	{
 		RightRectangularPrism *prism = create_right_rectangular_prism(lines[i]);
 		total_area += prism->area;
+        free(prism);
 	}
 
 	solution_part_finalize_with_int(solution, 0, total_area, "1588178");
 }
 
-void solve_part_two(char **lines, size_t length, Solution *solution)
+void solve_part_two(char **lines, size_t length, solution_t *solution)
 {
 	uint32_t total_ribbon_length = 0;
 	for(size_t i = 0; i < length; i++)
@@ -77,6 +78,7 @@ void solve_part_two(char **lines, size_t length, Solution *solution)
 		uint32_t remaining_value = prism->width + prism->height + prism->length - min_value - max_value;
 
 		total_ribbon_length += min_value + min_value + remaining_value + remaining_value + prism->volume;
+        free(prism);
 	}
 
 	solution_part_finalize_with_int(solution, 1, total_ribbon_length, "3783758");
@@ -85,17 +87,13 @@ void solve_part_two(char **lines, size_t length, Solution *solution)
 int main(int argc, char *argv[]) {
     (void)argc;
 
-    Solution solution;
+	solution_t *solution = solution_create(2015, 2);
     size_t number_of_lines = 0;
-    char **lines;
+    char **lines = file_read_all_lines(&number_of_lines, argv[1]);
 
-	solution_create(&solution, 2015, 2);
-    file_read_all_lines(&lines, &number_of_lines, argv[1]);
+	solve_part_one(lines, number_of_lines, solution);
+	solve_part_two(lines, number_of_lines, solution);
 
-	solve_part_one(lines, number_of_lines, &solution);
-	solve_part_two(lines, number_of_lines, &solution);
-
-    free(lines);
-
-	return solution_finalize(&solution);
+    file_destroy_all_lines(lines, number_of_lines);
+	return solution_finalize_and_destroy(solution);
 }

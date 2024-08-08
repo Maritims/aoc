@@ -1,8 +1,37 @@
+#ifndef JSON_LEXER_H
+#define JSON_LEXER_H
+
 #include <stdbool.h>
 #include <stdlib.h>
-#include "token.h"
 
 #define JSON_QUOTE '"'
+
+typedef enum json_token_type_t {
+    JSON_TOKEN_TYPE_UNDEFINED = 1,
+    JSON_TOKEN_TYPE_COLON,
+    JSON_TOKEN_TYPE_COMMA,
+    JSON_TOKEN_TYPE_LEFT_BRACE,
+    JSON_TOKEN_TYPE_LEFT_BRACKET,
+    JSON_TOKEN_TYPE_NUMBER,
+    JSON_TOKEN_TYPE_RIGHT_BRACE,
+    JSON_TOKEN_TYPE_RIGHT_BRACKET,
+    JSON_TOKEN_TYPE_STRING,
+    JSON_TOKEN_TYPE_BOOL,
+    JSON_TOKEN_TYPE_NULL
+} json_token_type_t;
+
+extern const char *json_token_type_strings[];
+
+typedef union json_token_value_t {
+    bool    boolean_value;
+    int     int_value;
+    char    string_value[1024];
+} json_token_value_t; 
+
+typedef struct json_token_t {
+    json_token_type_t   type;
+    json_token_value_t  value;
+} json_token_t;
 
 /**
  * Get the value between two quotes and advance the pointer past the ending quote. Allocates a new string on the heap containing a copy of the quoted string.
@@ -35,3 +64,5 @@ bool json_lex_bool(bool *output, char **str);
 bool json_lex_null(char **str);
 
 json_token_t *json_lex(char *str, size_t *out_length);
+
+#endif

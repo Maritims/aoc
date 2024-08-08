@@ -1,10 +1,10 @@
 #include "aoc.h"
 #include "file4c.h"
 
-void solve_part_one(char *instructions, Solution *solution)
+void solve_part_one(char *instructions, solution_t *solution)
 {
 	int floor = 0;
-	char instruction;
+	char instruction = '0';
 	while((instruction = *instructions) != '\0')
 	{
 		switch(instruction)
@@ -22,7 +22,7 @@ void solve_part_one(char *instructions, Solution *solution)
 	solution_part_finalize_with_int(solution, 0, floor, "280");
 }
 
-void solve_part_two(char *instructions, Solution *solution)
+void solve_part_two(char *instructions, solution_t *solution)
 {
 	int floor = 0;
 	int basement_entry_position = 1;
@@ -54,18 +54,14 @@ void solve_part_two(char *instructions, Solution *solution)
 int main(int argc, char* argv[]) {
     (void)argc;
 
-    Solution solution;
-    char *instructions;
-    char *tmp;
+	solution_t *solution = solution_create(2015, 1);
+	char *instructions = file_read_all_text(argv[1]);
+    char *temp = instructions;
 
-	solution_create(&solution, 2015, 1);
-	file_read_all_text(&instructions, argv[1]);
-	
-    tmp = instructions;
+	solve_part_one(instructions, solution);
+	instructions = temp;
+	solve_part_two(instructions, solution);
 
-	solve_part_one(instructions, &solution);
-	instructions = tmp;
-	solve_part_two(instructions, &solution);
-
-	return solution_finalize(&solution);	
+    free(instructions);
+	return solution_finalize_and_destroy(solution);	
 }

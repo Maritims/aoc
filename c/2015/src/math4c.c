@@ -9,7 +9,17 @@
 
 #include "math4c.h"
 
-void math_binomial_coefficient(uint64_t *result, int n, int k) {
+int math_number_places(int n) {
+    if(n < 0) {
+        return math_number_places(n == INT_MIN ? INT_MAX : -n);
+    }
+    if(n < 10) {
+        return 1;
+    }
+    return 1 + math_number_places(n / 10);
+}
+
+uint64_t *math_binomial_coefficient(int n, int k) {
     mpz_t n_factorial;
     mpz_t k_factorial;
     mpz_t n_minus_k_factorial;
@@ -25,6 +35,7 @@ void math_binomial_coefficient(uint64_t *result, int n, int k) {
     mpz_mul(denominator, k_factorial, n_minus_k_factorial);
     mpz_div(binomial_coefficient, n_factorial, denominator);
 
+    uint64_t *result = malloc(sizeof(uint64_t));
     *result = mpz_get_ui(binomial_coefficient);
 
     mpz_clear(n_factorial);
@@ -32,6 +43,8 @@ void math_binomial_coefficient(uint64_t *result, int n, int k) {
     mpz_clear(n_minus_k_factorial);
     mpz_clear(denominator);
     mpz_clear(binomial_coefficient);
+
+    return result;
 }
 
 int math_divide_and_round_up(int dividend, int divisor) {
@@ -227,7 +240,7 @@ int **math_permutations_compute_int(int n, uint64_t **number_of_permutations) {
  * @param k: The number of parts to split n into.
  * @return The number of ways to split n into k parts.
 */
-void math_stars_and_bars(uint64_t *result, int n, int k) {
-    math_binomial_coefficient(result, n + k - 1, k - 1);
+uint64_t *math_stars_and_bars(int n, int k) {
+    return math_binomial_coefficient(n + k - 1, k - 1);
 }
 

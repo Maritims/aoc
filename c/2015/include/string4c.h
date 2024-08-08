@@ -2,6 +2,7 @@
 #define STRING4C
 
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 typedef struct StringBuffer {
@@ -18,9 +19,11 @@ typedef struct StringBuffer {
  */
 int string_compare_asc(const void *str1, const void *str2);
 
+char *string_from_number(int n);
+
 bool string_is_numeric(char *str);
 
-void string_split(char ***result, size_t *result__size, char *str, char *delimiter);
+char **string_split(size_t *result_length, char *input, char *delimiter);
 
 char *string_trim(char *str);
 
@@ -34,7 +37,7 @@ bool string_buffer_realloc(StringBuffer *buffer, size_t additional_length);
 
 bool string_buffer_append(StringBuffer *buffer, const char *str);
 
-void string_substring(char **result, char *str, size_t inclusive_start, size_t exclusive_end);
+char *string_substring(char *input, size_t inclusive_start, size_t exclusive_end);
 
 bool string_contains_non_overlapping_pair(const char *str);
 

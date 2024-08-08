@@ -127,7 +127,7 @@ fi
 if $run; then
     if [[ ${#days[@]} -eq 0 ]]; then
         shopt -s extglob            # Enable more advanced pattern matching.
-        dirs=$(ls -d1v build/day*[0-9])   # Get all days.
+        dirs=$(ls -d1v bin/day*[0-9])   # Get all days.
         shopt -u extglob            # Restore default behaviour.
         
         for dir in $dirs; do
@@ -139,7 +139,7 @@ if $run; then
     echo "---- RUNNING DAYS: ${days[@]} ----"
 
     for day in ${days[@]}; do
-        day_command="build/day${day} data/day${day}.txt"
+        day_command="bin/day${day} data/day${day}.txt"
         #if $debug; then
         #    if [[ ${#days[@]} -eq 1 ]]; then
                 #day_command="gdb -ex run --args $day_command"

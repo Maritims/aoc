@@ -5,7 +5,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-void math_binomial_coefficient(uint64_t *result, int n, int k);
+int math_number_places(int n);
+
+uint64_t *math_binomial_coefficient(int n, int k);
 
 int math_divide_and_round_up(int dividend, int divisor);
 
@@ -21,6 +23,6 @@ int math_min(int a, int b);
 
 int **math_permutations_compute_int(int n, uint64_t **number_of_permutations);
 
-void math_stars_and_bars(uint64_t *result, int n, int k);
+uint64_t *math_stars_and_bars(int n, int k);
 
 #endif

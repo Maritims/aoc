@@ -7,7 +7,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Werror")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_BUILD_TYPE Debug)
 
 function(add_aoc_day DAY LIBS)
@@ -54,14 +54,17 @@ add_library(debug INTERFACE)
 target_include_directories(debug INTERFACE include/debug.h)
 
 add_aoc_library(aoc)
-target_sources(aoc PRIVATE src/aoc.c src/string4c.c)
-target_sources(aoc PUBLIC src/file4c.c)
+target_sources(aoc PRIVATE src/aoc.c)
+target_link_libraries(aoc file4c string4c)
 
 add_aoc_library(array4c)
 target_sources(array4c PRIVATE ${PROJECT_SOURCE_DIR}/src/array4c.c)
 
 add_aoc_library(conway)
 target_sources(conway PRIVATE ${PROJECT_SOURCE_DIR}/src/conway.c)
+
+add_aoc_library(file4c)
+target_sources(file4c PRIVATE ${PROJECT_SOURCE_DIR}/src/file4c.c)
 
 # add_library(generics)
 # target_sources(generics PRIVATE ${PROJECT_SOURCE_DIR}/src/generics/array.c ${PROJECT_SOURCE_DIR}/src/generics/object.c ${PROJECT_SOURCE_DIR}/src/generics/value.c)
@@ -80,7 +83,7 @@ add_aoc_library(hashtable)
 target_sources(hashtable PRIVATE ${PROJECT_SOURCE_DIR}/src/fnv.c ${PROJECT_SOURCE_DIR}/src/hashtable.c)
 
 add_aoc_library(json)
-target_sources(json PRIVATE ${PROJECT_SOURCE_DIR}/src/json/lexer.c ${PROJECT_SOURCE_DIR}/src/json/parser.c ${PROJECT_SOURCE_DIR}/src/json/token.c)
+target_sources(json PRIVATE ${PROJECT_SOURCE_DIR}/src/json/lexer.c ${PROJECT_SOURCE_DIR}/src/json/parser.c)
 target_link_libraries(json string4c)
 
 add_aoc_library(math4c)
@@ -89,6 +92,7 @@ target_link_libraries(math4c array4c gmp m)
 
 add_aoc_library(string4c)
 target_sources(string4c PRIVATE ${PROJECT_SOURCE_DIR}/src/string4c.c)
+target_link_libraries(string4c math4c)
 
 add_aoc_library(test4c)
 target_sources(test4c PRIVATE ${PROJECT_SOURCE_DIR}/src/test4c.c)
@@ -106,7 +110,7 @@ add_aoc_day(3 "hashtable")
 add_aoc_day(4 "m;maritims_md5")
 add_aoc_day(5 "hashtable")
 add_aoc_day(6 "point")
-add_aoc_day(7 "hashtable")
+add_aoc_day(7 "hashtable;math4c")
 add_aoc_day(8 "")
 add_aoc_day(9 "hamiltonian")
 add_aoc_day(10 "")

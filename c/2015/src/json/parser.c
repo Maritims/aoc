@@ -3,11 +3,45 @@
 #include <string.h>
 #include "json/lexer.h"
 #include "json/parser.h"
-#include "json/token.h"
 
-static void json_array_destroy(json_array_t *array);
+static void json_array_destroy(json_array_t *array) {
+    for(size_t i = 0; i < array->size; i++) {
+        json_node_destroy(array->nodes[i]);
+    }
+    free(array->nodes);
+    free(array);
+}
 
-static void json_object_destroy(json_object_t *destroy);
+static void json_object_destroy(json_object_t *object) {
+    for(size_t i = 0; i < object->size; i++) {
+        json_object_entry_t *entry = object->entries[i];
+        json_node_destroy(entry->value);
+        free(entry->key);
+        free(entry);
+    }
+    free(object->entries);
+    free(object);
+}
+
+void json_node_destroy(json_node_t *node) {
+    switch(node->type) {
+        case JSON_NODE_TYPE_ARRAY:
+            json_array_destroy((json_array_t*)node->value);
+        break;
+        case JSON_NODE_TYPE_OBJECT:
+            json_object_destroy((json_object_t*)node->value);
+        break;
+        case JSON_NODE_TYPE_STRING:
+        case JSON_NODE_TYPE_NUMBER:
+        case JSON_NODE_TYPE_BOOL:
+            free(node->value);
+        break;
+        case JSON_NODE_TYPE_UNDEFINED: // Nothing to do here.
+        break;
+    }
+
+    free(node);
+}
 
 static void json_array_add(json_array_t *array, json_node_t *node) {
     if(array->size >= array->capacity) {
@@ -58,48 +92,9 @@ json_node_t *json_object_get(json_object_t *object, char *key) {
     return NULL;
 }
 
-void json_node_destroy(json_node_t *node) {
-    switch(node->type) {
-        case JSON_NODE_TYPE_ARRAY:
-            json_array_destroy((json_array_t*)node->value);
-        break;
-        case JSON_NODE_TYPE_OBJECT:
-            json_object_destroy((json_object_t*)node->value);
-        break;
-        case JSON_NODE_TYPE_STRING:
-        case JSON_NODE_TYPE_NUMBER:
-        case JSON_NODE_TYPE_BOOL:
-            free(node->value);
-        break;
-        case JSON_NODE_TYPE_UNDEFINED: // Nothing to do here.
-        break;
-    }
-
-    free(node);
-}
-
-static void json_array_destroy(json_array_t *array) {
-    for(size_t i = 0; i < array->size; i++) {
-        json_node_destroy(array->nodes[i]);
-    }
-    free(array->nodes);
-    free(array);
-}
-
-static void json_object_destroy(json_object_t *object) {
-    for(size_t i = 0; i < object->size; i++) {
-        json_object_entry_t *entry = object->entries[i];
-        json_node_destroy(entry->value);
-        free(entry->key);
-        free(entry);
-    }
-    free(object->entries);
-    free(object);
-}
-
 json_node_t *json_parse(json_token_t *tokens, size_t *current_token_index, bool is_root) {
     if (is_root && (tokens[*current_token_index].type != JSON_TOKEN_TYPE_LEFT_BRACE && tokens[*current_token_index].type != JSON_TOKEN_TYPE_LEFT_BRACKET)) {
-        fprintf(stderr, "%s:%s:%d: expected array or object, but the first token was neither a left bracket nor a left brace (token_type = %d/%s)\n", __FILE__, __func__, __LINE__, tokens[*current_token_index].type, json_token_type_to_string(tokens[*current_token_index].type));
+        fprintf(stderr, "%s:%s:%d: expected array or object, but the first token was neither a left bracket nor a left brace (token_type = %d/%s)\n", __FILE__, __func__, __LINE__, tokens[*current_token_index].type, json_token_type_strings[tokens[*current_token_index].type]);
         return NULL;
     }
 
@@ -172,7 +167,7 @@ json_array_t *json_parse_array(json_token_t *tokens, size_t *current_token_index
         }
 
         if (tokens[*current_token_index].type != JSON_TOKEN_TYPE_COMMA) {
-            fprintf(stderr, "%s:%s:%d: expected comma after object in array, but the current token is %s\n", __FILE__, __func__, __LINE__, json_token_type_to_string(tokens[*current_token_index].type));
+            fprintf(stderr, "%s:%s:%d: expected comma after object in array, but the current token is %s\n", __FILE__, __func__, __LINE__, json_token_type_strings[tokens[*current_token_index].type]);
             return NULL;
         }
 
@@ -189,7 +184,6 @@ json_array_t *json_parse_array(json_token_t *tokens, size_t *current_token_index
 
     return NULL;
 }
-
 
 json_object_t *json_parse_object(json_token_t *tokens, size_t *current_token_index) {
     if(tokens[*current_token_index].type != JSON_TOKEN_TYPE_LEFT_BRACE) {

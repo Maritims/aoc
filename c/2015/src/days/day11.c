@@ -78,25 +78,23 @@ void test_create_secure_password(char *password, char *expected_result) {
 
 int main(int argc, char* argv[]) {
     (void)argc;
+
     test_has_two_different_non_overlapping_pairs("abbceffg", true);
     test_has_two_different_non_overlapping_pairs("abbcegjk", false);
     test_has_two_different_non_overlapping_pairs("abcdffaa", true);
     test_has_two_different_non_overlapping_pairs("ghjaabcc", true);
     test_create_secure_password("abcdefgh", "abcdffaa");
 
-    Solution solution;
-    char *password;
+    solution_t *solution = solution_create(2015, 11);
+    char *file_content = file_read_all_text(argv[1]);
 
-    solution_create(&solution, 2015, 11);
-    file_read_all_text(&password, argv[1]);
-
-    password = create_secure_password(password);
-    solution_part_finalize_with_str(&solution, 0, password, "hepxxyzz");
+    char *password = create_secure_password(file_content);
+    solution_part_finalize_with_str(solution, 0, password, "hepxxyzz");
     
     password = create_secure_password(password);
-    solution_part_finalize_with_str(&solution, 1, password, "heqaabcc");
+    solution_part_finalize_with_str(solution, 1, password, "heqaabcc");
 
+    free(file_content);
     free(password);
-    
-    return solution_finalize(&solution);
+    return solution_finalize_and_destroy(solution);
 }

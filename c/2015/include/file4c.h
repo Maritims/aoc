@@ -4,10 +4,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-void file_read_all_text(char **result, char* filename);
+char *file_read_all_text(char* filename);
 
-void file_read_all_lines(char ***result, size_t *size, char *filename);
+char **file_read_all_lines(size_t *out_number_of_lines, char *filename);
 
-void file_destroy_all_lines(char ***lines, size_t number_of_lines);
+void file_destroy_all_lines(char **lines, size_t number_of_lines);
 
 #endif

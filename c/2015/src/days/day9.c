@@ -35,15 +35,14 @@ size_t get_city_index(char cities[][20], size_t *number_of_cities, char *city) {
  */
 int main(int argc, char *argv[]) {
     (void)argc;
-    Solution solution;
-    char **lines;
-    size_t number_of_lines;
-    size_t number_of_cities;
+
+    size_t number_of_cities = 0;
     char cities[100][20];
     int matrix[100][20];
 
-    solution_create(&solution, 2015, 9);
-    file_read_all_lines(&lines, &number_of_lines, argv[1]);
+    solution_t *solution = solution_create(2015, 9);
+    size_t number_of_lines = 0;
+    char **lines = file_read_all_lines(&number_of_lines, argv[1]);
 
     // Set up an adjancency matrix where each node has its own id.
     // The node ids determine the order of the rows and columns.
@@ -55,28 +54,23 @@ int main(int argc, char *argv[]) {
     // Belfast     518    141       0
     for(size_t i = 0; i < number_of_lines; i++)
     {
-        char *line = lines[i];
-        char **tokens;
         size_t number_of_tokens = 0;
-        size_t city_index_1;
-        size_t city_index_2;
-        int distance;
-        
-        string_split(&tokens, &number_of_tokens, line, " ");
-        city_index_1 = get_city_index(cities, &number_of_cities, tokens[0]);
-        city_index_2 = get_city_index(cities, &number_of_cities, tokens[2]);
-        distance = atoi(tokens[4]);
+        char **tokens = string_split(&number_of_tokens, lines[i], " ");
+
+        size_t city_index_1 = get_city_index(cities, &number_of_cities, tokens[0]);
+        size_t city_index_2 = get_city_index(cities, &number_of_cities, tokens[2]);
+        int distance = atoi(tokens[4]);
 
         matrix[city_index_1][city_index_2] = distance;
         matrix[city_index_2][city_index_1] = distance;
 
+        free(lines[i]);
         free(tokens);
     }
 
-    solution_part_finalize_with_int(&solution, 0, hamiltonian_compute(matrix, number_of_cities, HP_NONE), "251");
-    solution_part_finalize_with_int(&solution, 1, hamiltonian_compute(matrix, number_of_cities, HP_FIND_MAXIMUM_COST), "898");
+    solution_part_finalize_with_int(solution, 0, hamiltonian_compute(matrix, number_of_cities, HP_NONE), "251");
+    solution_part_finalize_with_int(solution, 1, hamiltonian_compute(matrix, number_of_cities, HP_FIND_MAXIMUM_COST), "898");
 
     free(lines);
-    
-    return solution_finalize(&solution);
+    return solution_finalize_and_destroy(solution);
 }

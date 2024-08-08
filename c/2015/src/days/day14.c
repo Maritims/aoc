@@ -49,20 +49,15 @@ int compare_by_points_desc(const void *a, const void *b) {
 
 int main(int argc, char *argv[]) {
     (void)argc;
-    Solution solution;
-    char **lines;
-    size_t number_of_lines = 0;
 
-    solution_create(&solution, 2015, 14);
-    file_read_all_lines(&lines, &number_of_lines, argv[1]);
+    solution_t *solution = solution_create(2015, 14);
+    size_t number_of_lines = 0;
+    char **lines = file_read_all_lines(&number_of_lines, argv[1]);
 
     Reindeer reindeer[number_of_lines];
     for(size_t i = 0; i < number_of_lines; i++) {
-        char *line = lines[i];
-        char **tokens;
         size_t number_of_tokens = 0;
-
-        string_split(&tokens, &number_of_tokens, line, " ");
+        char **tokens = string_split(&number_of_tokens, lines[i], " ");
 
         reindeer[i] = (Reindeer){
             .name = tokens[0],
@@ -109,12 +104,11 @@ int main(int argc, char *argv[]) {
     }
 
     qsort(reindeer, number_of_lines, sizeof(Reindeer), compare_by_travelled_distance_desc);
-    solution_part_finalize_with_int(&solution, 0, reindeer[0].travelled_distance, "2640");
+    solution_part_finalize_with_int(solution, 0, reindeer[0].travelled_distance, "2640");
 
     qsort(reindeer, number_of_lines, sizeof(Reindeer), compare_by_points_desc);
-    solution_part_finalize_with_int(&solution, 1, reindeer[0].points, "1102");
+    solution_part_finalize_with_int(solution, 1, reindeer[0].points, "1102");
 
-    free(lines);
-
-    return solution_finalize(&solution);
+    file_destroy_all_lines(lines, number_of_lines);
+    return solution_finalize_and_destroy(solution);
 }

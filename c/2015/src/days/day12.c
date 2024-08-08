@@ -57,20 +57,19 @@ int traverse(json_node_t *source, int *sum, bool (*skip)(json_object_entry_t *en
 
 int main(int argc, char* argv[]) {
     (void)argc;
-    Solution solution;
-    char *file_content;
-    int sum = 0;
 
-    solution_create(&solution, 2015, 12);
-    file_read_all_text(&file_content, argv[1]);
+    solution_t *solution = solution_create(2015, 12);
+    char *file_content = file_read_all_text(argv[1]);
     json_node_t *node = json_parse_string(file_content);
 
-    sum = traverse(node, &sum, NULL);
-    solution_part_finalize_with_int(&solution, 0, sum, "191164");
+    int sum = traverse(node, &sum, NULL);
+    solution_part_finalize_with_int(solution, 0, sum, "191164");
 
     sum = 0;
     sum = traverse(node, &sum, &is_red);
-    solution_part_finalize_with_int(&solution, 1, sum, "87842");
+    solution_part_finalize_with_int(solution, 1, sum, "87842");
 
-    return solution_finalize(&solution);
+    free(file_content);
+    json_node_destroy(node);
+    return solution_finalize_and_destroy(solution);
 }

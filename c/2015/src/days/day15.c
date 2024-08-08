@@ -23,12 +23,9 @@ typedef struct CookieIngredient {
 } CookieIngredient;
 
 void ingredient_parse(Ingredient *result, char *str) {
-    size_t number_of_tokens;
-    char *name;
-    char **tokens;
-    
-    string_split(&tokens, &number_of_tokens, str, " ");
-    string_substring(&name, tokens[0], 0, (size_t)(strchr(tokens[0], ':') - tokens[0]));
+    size_t number_of_tokens = 0;
+    char **tokens = string_split(&number_of_tokens, str, " ");
+    char *name = string_substring(tokens[0], 0, (size_t)(strchr(tokens[0], ':') - tokens[0]));
 
     *result = (Ingredient){
         .name = name,
@@ -137,14 +134,11 @@ void compute_sets(int n, int k, int current_k, int current_sum, int *set, int **
  */
 int main(int argc, char *argv[]) {
     (void)argc;
-    Solution solution;
-    char **lines;
-    size_t number_of_lines = 0;
-    uint64_t combinations;
     
-    solution_create(&solution, 2015, 15);
-    file_read_all_lines(&lines, &number_of_lines, argv[1]);
-    math_stars_and_bars(&combinations, 100, number_of_lines);
+    solution_t *solution = solution_create(2015, 15);
+    size_t number_of_lines = 0;
+    char **lines = file_read_all_lines(&number_of_lines, argv[1]);
+    uint64_t *combinations = math_stars_and_bars(100, number_of_lines);
     
     int *set = calloc(number_of_lines, sizeof(int));
     if(set == NULL) {
@@ -152,8 +146,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    int **sets = calloc(combinations, sizeof(int*));
-    for(uint64_t i = 0; i < combinations; i++) {
+    int **sets = calloc(*combinations, sizeof(int*));
+    for(uint64_t i = 0; i < *combinations; i++) {
         sets[i] = calloc(number_of_lines, sizeof(int));
     }
     
@@ -167,7 +161,7 @@ int main(int argc, char *argv[]) {
    
     uint64_t highest_cookie_score = 0;
     uint64_t highest_cookie_score_in_part_two = 0;
-    for(uint64_t i = 0; i < combinations; i++) {
+    for(uint64_t i = 0; i < *combinations; i++) {
         set = sets[i];
         CookieIngredient cookie_ingredients[number_of_lines];
         for(size_t j = 0; j < number_of_lines; j++) {
@@ -189,12 +183,13 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    solution_part_finalize_with_ui(&solution, 0, highest_cookie_score, "222870");
-    solution_part_finalize_with_ui(&solution, 1, highest_cookie_score_in_part_two, "117936");
+    solution_part_finalize_with_ui(solution, 0, highest_cookie_score, "222870");
+    solution_part_finalize_with_ui(solution, 1, highest_cookie_score_in_part_two, "117936");
 
 
+    file_destroy_all_lines(lines, number_of_lines);
+    free(combinations);
     free(set);
     free(sets);
-
-    return solution_finalize(&solution);
+    return solution_finalize_and_destroy(solution);
 }

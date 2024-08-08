@@ -39,14 +39,10 @@ void auntsue_print(AuntSue aunt) {
 
 int main(int argc, char *argv[]) {
     (void)argc;
-    Solution solution;
-    char **lines;
-    size_t number_of_lines;
-    int part_one;
-    int part_two;
-    
-    solution_create(&solution, 2015, 16);
-    file_read_all_lines(&lines, &number_of_lines, argv[1]);
+
+    solution_t *solution = solution_create(2015, 16);
+    size_t number_of_lines = 0;
+    char **lines = file_read_all_lines(&number_of_lines, argv[1]);
 
     int children = 3;
     int cats = 7;
@@ -59,22 +55,19 @@ int main(int argc, char *argv[]) {
     int cars = 2;
     int perfumes = 1;
 
+    int part_one = 0;
+    int part_two = 0;
 
     for(size_t i = 0; i < number_of_lines; i++) {
-        char *line = lines[i];
-        char **tokens;
         size_t number_of_tokens;
-        char *id;
-
-        string_split(&tokens, &number_of_tokens, line, " ");
-        string_substring(&id, tokens[1], 0, (size_t)(strchr(tokens[1], ':') - tokens[1]));
+        char **tokens = string_split(&number_of_tokens, lines[i], " ");
+        char *id = string_substring(tokens[1], 0, (size_t)(strchr(tokens[1], ':') - tokens[1]));
 
         bool is_match_in_part_one = true;
         bool is_match_in_part_two = true;
 
         for(size_t j = 2; j < number_of_tokens - 1; j += 2) {
-            char *token;
-            string_substring(&token, tokens[j], 0, (size_t)(strchr(tokens[j], ':') - tokens[j]));
+            char *token = string_substring(tokens[j], 0, (size_t)(strchr(tokens[j], ':') - tokens[j]));
             char *next_token = tokens[j + 1];
             int value = atoi(next_token);
 
@@ -119,8 +112,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    solution_part_finalize_with_int(&solution, 0, part_one, "213");
-    solution_part_finalize_with_int(&solution, 1, part_two, "323");
-
-    return solution_finalize(&solution);
+    solution_part_finalize_with_int(solution, 0, part_one, "213");
+    solution_part_finalize_with_int(solution, 1, part_two, "323");
+    return solution_finalize_and_destroy(solution);
 }

@@ -1,35 +1,29 @@
 #include <stdio.h>
 #include <string.h>
-
+#include "testing/assertions.h"
 #include "hashtable.h"
 #include "string4c.h"
 
-void test_hashtable_create() {
+void test_hashtable_put(char **keys, char **values, size_t number_of_entries) {
     HashTable *hashtable = hashtable_create(10);
-    if(hashtable == NULL) {
-        printf("%s failed: hashtable was NULL\n", __func__);
-        exit(EXIT_FAILURE);
-    }
+    assert_not_null(hashtable, "%s\n", "hashtable was null");
 
-    printf("%s passed\n", __func__);
-}
+    for(size_t i = 0; i < number_of_entries; i++) {
+        assert_not_null(keys[i], "no value at index %zu in keys array\n", i);
+        assert_not_null(values[i], "no value at index %zu in values array\n", i);
+        
+        HashTableEntry *entry = hashtable_put(hashtable, keys[i], values[i], strlen(values[i]));
+        assert_not_null(entry, "failed to insert entry with key %s and value %s in hashtable", keys[i], values[i]);
 
-void test_hashtable_put_and_hashtable_get_size(size_t expected) {
-    HashTable *hashtable = hashtable_create(expected);
-    for(size_t i = 0; i < expected; i++) {
-        char key[100];
-        sprintf(key, "%s%zu", "foo", i);
-        char value[4] = { 'b', 'a', 'r', '\0' };
-        hashtable_put(hashtable, key, value, sizeof(value));
+        char *entry_key = hashtable_entry_get_key(entry);
+        assert_string_equality(keys[i], entry_key, "inserted key %s does not match original key %s at index %zu in the keys array\n", entry_key, keys[i], i);
+
+        char *entry_value = hashtable_entry_get_value(entry);
+        assert_string_equality(values[i], entry_value, "inserted value %s does not match original value %s at index %zu in the values array\n", entry_value, values[i], i);
     }
    
-    size_t hashtable_size = hashtable_get_size(hashtable);
-    if(hashtable_get_size(hashtable) != expected) {
-        printf("%s failed: hashtable_get_size(hashtable) != 10 (%zu)\n", __func__, hashtable_size);
-        exit(EXIT_FAILURE);
-    }
-
-    printf("%s(%zu) passed\n", __func__, expected);
+    hashtable_destroy(hashtable);
+    printf("%s passed\n", __func__);
 }
 
 void test_hashtable_get_keys(char **keys, size_t keys_length) {
@@ -57,8 +51,11 @@ void test_hashtable_get_keys(char **keys, size_t keys_length) {
 }
 
 int main(void) {
-    test_hashtable_create();
-    test_hashtable_put_and_hashtable_get_size(10);
+    test_hashtable_put(
+        (char *[]){"hello","world","lorem","ipsum","foo","bar","baz"},
+        (char *[]){"baz","bar","foo","ipsum","lorem","world","hello"},
+        7
+    );
     test_hashtable_get_keys((char*[]){
         "amet",
         "bar",

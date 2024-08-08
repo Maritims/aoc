@@ -6,12 +6,10 @@
 
 int main(int argc, char *argv[]) {
     (void)argc;
-    Solution solution;
-    char **lines;
-    size_t number_of_lines;
-    
-    solution_create(&solution, 2015, 17);
-    file_read_all_lines(&lines, &number_of_lines, argv[1]);
+
+    solution_t *solution = solution_create(2015, 17);
+    size_t number_of_lines = 0;
+    char **lines = file_read_all_lines(&number_of_lines, argv[1]);
     int liters = atoi(lines[0]);
     int containers[number_of_lines];
 
@@ -52,8 +50,8 @@ int main(int argc, char *argv[]) {
 
     free(results);
 
-    solution_part_finalize_with_int(&solution, 0, part_one, "1638");
-    solution_part_finalize_with_int(&solution, 1, part_two, "17");
+    solution_part_finalize_with_int(solution, 0, part_one, "1638");
+    solution_part_finalize_with_int(solution, 1, part_two, "17");
 
-    return solution_finalize(&solution);
+    return solution_finalize_and_destroy(solution);
 }

@@ -5,7 +5,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include "json/lexer.h"
-#include "json/token.h"
+
+const char *json_token_type_strings[] = {
+    "UNDEFINED",
+    "COLON",
+    "COMMA",
+    "LEFT_BRACE",
+    "LEFT_BRACKET",
+    "NUMBER",
+    "RIGHT_BRACE",
+    "RIGHT_BRACKET",
+    "STRING",
+    "BOOL",
+    "NULL"
+};
 
 char *json_lex_string(char **str) {
     if (**str != JSON_QUOTE) {

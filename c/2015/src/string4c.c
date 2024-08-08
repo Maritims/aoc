@@ -1,15 +1,24 @@
 #include <ctype.h>
 #include <errno.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
+#include "math4c.h"
 #include "string4c.h"
 
 int string_compare_asc(const void *str1, const void *str2) {
     return strcmp(*(const char**)str1, *(const char**)str2);
+}
+
+char *string_from_number(int n) {
+    int length = math_number_places(n);
+    char *result = malloc(length + 1);
+    sprintf(result, "%d", n);
+    result[length] = '\0';
+    return result;
 }
 
 bool string_is_numeric(char *str)
@@ -29,46 +38,49 @@ bool string_is_numeric(char *str)
     return true;
 }
 
-void string_split(char ***result, size_t *result_size, char *str, char *delimiter) {
-    char *save_ptr;
-    char *token;
-    size_t capacity = 10;
-    size_t size = 0;
-    char *str_copy = strdup(str);
+char **string_split(size_t *out_result_length, char *input, char *delimiter) {
+    if(strlen(delimiter) == 0) {
+        fprintf(stderr, "%s:%s:%d: delimiter was empty\n", __FILE__, __func__, __LINE__);
+        return NULL;
+    }
 
-    if (str_copy == NULL)
+    char *buffer = strdup(input);
+    if (buffer == NULL)
     {
-        fprintf(stderr, "Unable to create copy for tokenization\n");
-        return;
+        fprintf(stderr, "%s:%s:%d: failed to duplicate input\n", __FILE__, __func__, __LINE__);
+        return NULL;
     }
 
-    char **lines = calloc(capacity, sizeof(char *));
-    if (lines == NULL) {
-        fprintf(stderr, "%s:%d: Failed allocating memory for lines: %s\n", __func__, __LINE__, strerror(errno));
-        free(str_copy);
-        return;
+    size_t result_capacity = 10;
+    size_t result_length = 0;
+    char **result = calloc(result_capacity, sizeof(char *));
+    if (result == NULL) {
+        fprintf(stderr, "%s:%s:%d: failed to allocate memory for result: %s\n", __FILE__, __func__, __LINE__, strerror(errno));
+        free(buffer);
+        return NULL;
     }
 
-    token = strtok_r(str_copy, delimiter, &save_ptr);
-
+    char *save_ptr;
+    char *token = strtok_r(buffer, delimiter, &save_ptr);
     while (token != NULL) {
-        if (size >= capacity) {
-            capacity += 10;
-            
-            char **temp = realloc(lines, capacity * sizeof(char *));
-            if (temp == NULL)
+        if (result_length >= result_capacity) {
+            size_t new_result_capacity = result_capacity * 2;
+            char **new_result = realloc(result, new_result_capacity * sizeof(char *));
+
+            if (new_result == NULL)
             {
-                fprintf(stderr, "%s:%d: Failed allocating additional memory for lines: %s\n", __func__, __LINE__, strerror(errno));
-                free(str_copy);
-                for (size_t i = 0; i < size; ++i)
+                fprintf(stderr, "%s:%d: failed to allocate additional memory for result: %s\n", __func__, __LINE__, strerror(errno));
+                free(buffer);
+                for (size_t i = 0; i < result_length; ++i)
                 {
-                    free(lines[i]);
+                    free(result[i]);
                 }
-                free(lines);
-                return;
+                free(result);
+                return NULL;
             }
 
-            lines = temp;
+            result_capacity = new_result_capacity;
+            result = new_result;
         }
 
         if (strcmp(token, delimiter) == 0) {
@@ -76,26 +88,23 @@ void string_split(char ***result, size_t *result_size, char *str, char *delimite
             continue;
         }
 
-        lines[size] = strdup(token);
-        if (lines[size] == NULL) {
+        result[result_length] = strdup(token);
+        if (result[result_length] == NULL) {
             fprintf(stderr, "Unable to allocate memory for token\n");
-            free(str_copy);
-            for (size_t i = 0; i < size; ++i)
-            {
-                free(lines[i]);
+            free(buffer);
+            for (size_t i = 0; i < result_length; ++i) {
+                free(result[i]);
             }
-            free(lines);
-            return;
+            free(result);
+            return NULL;
         }
 
         token = strtok_r(NULL, delimiter, &save_ptr);
-        size++;
+        result_length++;
     }
 
-    *result = lines;
-    *result_size = size;
-
-    free(str_copy);
+    *out_result_length = result_length;
+    return result;
 }
 
 // Duplicates the given string and trims leading and trailing whitespace. Does not modify the source string.
@@ -168,60 +177,54 @@ int convert_hex_char_to_int(char c)
 
 char *string_unescape(const char *str)
 {
-    if (str == NULL)
-    {
+    if (str == NULL) {
         fprintf(stderr, "The parameter \"str\" cannot be NULL\n");
         return NULL;
     }
 
-    if (strlen(str) == 0)
-    {
+    size_t len = strlen(str);
+    if (strlen(str) == 0) {
         fprintf(stderr, "The parameter \"str\" cannot be empty\n");
         return NULL;
     }
 
     char *str_copy = strdup(str);
-    if (str_copy == NULL)
-    {
+    if (str_copy == NULL) {
         fprintf(stderr, "Unable to duplicate string\n");
         return NULL;
     }
 
-    char *result = calloc(strlen(str), sizeof(char));
+    char *result = malloc(len + 1);
+    int high;
+    int low;
 
-    while (*str_copy != '\0')
-    {
-        if (*str_copy == '\\')
-        {
+    while (*str_copy != '\0') {
+        if (*str_copy == '\\') {
             str_copy++;
-            switch (*str_copy)
-            {
-            case '\\':
-                sprintf(result + strlen(result), "\\");
+            switch (*str_copy) {
+                case '\\':
+                    sprintf(result + strlen(result), "\\");
                 break;
-            case '"':
-                sprintf(result + strlen(result), "\"");
+                case '"':
+                    sprintf(result + strlen(result), "\"");
                 break;
-            case 'x':
-                int high = convert_hex_char_to_int(*(str_copy + 1));
-                int low = convert_hex_char_to_int(*(str_copy + 2));
-                if (high != -1 && low != -1)
-                {
-                    // Move the high character to the left and then append the low character to the right.
-                    sprintf(result + strlen(result), "%c", (high << 4) | low);
-                    // Move past the two character we've just handled.
-                    str_copy += 2;
-                }
-                else
-                {
-                    // We encountered something that's not a valid hexadecimal string, so we just add it to the result so that it's preserved.
-                    sprintf(result + strlen(result), "\\x");
-                }
+                case 'x':
+                    high = convert_hex_char_to_int(*(str_copy + 1));
+                    low = convert_hex_char_to_int(*(str_copy + 2));
+                    if (high != -1 && low != -1) {
+                        // Move the high character to the left and then append the low character to the right.
+                        sprintf(result + strlen(result), "%c", (high << 4) | low);
+                        // Move past the two character we've just handled.
+                        str_copy += 2;
+                    }
+                    else {
+                        // We encountered something that's not a valid hexadecimal string, so we just add it to the result so that it's preserved.
+                        sprintf(result + strlen(result), "\\x");
+                    }
                 break;
             }
         }
-        else
-        {
+        else {
             sprintf(result + strlen(result), "%c", *str_copy);
         }
         str_copy++;
@@ -343,25 +346,25 @@ bool string_buffer_append(StringBuffer* buffer, const char* str) {
     return true;
 }
 
-void string_substring(char **result, char *str, size_t inclusive_start, size_t exclusive_end)
+char *string_substring(char *input, size_t inclusive_start, size_t exclusive_end)
 {
-    if (inclusive_start > strlen(str))
+    if (inclusive_start > strlen(input))
     {
-        fprintf(stderr, "The starting position %zu exceeds the length %zu of the input string \"%s\"\n", inclusive_start, exclusive_end, str);
-        return;
+        fprintf(stderr, "The starting position %zu exceeds the length %zu of the input string \"%s\"\n", inclusive_start, exclusive_end, input);
+        return NULL;
     }
 
-    size_t length = exclusive_end - inclusive_start;
-
-    *result = malloc(length + 1);
-    if (*result == NULL)
+    size_t result_length = exclusive_end - inclusive_start;
+    char *result = malloc(result_length + 1);
+    if (result == NULL)
     {
         fprintf(stderr, "%s:%d: Failed allopcating memory for result: %s\n", __func__, __LINE__, strerror(errno));
-        return;
+        return NULL;
     }
 
-    strncpy(*result, str + inclusive_start, exclusive_end);
-    (*result)[length] = '\0';
+    strncpy(result, input + inclusive_start, exclusive_end);
+    result[result_length] = '\0';
+    return result;
 }
 
 bool string_contains_non_overlapping_pair(const char *str) {
@@ -528,5 +531,6 @@ char *string_slice(const char *str, size_t start, size_t end) {
     }
 
     strncpy(slice, str + start, slice_len);
+    slice[slice_len] = '\0';
     return slice;
 }
