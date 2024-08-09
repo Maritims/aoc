@@ -77,6 +77,7 @@ void parse_lines(char **lines, size_t number_of_lines, HashTable *table) {
         char *trimmed_key = string_trim(tokens[1]);
         hashtable_put(table, trimmed_key, trimmed_value, strlen(trimmed_value));
 
+        free(trimmed_key);
         free(trimmed_value);
         for(size_t i = 0; i < number_of_tokens; i++) {
             free(tokens[i]);
@@ -96,6 +97,10 @@ void test_resolve(char *key, uint16_t expected_result) {
     uint16_t result = resolve(table, key, cache);
     assert_primitive_equality(expected_result, result, "resolve(table, \"%s\", cache) != %d (%d)\n", key, expected_result, result);
     printf("%s(\"%s\", %d) passed\n", __func__, key, expected_result);
+
+    hashtable_destroy(table);
+    hashtable_destroy(cache);
+    FREE_ARRAY(lines, number_of_lines);
 }
 
 int main(int argc, char *argv[])
@@ -129,7 +134,7 @@ int main(int argc, char *argv[])
     value = resolve(table, "a", cache);
     solution_part_finalize_with_int(solution, 1, value, "2797");
 
-    file_destroy_all_lines(lines, number_of_lines);
+    FREE_ARRAY(lines, number_of_lines);
     hashtable_destroy(table);
     hashtable_destroy(cache);
     return solution_finalize_and_destroy(solution);

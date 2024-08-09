@@ -172,6 +172,6 @@ int main(int argc, char *argv[]) {
     solve_part_one(lines, number_of_lines, solution);
     solve_part_two(lines, number_of_lines, solution);
 
-    file_destroy_all_lines(lines, number_of_lines);
+    FREE_ARRAY(lines, number_of_lines);
     return solution_finalize_and_destroy(solution);
 }

@@ -44,16 +44,15 @@ char **string_split(size_t *out_result_length, char *input, char *delimiter) {
         return NULL;
     }
 
-    char *buffer = strdup(input);
-    if (buffer == NULL)
-    {
-        fprintf(stderr, "%s:%s:%d: failed to duplicate input\n", __FILE__, __func__, __LINE__);
-        return NULL;
-    }
+    size_t input_length = strlen(input);
+    char *buffer        = malloc(input_length + 1);
+    strcpy(buffer, input);
+    buffer[input_length] = '\0';
 
-    size_t result_capacity = 10;
-    size_t result_length = 0;
-    char **result = calloc(result_capacity, sizeof(char *));
+    size_t result_capacity  = 10;
+    size_t result_length    = 0;
+    char **result           = calloc(result_capacity, sizeof(char *));
+
     if (result == NULL) {
         fprintf(stderr, "%s:%s:%d: failed to allocate memory for result: %s\n", __FILE__, __func__, __LINE__, strerror(errno));
         free(buffer);
@@ -62,6 +61,7 @@ char **string_split(size_t *out_result_length, char *input, char *delimiter) {
 
     char *save_ptr;
     char *token = strtok_r(buffer, delimiter, &save_ptr);
+
     while (token != NULL) {
         if (result_length >= result_capacity) {
             size_t new_result_capacity = result_capacity * 2;
@@ -88,22 +88,17 @@ char **string_split(size_t *out_result_length, char *input, char *delimiter) {
             continue;
         }
 
-        result[result_length] = strdup(token);
-        if (result[result_length] == NULL) {
-            fprintf(stderr, "Unable to allocate memory for token\n");
-            free(buffer);
-            for (size_t i = 0; i < result_length; ++i) {
-                free(result[i]);
-            }
-            free(result);
-            return NULL;
-        }
+        size_t token_length = strlen(token);
+        result[result_length] = malloc(token_length + 1);
+        strcpy(result[result_length], token);
+        result[result_length][token_length] = '\0';
 
         token = strtok_r(NULL, delimiter, &save_ptr);
         result_length++;
     }
 
     *out_result_length = result_length;
+    free(buffer);
     return result;
 }
 
@@ -128,6 +123,7 @@ char *string_trim(char *str)
         fprintf(stderr, "Unable to duplicate string\n");
         return NULL;
     }
+    char *original_str_copy = str_copy;
 
     size_t size = strlen(str_copy);
     // Point to the last character of the string. Subtract one because we don't want to look at the null terminator.
@@ -150,7 +146,12 @@ char *string_trim(char *str)
     }
 
     // The str pointer now points to the first non-whitespace character in the string.
-    return str_copy;
+    size_t result_length = strlen(str_copy);
+    char *result = malloc(result_length + 1);
+    strcpy(result, str_copy);
+    result[result_length] = '\0';
+    free(original_str_copy);
+    return result;
 }
 
 int convert_hex_char_to_int(char c)
@@ -222,70 +223,56 @@ char *string_unescape(const char *str)
     char *result = malloc(sb->length + 1);
     strcpy(result, sb->content);
     result[sb->length] = '\0';
-    free(sb);
+    string_buffer_destroy(sb);
     return result;
 }
 
-char *string_escape(const char *str)
-{
-    if (str == NULL)
-    {
-        fprintf(stderr, "The parameter \"str\" cannot be NULL\n");
-        return NULL;
-    }
+char *string_escape(const char *str) {
+    size_t len          = strlen(str);
+    string_buffer_t *sb = string_buffer_create(len);
+    int high            = 0;
+    int low             = 0;
 
-    if (strlen(str) == 0)
-    {
-        fprintf(stderr, "The parameter \"str\" cannot be empty\n");
-        return NULL;
-    }
+    string_buffer_append(sb, "\"");
 
-    char *str_copy = strdup(str);
-    if (str_copy == NULL)
-    {
-        fprintf(stderr, "Unable to duplicate string\n");
-        return NULL;
-    }
-    char *original_str_copy = str_copy;
-
-    size_t str_length = strlen(str);
-    char *result = malloc(str_length * 2);
-    sprintf(result, "\"");
-
-    while (*str_copy != '\0')
-    {
-        switch (*str_copy)
-        {
-        case '\\':
-            sprintf(result + strlen(result), "\\\\");
+    for(size_t i = 0; i < len; i++) {
+        switch(str[i]) {
+            case '\\':
+                string_buffer_append(sb, "\\\\");
             break;
-        case '"':
-            sprintf(result + strlen(result), "\\\"");
+            case '"':
+                string_buffer_append(sb, "\\\"");
             break;
-        case 'x':
-            int high = convert_hex_char_to_int(*(str_copy + 1));
-            int low = convert_hex_char_to_int(*(str_copy + 2));
-            if(high != -1 && low != -1)
-            {
-                sprintf(result + strlen(result), "%c%c%c", *str_copy, *(str_copy + 1), *(str_copy + 2));
-                str_copy += 2;
-            }
-            else
-            {
-                // We encountered something that's not a valid hexadecimal string, so we just add it to the result so that it's preserved.
-                sprintf(result + strlen(result), "%c", *str_copy);
-            }
+            case 'x':
+                high = convert_hex_char_to_int(str[i + 1]);
+                low = convert_hex_char_to_int(str[i + 2]);
+                if(high != -1 && low != -1) {
+                    char c[4];
+                    sprintf(c, "%c%c%c", str[i], str[i + 1], str[i + 2]);
+                    c[3] = '\0';
+                    string_buffer_append(sb, c);
+                    i += 2;
+                }
+                else {
+                    // We encountered something that's not a valid hexadecimal string, so we just add it to the result so that it's preserved.
+                    char c[2];
+                    sprintf(c, "%c", str[i]);
+                    c[1] = '\0';
+                    string_buffer_append(sb, c);
+                }
             break;
-        default:
-            sprintf(result + strlen(result), "%c", *str_copy);
+            default:
+                string_buffer_append(sb, (char[2]){ str[i], '\0' });
             break;
         }
-        str_copy++;
     }
-    sprintf(result + strlen(result), "\"");
-    result[strlen(result)] = '\0';
-    free(original_str_copy);
 
+    string_buffer_append(sb, "\"");
+
+    char *result = malloc(sb->length + 1);
+    strcpy(result, sb->content);
+    result[sb->length] = '\0';
+    string_buffer_destroy(sb);
     return result;
 }
 
@@ -306,6 +293,11 @@ string_buffer_t *string_buffer_create(size_t capacity) {
     }
 
     return buffer;
+}
+
+void string_buffer_destroy(string_buffer_t *buffer) {
+    free(buffer->content);
+    free(buffer);
 }
 
 bool string_buffer_realloc(string_buffer_t *buffer, size_t additional_length) {
@@ -521,7 +513,7 @@ char *string_slice(const char *str, size_t start, size_t end) {
     }
 
     size_t slice_len = end - start;
-    char *slice = malloc(slice_len);
+    char *slice = malloc(slice_len + 1);
     
     if(slice == NULL) {
         fprintf(stderr, "%s:%d: failed to allocate memory for slice\n", __func__, __LINE__);

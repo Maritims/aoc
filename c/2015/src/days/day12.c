@@ -62,7 +62,8 @@ int main(int argc, char* argv[]) {
     char *file_content = file_read_all_text(argv[1]);
     json_node_t *node = json_parse_string(file_content);
 
-    int sum = traverse(node, &sum, NULL);
+    int sum = 0;
+    sum = traverse(node, &sum, NULL);
     solution_part_finalize_with_int(solution, 0, sum, "191164");
 
     sum = 0;

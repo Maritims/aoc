@@ -65,6 +65,9 @@ int main(int argc, char *argv[]) {
         matrix[city_index_2][city_index_1] = distance;
 
         free(lines[i]);
+        for(size_t i = 0; i < number_of_tokens; i++) {
+            free(tokens[i]);
+        }
         free(tokens);
     }
 

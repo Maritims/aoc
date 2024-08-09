@@ -52,10 +52,3 @@ char **file_read_all_lines(size_t *out_number_of_lines, char *filename) {
     *out_number_of_lines = number_of_lines;
     return lines;
 }
-
-void file_destroy_all_lines(char **lines, size_t number_of_lines) {
-    for(size_t i = 0; i < number_of_lines; i++) {
-        free(lines[i]);
-    }
-    free(lines);
-}

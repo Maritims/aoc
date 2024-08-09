@@ -20,29 +20,29 @@ int math_number_places(int n) {
 }
 
 uint64_t *math_binomial_coefficient(int n, int k) {
-    mpz_t n_factorial;
-    mpz_t k_factorial;
-    mpz_t n_minus_k_factorial;
+    mpz_t *n_factorial = math_factorial(n);
+    mpz_t *k_factorial = math_factorial(k);
+    mpz_t *n_minus_k_factorial = math_factorial(n - k);
     mpz_t binomial_coefficient;
     mpz_t denominator;
 
-    math_factorial(&n_factorial, n);
-    math_factorial(&k_factorial, k);
-    math_factorial(&n_minus_k_factorial, n - k);
-
     mpz_init_set_ui(binomial_coefficient, 0);
     mpz_init_set_ui(denominator, 0);
-    mpz_mul(denominator, k_factorial, n_minus_k_factorial);
-    mpz_div(binomial_coefficient, n_factorial, denominator);
+    mpz_mul(denominator, *k_factorial, *n_minus_k_factorial);
+    mpz_div(binomial_coefficient, *n_factorial, denominator);
 
     uint64_t *result = malloc(sizeof(uint64_t));
     *result = mpz_get_ui(binomial_coefficient);
 
-    mpz_clear(n_factorial);
-    mpz_clear(k_factorial);
-    mpz_clear(n_minus_k_factorial);
+    mpz_clear(*n_factorial);
+    mpz_clear(*k_factorial);
+    mpz_clear(*n_minus_k_factorial);
     mpz_clear(denominator);
     mpz_clear(binomial_coefficient);
+
+    free(n_factorial);
+    free(k_factorial);
+    free(n_minus_k_factorial);
 
     return result;
 }
@@ -57,20 +57,24 @@ int math_divide_and_round_up(int dividend, int divisor) {
     return (dividend + (divisor - 1)) / divisor;
 }
 
-void math_factorial(mpz_t *result, int n) {
+mpz_t *math_factorial(int n) {
     if(n < 0) {
-        fprintf(stderr, "Parameter \"n\" cannot be %d. Factorial of a negative number doesn't exist.\n", n);
-        return;
+        fprintf(stderr, "%s:%s:%d: parameter n cannot be %d. Factorial of a negative number doesn't exist.\n", __FILE__, __func__, __LINE__, n);
+        return NULL;
     }
 
+    mpz_t *result = malloc(sizeof(mpz_t));
     mpz_init(*result);
     mpz_set_ui(*result, 1);
+
     for(int i = 2; i <= n; i++) {
         mpz_t multiplier;
         mpz_init_set_ui(multiplier, i);
         mpz_mul_ui(*result, *result, i);
         mpz_clear(multiplier);
     }
+
+    return result;
 }
 
 /**
@@ -84,11 +88,7 @@ void math_factorial(mpz_t *result, int n) {
  * @param subset_size: The size of the subset to add.
  */
 void sets_add_subset_to_results(int **results, size_t *results_size, size_t *results_column_sizes, int *subset, size_t subset_size) {
-    results[*results_size] = calloc(subset_size, sizeof(int)); // The first subset is always, i.e.when subset_size == 0.
-    if(results[*results_size] == NULL) {
-        fprintf(stderr, "%s:%d: Failed to allocate memory for subset in results at index %zu\n", __func__, __LINE__, *results_size);
-        return;
-    }
+    results[*results_size] = calloc(subset_size, sizeof(int)); // The first subset is always empty, i.e.when subset_size == 0.
 
     for(size_t i = 0; i < subset_size; i++) {
         int *result             = results[*results_size];
@@ -124,13 +124,14 @@ void sets_compute_subsets(int **results, size_t *results_size, size_t *results_c
 int **math_sets_compute_subsets(int *original_array, size_t original_array_size, size_t *return_results_size, size_t **return_results_column_sizes) {
     int number_of_subsets           = pow(2, original_array_size);
     int **results                   = calloc(number_of_subsets, sizeof(int*));
-    *return_results_column_sizes    = calloc(number_of_subsets, sizeof(size_t));
+    size_t *results_column_sizes    = calloc(number_of_subsets, sizeof(size_t));
     int *subset                     = calloc(original_array_size, sizeof(int));
     size_t results_size             = 0;
 
-    sets_compute_subsets(results, &results_size, *return_results_column_sizes, original_array, original_array_size, subset, 0, 0);
+    sets_compute_subsets(results, &results_size, results_column_sizes, original_array, original_array_size, subset, 0, 0);
 
-    *return_results_size = results_size;
+    *return_results_size            = results_size;
+    *return_results_column_sizes    = results_column_sizes;
     free(subset);
 
     return results;
@@ -192,32 +193,31 @@ static void permute_ints(int *elements, int left, int right, int **permutations,
     }
 }
 
-int **math_permutations_compute_int(int n, uint64_t **number_of_permutations) {
-    mpz_t mpz_number_of_permutations;
-    mpz_init_set_ui(mpz_number_of_permutations, **number_of_permutations);
-    math_factorial(&mpz_number_of_permutations, n);
-    **number_of_permutations = mpz_get_ui(mpz_number_of_permutations);
-    mpz_clear(mpz_number_of_permutations);
+int **math_permutations_compute_int(int n, size_t *out_permutations_length) {
+    if(n < 0) {
+        fprintf(stderr, "%s:%s:%d: unable to compute permutations for a negative number\n", __FILE__, __func__, __LINE__);
+        return NULL;
+    }
 
-    if(number_of_permutations == NULL) {
-        fprintf(stderr, "%s():%d: Unable to compute the factorial of n = %d\n", __func__, __LINE__, n);
-        return NULL;
-    }
+    mpz_t *factorial            = math_factorial(n);
+    size_t permutations_length  = mpz_get_ui(*factorial);
+    mpz_clear(*factorial);
+    free(factorial);
     
-    int **permutations = calloc(**number_of_permutations, sizeof(int*));
+    int **permutations = calloc(permutations_length, sizeof(int*));
     if(permutations == NULL) {
-        fprintf(stderr, "%s():%d: Failed to allocate memory for permutations\n", __func__, __LINE__);
-        free(number_of_permutations);
+        fprintf(stderr, "%s:%s:%d: failed to allocate memory for permutations\n", __FILE__, __func__, __LINE__);
         return NULL;
     }
-    for(uint64_t i = 0; i < **number_of_permutations; i++) {
+
+    for(uint64_t i = 0; i < permutations_length; i++) {
         permutations[i] = calloc(n, sizeof(int));
     }
 
     int *elements = calloc(n, sizeof(int));
     if(elements == NULL) {
-        fprintf(stderr, "%s():%d: Failed to allocate memory for elements\n", __func__, __LINE__);
-        for(uint64_t i = 0; i < **number_of_permutations; i++) {
+        fprintf(stderr, "%s:%s:%d: failed to allocate memory for elements\n", __FILE__, __func__, __LINE__);
+        for(uint64_t i = 0; i < permutations_length; i++) {
             free(permutations[i]);
         }
         free(permutations);
@@ -232,6 +232,7 @@ int **math_permutations_compute_int(int n, uint64_t **number_of_permutations) {
     permute_ints(elements, 0, n - 1, permutations, &permutations_index);
 
     free(elements);
+    *out_permutations_length = permutations_length;
     return permutations;
 }
 /**

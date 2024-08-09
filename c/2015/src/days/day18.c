@@ -26,6 +26,6 @@ int main(int argc, char *argv[]) {
 
     grid_destroy_corners(always_enabled_cells);
     conway_destroy(conway);
-    file_destroy_all_lines(lines, number_of_lines);
+    FREE_ARRAY(lines, number_of_lines);
     return solution_finalize_and_destroy(solution);
 }

@@ -4,6 +4,12 @@
 #include <stdint.h>
 #include <time.h>
 
+#define FREE_ARRAY(array, length) \
+    for(size_t i = 0; i < length; i++) { \
+        free(array[i]); \
+    } \
+    free(array);
+
 typedef enum solution_exit_code_t {
     SOLUTION_SUCCESS,
     SOLUTION_PART_ONE_INCORRECT,

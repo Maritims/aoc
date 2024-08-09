@@ -11,16 +11,18 @@
 
 void calculate_happiness(int *result, char **lines, size_t number_of_lines, bool include_yourself) {
     int map[26][26]; // There are 26 letters in the alphabet.
-    int id_map[26] = {0}; // Map for converting iteration variables to actual map ids;
-    char current_main_id = ' ';
-    size_t number_of_main_ids = 0;
+    int id_map[26]              = {0}; // Map for converting iteration variables to actual map ids;
+    char current_main_id        = ' ';
+    size_t number_of_main_ids   = 0;
+
     for(size_t i = 0; i < number_of_lines; i++) {
         size_t number_of_tokens = 0;
-        char **tokens = string_split(&number_of_tokens, lines[i], " ");
+        char **tokens           = string_split(&number_of_tokens, lines[i], " ");
         
-        char main_id = tokens[0][0]; // First letter of the person we're currently looking at.
-        char minor_id = tokens[10][0]; // First letter of the person they could be sitting next to.
-        int happiness = atoi(tokens[3]) * (strcmp(tokens[2], "lose") == 0 ? -1 : 1); // Change in happiness if seated next to the person identified by minor_id.
+        char main_id    = tokens[0][0]; // First letter of the person we're currently looking at.
+        char minor_id   = tokens[10][0]; // First letter of the person they could be sitting next to.
+        int happiness   = atoi(tokens[3]) * (strcmp(tokens[2], "lose") == 0 ? -1 : 1); // Change in happiness if seated next to the person identified by minor_id.
+
         map[(int)main_id % 65][(int)minor_id % 65] = happiness;
 
         if(current_main_id != main_id) {
@@ -29,7 +31,9 @@ void calculate_happiness(int *result, char **lines, size_t number_of_lines, bool
         }
         current_main_id = main_id;
 
-
+        for(size_t i = 0; i < number_of_tokens; i++) {
+            free(tokens[i]);
+        }
         free(tokens);
     }
 
@@ -44,27 +48,29 @@ void calculate_happiness(int *result, char **lines, size_t number_of_lines, bool
         number_of_main_ids++;
     }
 
-    uint64_t *number_of_permutations = malloc(sizeof(uint64_t));
-    int **permutations = math_permutations_compute_int(number_of_main_ids, &number_of_permutations);
+    size_t permutations_length = 0;
+    int **permutations         = math_permutations_compute_int(number_of_main_ids, &permutations_length);
+
     if(permutations == NULL) {
         fprintf(stderr, "%s:%d: Failed to generate permutations\n", __func__, __LINE__);
         return;
     }
 
     *result = INT_MIN;
-    for(uint64_t i = 0; i < *number_of_permutations; i++) {
-        int *ids = permutations[i];
+    for(uint64_t i = 0; i < permutations_length; i++) {
+        int *ids            = permutations[i];
         int total_happiness = 0;
+
         for(size_t j = 0; j < number_of_main_ids; j++) {
-            int main_id_key = ids[j] - 1;
-            int left_id_key = (ids[(j - 1 + number_of_main_ids) % number_of_main_ids] - 1); // Correct handling of negative index
-            int right_id_key = ids[(j + 1) % number_of_main_ids] - 1;
+            int main_id_key     = ids[j] - 1;
+            int left_id_key     = (ids[(j - 1 + number_of_main_ids) % number_of_main_ids] - 1); // Correct handling of negative index
+            int right_id_key    = ids[(j + 1) % number_of_main_ids] - 1;
 
-            int main_id = id_map[main_id_key];
-            int left_id = id_map[left_id_key];
-            int right_id = id_map[right_id_key];
+            int main_id     = id_map[main_id_key];
+            int left_id     = id_map[left_id_key];
+            int right_id    = id_map[right_id_key];
 
-            int left_happiness = map[main_id][left_id];
+            int left_happiness  = map[main_id][left_id];
             int right_happiness = map[main_id][right_id];
 
             total_happiness += left_happiness + right_happiness;
@@ -75,7 +81,9 @@ void calculate_happiness(int *result, char **lines, size_t number_of_lines, bool
         }
     }
 
-    free(number_of_permutations);
+    for(size_t i = 0; i < permutations_length; i++) {
+        free(permutations[i]);
+    }
     free(permutations);
 }
 
@@ -95,6 +103,6 @@ int main(int argc, char *argv[]) {
     solution_part_finalize_with_int(solution, 1, part_two, "640");
 
 
-    file_destroy_all_lines(lines, number_of_lines); 
+    FREE_ARRAY(lines, number_of_lines); 
     return solution_finalize_and_destroy(solution);
 }

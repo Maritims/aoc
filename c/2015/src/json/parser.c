@@ -251,6 +251,8 @@ json_node_t *json_parse_string(char *str) {
     size_t length = 0;
     json_token_t *tokens = json_lex(str, &length);
     size_t current_token_index = 0;
-
-    return json_parse(tokens, &current_token_index, true);
+    json_node_t *node = json_parse(tokens, &current_token_index, true);
+    
+    free(tokens);
+    return node;
 }

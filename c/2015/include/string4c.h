@@ -33,6 +33,8 @@ char *string_escape(const char *str);
 
 string_buffer_t *string_buffer_create(size_t total_size);
 
+void string_buffer_destroy(string_buffer_t *buffer);
+
 bool string_buffer_realloc(string_buffer_t *buffer, size_t additional_length);
 
 bool string_buffer_append(string_buffer_t *buffer, const char *str);

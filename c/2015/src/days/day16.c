@@ -81,6 +81,8 @@ int main(int argc, char *argv[]) {
             ) {
                 is_match_in_part_one = false;
                 is_match_in_part_two = false;
+
+                free(token);
                 break;
             }
 
@@ -101,6 +103,8 @@ int main(int argc, char *argv[]) {
             ) {
                 is_match_in_part_two = false;
             }
+
+            free(token);
         }
 
         if(is_match_in_part_one) {
@@ -110,9 +114,14 @@ int main(int argc, char *argv[]) {
         if(is_match_in_part_two) {
             part_two = atoi(id);
         }
+
+        free(id);
+        FREE_ARRAY(tokens, number_of_tokens);
     }
 
     solution_part_finalize_with_int(solution, 0, part_one, "213");
     solution_part_finalize_with_int(solution, 1, part_two, "323");
+
+    FREE_ARRAY(lines, number_of_lines);
     return solution_finalize_and_destroy(solution);
 }

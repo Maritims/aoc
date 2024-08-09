@@ -8,6 +8,4 @@ char *file_read_all_text(char* filename);
 
 char **file_read_all_lines(size_t *out_number_of_lines, char *filename);
 
-void file_destroy_all_lines(char **lines, size_t number_of_lines);
-
 #endif

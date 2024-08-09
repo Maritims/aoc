@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
         escaped_length = strlen(escaped_line);
         total_for_part_two += escaped_length - unescaped_length;
 
-//        free(line_start);
+        free(lines[i]);
         free(unescaped_line);
         free(escaped_line);
     }

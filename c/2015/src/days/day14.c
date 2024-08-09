@@ -71,6 +71,8 @@ int main(int argc, char *argv[]) {
             .travelled_distance = 0,
             .points = 0
         };
+
+        FREE_ARRAY(tokens, number_of_tokens);
     }
 
     // Loop for 1000 "seconds".
@@ -109,6 +111,6 @@ int main(int argc, char *argv[]) {
     qsort(reindeer, number_of_lines, sizeof(Reindeer), compare_by_points_desc);
     solution_part_finalize_with_int(solution, 1, reindeer[0].points, "1102");
 
-    file_destroy_all_lines(lines, number_of_lines);
+    FREE_ARRAY(lines, number_of_lines);
     return solution_finalize_and_destroy(solution);
 }
