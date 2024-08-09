@@ -5,11 +5,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-typedef struct StringBuffer {
-    size_t total_size;
-    size_t actual_length;
-    char* content;
-} StringBuffer;
+typedef struct string_buffer_t {
+    size_t  capacity;
+    size_t  length;
+    char*   content;
+} string_buffer_t;
 
 /**
  * string_compare_asc: Comparator function for use with qsort.
@@ -31,11 +31,11 @@ char *string_unescape(const char *str);
 
 char *string_escape(const char *str);
 
-StringBuffer *string_buffer_create(size_t total_size);
+string_buffer_t *string_buffer_create(size_t total_size);
 
-bool string_buffer_realloc(StringBuffer *buffer, size_t additional_length);
+bool string_buffer_realloc(string_buffer_t *buffer, size_t additional_length);
 
-bool string_buffer_append(StringBuffer *buffer, const char *str);
+bool string_buffer_append(string_buffer_t *buffer, const char *str);
 
 char *string_substring(char *input, size_t inclusive_start, size_t exclusive_end);
 

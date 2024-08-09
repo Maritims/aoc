@@ -32,6 +32,28 @@ void test_string_split(char *str, char *delimiter, size_t expected_result_length
     printf("%s(\"%s\", \"%s\", %zu) passed\n", __func__, str, delimiter, expected_result_length);
 }
 
+void test_string_buffer_append(const char *s1, const char *s2, const char *expected_result) {
+    // assign
+    string_buffer_t *sb = string_buffer_create(10);
+
+    // act
+    string_buffer_append(sb, s1);
+    string_buffer_append(sb, s2);
+
+    // assert
+    assert_string_equality(expected_result, sb->content, "string_buffer_append(sb, \"%s\") resulted in unexpected content in string buffer. Expected %s, but got %s\n", s2, expected_result, sb->content); 
+    printf("%s(\"%s\", \"%s\", \"%s\") passed\n", __func__, s1, s2, expected_result);
+}
+
+void test_string_unescape(const char *str, const char *expected_result) {
+    // assign, act
+    char *result = string_unescape(str);
+
+    // assert
+    assert_string_equality(expected_result, result, "string_unescape(\"%s\") != %s (%s)", str, expected_result, result);
+    printf("%s(\"%s\") passed\n", __func__, str);
+}
+
 void test_string_trim(char *str, char *expected_result) {
     char *result = string_trim(str);
     assert_string_equality(expected_result, result, "string_trim(\"%s\") != %s\n", str, expected_result);
@@ -86,10 +108,11 @@ int main() {
     test_string_from_number(0, "0");
     test_string_from_number(1, "1");
     test_string_from_number(12398, "12398");
+
     test_string_is_numeric("foo", false);
     test_string_is_numeric("foo123", false);
     test_string_is_numeric("123", true);
-
+    
     test_string_split("he ll o wo rld", " ", 5, (char *[]){
         (char*){ "he" },
         (char*){ "ll" },
@@ -97,8 +120,16 @@ int main() {
         (char*){ "wo" },
         (char*){ "rld" }
     });
-    test_string_split("foobar", "", 0, (char *[]){});
+   
+    test_string_buffer_append("foo", "bar", "foobar");
 
+    test_string_unescape("\\\"\\\"", "\"\"");
+    test_string_unescape("\\\"abc\\\"", "\"abc\"");
+    test_string_unescape("aaa\\\"aaa", "aaa\"aaa");
+    test_string_unescape("\\x27", "'");
+    
+    test_string_split("foobar", "", 0, (char *[]){});
+    
     test_string_trim("foobar", "foobar");
     test_string_trim(" foobar", "foobar");
     test_string_trim("  foobar", "foobar");
@@ -106,7 +137,7 @@ int main() {
     test_string_trim("foobar  ", "foobar");
     test_string_trim("foo bar", "foo bar");
     test_string_trim("foo bar ", "foo bar");
-
+    
     test_string_contains_non_overlapping_pair("aabaa", true);
     test_string_contains_non_overlapping_pair("cqcq", true);
     test_string_contains_non_overlapping_pair("aa", false);
@@ -121,6 +152,7 @@ int main() {
     test_string_replace("lorem ipsum, lorem ipsum", "lorem", "hello", "hello ipsum, lorem ipsum");
     test_string_replace("Hello World!", "Hello", "Hi", "Hi World!");
     test_string_replace("foobarbaz", "foo", "lorem", "lorembarbaz");
+    
     test_string_replace_all("foobarbazfoobarbaz", "foo", "loremipsum", "loremipsumbarbazloremipsumbarbaz");
 /*    test_string_replace_at("Hello World!", "Farewell", 0, 5, "Farewell World!");
     test_string_replace_at("Lorem Ipsum", "Dolor", 6, 1, "Lorem Dolorpsum");

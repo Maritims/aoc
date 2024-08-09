@@ -177,60 +177,52 @@ int convert_hex_char_to_int(char c)
 
 char *string_unescape(const char *str)
 {
-    if (str == NULL) {
-        fprintf(stderr, "The parameter \"str\" cannot be NULL\n");
-        return NULL;
-    }
+    size_t len          = strlen(str);
+    string_buffer_t *sb = string_buffer_create(len);
+    int high            = 0;
+    int low             = 0;
 
-    size_t len = strlen(str);
-    if (strlen(str) == 0) {
-        fprintf(stderr, "The parameter \"str\" cannot be empty\n");
-        return NULL;
-    }
-
-    char *str_copy = strdup(str);
-    if (str_copy == NULL) {
-        fprintf(stderr, "Unable to duplicate string\n");
-        return NULL;
-    }
-
-    char *result = malloc(len + 1);
-    int high;
-    int low;
-
-    while (*str_copy != '\0') {
-        if (*str_copy == '\\') {
-            str_copy++;
-            switch (*str_copy) {
+    for(size_t i = 0; i < len; i++) {
+        if(str[i] == '\\') {
+            i++;
+            switch(str[i]) {
                 case '\\':
-                    sprintf(result + strlen(result), "\\");
+                    string_buffer_append(sb, "\\");
                 break;
                 case '"':
-                    sprintf(result + strlen(result), "\"");
+                    string_buffer_append(sb, "\"");
                 break;
                 case 'x':
-                    high = convert_hex_char_to_int(*(str_copy + 1));
-                    low = convert_hex_char_to_int(*(str_copy + 2));
+                    high = convert_hex_char_to_int(str[i + 1]);
+                    low = convert_hex_char_to_int(str[i + 2]);
                     if (high != -1 && low != -1) {
                         // Move the high character to the left and then append the low character to the right.
-                        sprintf(result + strlen(result), "%c", (high << 4) | low);
+                        char c[2];
+                        sprintf(c, "%c", (high << 4) | low);
+                        c[1] = '\0';
+                        string_buffer_append(sb, c);
                         // Move past the two character we've just handled.
-                        str_copy += 2;
+                        i += 2;
                     }
                     else {
                         // We encountered something that's not a valid hexadecimal string, so we just add it to the result so that it's preserved.
-                        sprintf(result + strlen(result), "\\x");
+                        string_buffer_append(sb, "\\x");
                     }
                 break;
             }
         }
         else {
-            sprintf(result + strlen(result), "%c", *str_copy);
+            char c[2];
+            sprintf(c, "%c", str[i]);
+            c[1] = '\0';
+            string_buffer_append(sb, c);
         }
-        str_copy++;
     }
-    result[strlen(result)] = '\0';
 
+    char *result = malloc(sb->length + 1);
+    strcpy(result, sb->content);
+    result[sb->length] = '\0';
+    free(sb);
     return result;
 }
 
@@ -254,8 +246,10 @@ char *string_escape(const char *str)
         fprintf(stderr, "Unable to duplicate string\n");
         return NULL;
     }
+    char *original_str_copy = str_copy;
 
-    char *result = calloc(strlen(str) * 2, sizeof(char));
+    size_t str_length = strlen(str);
+    char *result = malloc(str_length * 2);
     sprintf(result, "\"");
 
     while (*str_copy != '\0')
@@ -290,58 +284,62 @@ char *string_escape(const char *str)
     }
     sprintf(result + strlen(result), "\"");
     result[strlen(result)] = '\0';
+    free(original_str_copy);
 
     return result;
 }
 
-StringBuffer* string_buffer_create(size_t total_size) {
-    StringBuffer* buffer = malloc(sizeof(StringBuffer));
+string_buffer_t *string_buffer_create(size_t capacity) {
+    string_buffer_t *buffer = malloc(sizeof(string_buffer_t));
     if(buffer == NULL) {
         fprintf(stderr, "%s:%s:%d: failed to allocate memory for buffer\n", __FILE__, __func__, __LINE__);
         return NULL;
     }
     
-    buffer->total_size = total_size;
-    buffer->actual_length = 0;
-    buffer->content = calloc(buffer->total_size, sizeof(char));
+    buffer->capacity    = capacity;
+    buffer->length      = 0;
+    buffer->content     = malloc(buffer->capacity);
     if(buffer->content == NULL) {
-        fprintf(stderr, "%s:%d: Failed to allocate memory for buffer content.\n", __func__, __LINE__);
+        fprintf(stderr, "%s:%d: failed to allocate memory for buffer content.\n", __func__, __LINE__);
         free(buffer);
         return NULL;
     }
 
-    return buffer;;
+    return buffer;
 }
 
-bool string_buffer_realloc(StringBuffer* buffer, size_t additional_length) {
-    if(buffer->actual_length + additional_length >= buffer->total_size) {
-        size_t new_size = buffer->total_size * 2;
-        while(new_size <= buffer->actual_length + additional_length) {
-            new_size *= 2;
+bool string_buffer_realloc(string_buffer_t *buffer, size_t additional_length) {
+    size_t new_length = buffer->length + additional_length + 1;
+
+    if(new_length > buffer->capacity) {
+        size_t new_capacity = buffer->capacity * 2;
+        while(new_capacity <= buffer->capacity + new_length) {
+            new_capacity *= 2;
         }
 
-        char *new_content = realloc(buffer->content, new_size);
+        char *new_content   = realloc(buffer->content, new_capacity);
         if(new_content == NULL) {
-            fprintf(stderr, "%s:%d: Failed to allocate additional memory for buffer content.\n", __func__, __LINE__);
+            fprintf(stderr, "%s:%d: failed to allocate additional memory for buffer content.\n", __func__, __LINE__);
             return false;
         }
 
-        buffer->total_size = new_size;
-        buffer->content = new_content;
+        buffer->capacity    = new_capacity;
+        buffer->content     = new_content;
     }
 
     return true;
 }
 
-bool string_buffer_append(StringBuffer* buffer, const char* str) {
+bool string_buffer_append(string_buffer_t *buffer, const char *str) {
     size_t length = strlen(str);
     if(!string_buffer_realloc(buffer, length)) {
         fprintf(stderr, "%s:%d: Failed to reallocate additional memory for string buffer.\n", __func__, __LINE__);
         return false;
     }
 
-    strcpy(buffer->content + buffer->actual_length, str);
-    buffer->actual_length += length;
+    strcpy(buffer->content + buffer->length, str);
+    buffer->length += length;
+    buffer->content[buffer->length] = '\0';
     
     return true;
 }
