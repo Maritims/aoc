@@ -87,17 +87,23 @@ mpz_t *math_factorial(int n) {
  * @param subset: The subset to add.
  * @param subset_size: The size of the subset to add.
  */
-void sets_add_subset_to_results(int **results, size_t *results_size, size_t *results_column_sizes, int *subset, size_t subset_size) {
-    results[*results_size] = calloc(subset_size, sizeof(int)); // The first subset is always empty, i.e.when subset_size == 0.
+void sets_add_subset_to_results(int **subsets, size_t *number_of_subsets, size_t *results_column_sizes, int *subset, size_t subset_size) {
+    subsets[*number_of_subsets] = calloc(subset_size, sizeof(int)); // The first subset is always empty, i.e.when subset_size == 0.
 
     for(size_t i = 0; i < subset_size; i++) {
-        int *result             = results[*results_size];
-        int number_in_subset    = subset[i];
-        result[i]               = number_in_subset;
+        subsets[*number_of_subsets][i] = subset[i];
     }
 
-    results_column_sizes[*results_size] = subset_size;
-    (*results_size)++;
+    results_column_sizes[*number_of_subsets] = subset_size;
+    (*number_of_subsets)++;
+}
+
+int *clone_subset(int *subset, size_t subset_length) {
+    int *result = calloc(subset_length, sizeof(int));
+    for(size_t i = 0; i < subset_length; i++) {
+        result[i] = subset[i];
+    }
+    return result;
 }
 
 /**
@@ -113,7 +119,11 @@ void sets_add_subset_to_results(int **results, size_t *results_size, size_t *res
  * @param index: The index of the element in the original array to add to the subset. Also the lowest index of the original array we're interested in to achieve exclusion of elements.
  */
 void sets_compute_subsets(int **results, size_t *results_size, size_t *results_column_sizes, int *original_array, size_t original_array_size, int *subset, size_t subset_size, size_t index) {
-    sets_add_subset_to_results(results, results_size, results_column_sizes, subset, subset_size);
+//    sets_add_subset_to_results(results, results_size, results_column_sizes, subset, subset_size);
+    int *cloned_subset                  = clone_subset(subset, subset_size);
+    results[*results_size]              = cloned_subset;
+    results_column_sizes[*results_size] = subset_size;
+    (*results_size)++;
 
     for(size_t i = index; i < original_array_size; i++) {
         subset[subset_size] = original_array[i]; // Append to the end of the subset.
@@ -123,18 +133,18 @@ void sets_compute_subsets(int **results, size_t *results_size, size_t *results_c
 
 int **math_sets_compute_subsets(int *original_array, size_t original_array_size, size_t *return_results_size, size_t **return_results_column_sizes) {
     int number_of_subsets           = pow(2, original_array_size);
-    int **results                   = calloc(number_of_subsets, sizeof(int*));
+    int **subsets                   = calloc(number_of_subsets, sizeof(int*));
     size_t *results_column_sizes    = calloc(number_of_subsets, sizeof(size_t));
     int *subset                     = calloc(original_array_size, sizeof(int));
     size_t results_size             = 0;
 
-    sets_compute_subsets(results, &results_size, results_column_sizes, original_array, original_array_size, subset, 0, 0);
+    sets_compute_subsets(subsets, &results_size, results_column_sizes, original_array, original_array_size, subset, 0, 0);
 
     *return_results_size            = results_size;
     *return_results_column_sizes    = results_column_sizes;
     free(subset);
 
-    return results;
+    return subsets;
 }
 
 bool math_sets_is_subset_sum(int *result, int *set, size_t length, int n, int sum, int index_in_result) {

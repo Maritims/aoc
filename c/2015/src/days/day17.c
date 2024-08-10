@@ -10,11 +10,11 @@ int main(int argc, char *argv[]) {
     size_t number_of_lines  = 0;
     char **lines            = file_read_all_lines(&number_of_lines, argv[1]);
     int liters              = atoi(lines[0]);
-    int containers[number_of_lines];
+    int containers[number_of_lines - 1];
 
     free(lines[0]);
     for(size_t i = 1; i < number_of_lines; i++) {
-        containers[i] = atoi(lines[i]);
+        containers[i - 1] = atoi(lines[i]);
         free(lines[i]);
     }
     free(lines);
