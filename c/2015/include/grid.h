@@ -45,72 +45,45 @@ typedef GRID_OF_TYPE(uint64_t) GridU64;
 
 CREATE_GRID_FOR(GridU64, uint64_t);
 
-/**
- * Create a grid of rows x cols.
- * @param rows Number of rows in grid.
- * @param cols Number of columns in grid.
- * @return The newly created grid if successful, otherwise NULL.
- */
-uint32_t **grid_create(uint32_t rows, uint32_t cols);
+typedef struct grid_t grid_t;
 
-/**
- * grid_destroy: Free the memory allocated for a 2D array and all its rows.
- * @param grid: The 2D array.
- * @param rows: Size of first array dimension.
- */
-void grid_destroy(uint32_t **grid, uint32_t rows);
+typedef struct grid_point_t grid_point_t;
 
-/**
- * Create a grid based on lines of text.
- * @param lines Lines consisting of multiple instances of two different characters, one representing an enabled state and one representing a disabled state of cells in the grid.
- * @param number_of_lines: The number of lines to parse which is also the number of rows the grid will consist of.
- * @param number_of_columns The number of columns on each line.
- * @param on The character representing the enabled state of a cell in the grid.
- * @return The newly created grid if successful, otherwise NULL.
- */
-uint32_t **grid_parse(char **lines, size_t number_of_lines, size_t *number_of_columns, char on);
+uint32_t grid_get_cell_value(grid_t *grid, size_t row, size_t col);
 
-/**
- * grid_print: Prints a 2D array to the standard output.
- * @param grid: The 2D array.
- * @param rows: Size of first array dimension.
- * @param cols: Size of second array dimension.
- * @param The character representing the enabled state of a cell in the grid.
- */
-void grid_print(uint32_t **grid, uint32_t rows, uint32_t cols, char on);
+void grid_set_cell_value(grid_t *grid, size_t row, size_t col, uint32_t value);
 
-/**
- * Clone a grid
- * @param grid A grid.
- * @param rows Number of rows in grid.
- * @param cols Number of columns in grid.
- * @return The cloned grid if successful, otherwise NULL.
- */
-uint32_t **grid_clone(uint32_t **grid, uint32_t rows, uint32_t cols);
+void grid_set_all_cell_values(grid_t *grid, uint32_t value);
 
-/**
- * Get the coordinates of the corners in a grid.
- * @param rows Number of rows in grid.
- * @param cols Number of columns in grid.
- * @return A pointer to an array containing pointers referencing all the corners in the grid.
- */
-uint32_t **grid_get_corners(uint32_t rows, uint32_t cols);
+size_t grid_get_rows(grid_t *grid);
 
-/**
- * Destroy an array of corner pointers.
- * @param corners Array.
- */
-void grid_destroy_corners(uint32_t **corners);
+size_t grid_get_cols(grid_t *grid);
+
+grid_point_t *grid_get_top_left_corner(grid_t *grid);
+
+grid_point_t *grid_get_top_right_corner(grid_t *grid);
+
+grid_point_t *grid_get_bottom_left_corner(grid_t *grid);
+
+grid_point_t *grid_get_bottom_right_corner(grid_t *grid);
+
+grid_t *grid_create(size_t number_of_rows, size_t number_of_cols);
+
+void grid_destroy(grid_t *grid);
+
+grid_t *grid_parse(char **lines, size_t number_of_lines, char on);
+
+void grid_print(grid_t *grid, char on);
+
+grid_t *grid_clone(grid_t *grid);
 
 /**
  * Get all cells neighbouring a cell defined by row and column.
- * @param rows Number of rows in grid.
- * @param cols Number of columns in grid.
  * @param row Cell row.
  * @param col Cell column.
  * @return A pointer to an array of pointers referencing all the available travel directiones which can be applied to a grid to determine the neighbouring ells.
  */
-int **grid_get_neighbours(int rows, int cols, uint32_t row, uint32_t col, size_t *number_of_neighbours);
+grid_point_t **grid_get_neighbours(grid_t *grid, size_t row, size_t col, size_t *number_of_neighbours);
 
 /**
  * Convert an int between 0 (inclusive) and 8 (exclusive) to it's string representation in terms of direction in the grid.
@@ -118,5 +91,13 @@ int **grid_get_neighbours(int rows, int cols, uint32_t row, uint32_t col, size_t
  * @return Returns either NorthWest (0), West (1), SouthWest (2), North (3), South (4), NorthEast (5), East (6) or SouthEast (7).
  */
 const char *grid_neighbour_str(uint32_t n);
+
+int64_t grid_point_get_row(grid_point_t *grid_point);
+
+int64_t grid_point_get_col(grid_point_t *grid_point);
+
+grid_point_t *grid_point_create(size_t row, size_t col);
+
+grid_point_t **grid_point_create_array(size_t grid_points[][2], size_t grid_points_length);
 
 #endif

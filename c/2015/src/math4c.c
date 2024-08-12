@@ -77,27 +77,6 @@ mpz_t *math_factorial(int n) {
     return result;
 }
 
-/**
- * results: Helper function for adding a subset to the results.
- * - Reentrant.
- *
- * @param results: An array of int arrays to hold all the subsets.
- * @param results_size: The size of the results array thus far. Also used as an index when adding a subset to the results. The value of the pointer is incremented once the function has done its work.
- * @param results_column_sizes: An int array which holds the size of every int array in the results array.
- * @param subset: The subset to add.
- * @param subset_size: The size of the subset to add.
- */
-void sets_add_subset_to_results(int **subsets, size_t *number_of_subsets, size_t *results_column_sizes, int *subset, size_t subset_size) {
-    subsets[*number_of_subsets] = calloc(subset_size, sizeof(int)); // The first subset is always empty, i.e.when subset_size == 0.
-
-    for(size_t i = 0; i < subset_size; i++) {
-        subsets[*number_of_subsets][i] = subset[i];
-    }
-
-    results_column_sizes[*number_of_subsets] = subset_size;
-    (*number_of_subsets)++;
-}
-
 int *clone_subset(int *subset, size_t subset_length) {
     int *result = calloc(subset_length, sizeof(int));
     for(size_t i = 0; i < subset_length; i++) {
@@ -119,7 +98,6 @@ int *clone_subset(int *subset, size_t subset_length) {
  * @param index: The index of the element in the original array to add to the subset. Also the lowest index of the original array we're interested in to achieve exclusion of elements.
  */
 void sets_compute_subsets(int **results, size_t *results_size, size_t *results_column_sizes, int *original_array, size_t original_array_size, int *subset, size_t subset_size, size_t index) {
-//    sets_add_subset_to_results(results, results_size, results_column_sizes, subset, subset_size);
     int *cloned_subset                  = clone_subset(subset, subset_size);
     results[*results_size]              = cloned_subset;
     results_column_sizes[*results_size] = subset_size;
