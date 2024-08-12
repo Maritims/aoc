@@ -2,13 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "grid.h"
+#include "testing/assertions.h"
 
 void test_grid_parse(char **lines, size_t number_of_lines) {
-    size_t number_of_columns;
-    
-    uint32_t **grid = grid_parse(lines, number_of_lines, &number_of_columns, '#');
+    grid_t *grid = grid_parse(lines, number_of_lines, '#');
     if(grid == NULL) {
         printf("%s failed: unable to create grid\n", __func__);
         exit(EXIT_FAILURE);
@@ -18,26 +16,21 @@ void test_grid_parse(char **lines, size_t number_of_lines) {
 }
 
 void test_grid_get_neighbours(size_t rows, size_t cols, int row, int col, int expected_neighbours[][2], size_t expected_number_of_neighbours) {
-    size_t number_of_neighbours;
-    int **neighbours = grid_get_neighbours(rows, cols, row, col, &number_of_neighbours);
-    
-    if(neighbours == NULL) {
-        printf("%s failed: no neighbours was NULL\n", __func__);
-        exit(EXIT_FAILURE);
-    }
-    
-    if(number_of_neighbours != expected_number_of_neighbours) {
-        printf("%s failed: number_of_neighbours != %zu\n", __func__, number_of_neighbours);
-        exit(EXIT_FAILURE);
-    }
+    size_t number_of_neighbours = 0;
+    grid_t *grid                = grid_create(rows, cols);
+    grid_point_t **neighbours   = grid_get_neighbours(grid, row, col, &number_of_neighbours);
+   
+    assert_not_null(neighbours, "%s\n", "neighbours was null");
+    assert_primitive_equality(expected_number_of_neighbours, number_of_neighbours, "expected %zu neighbours, but got %zu\n", expected_number_of_neighbours, number_of_neighbours);
 
     for(size_t i = 0; i < 8; i++) {
-        int neighbour_row = neighbours[i][0];
-        int neighbour_col = neighbours[i][1];
+        grid_point_t *neighbour = neighbours[i];
+        int64_t neighbour_row = grid_point_get_row(neighbour);
+        int64_t neighbour_col = grid_point_get_col(neighbour);
 
         if(neighbour_row != expected_neighbours[i][0] || neighbour_col != expected_neighbours[i][1]) {
             printf(
-                "%s failed: expected neighbour[%zu] (%s) to be (%d,%d), but was (%d,%d)\n",
+                "%s failed: expected neighbour[%zu] (%s) to be (%d,%d), but was (%lu,%lu)\n",
                 __func__,
                 i,
                 grid_neighbour_str(i),
