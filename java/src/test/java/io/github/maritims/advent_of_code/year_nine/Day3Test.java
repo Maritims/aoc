@@ -8,34 +8,33 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class Day1Test {
-
+public class Day3Test {
     public static Stream<Arguments> solvePartOne() {
         return Stream.of(
-                Arguments.arguments(true, 11),
-                Arguments.arguments(false, 2580760)
+                Arguments.arguments(true, 161),
+                Arguments.arguments(false, 187194524)
         );
-    }
-
-    @ParameterizedTest
-    @MethodSource
-    void solvePartOne(boolean useSampleData, Integer expectedResult) {
-        var sut = new Day1(useSampleData);
-        var result = sut.solvePartOne();
-        assertEquals(expectedResult, result);
     }
 
     public static Stream<Arguments> solvePartTwo() {
         return Stream.of(
-                Arguments.arguments(true, 31),
-                Arguments.arguments(false, 25358365)
+                Arguments.arguments(true, 48),
+                Arguments.arguments(false, 48)
         );
     }
 
     @ParameterizedTest
     @MethodSource
-    void solvePartTwo(boolean useSampleData, int expectedResult) {
-        var sut = new Day1(useSampleData);
+    public void solvePartOne(boolean useSampleData, int expectedResult) {
+        var sut = new Day3(useSampleData);
+        var result = sut.solvePartOne();
+        assertEquals(expectedResult, result);
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    public void solvePartTwo(boolean useSampleData, int expectedResult) {
+        var sut = new Day3(useSampleData);
         var result = sut.solvePartTwo();
         assertEquals(expectedResult, result);
     }
