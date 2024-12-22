@@ -24,7 +24,6 @@ public class Day4 extends Day {
             var cd = col;
             int lastRd = rd, lastCd = cd;
 
-            // Skip the first character since we've already checked it.
             for (i = 0; i < word.length(); i++) {
                 if (rd < 0 || rd >= rows || cd < 0 || cd >= cols || grid[rd][cd] != word.charAt(i)) {
                     break;
@@ -79,17 +78,10 @@ public class Day4 extends Day {
                 .filter(occurrence -> occurrence.getDirection().isDiagonal())
                 .map(Occurrence::toLine2D)
                 .collect(Collectors.toList());
-        var result = 0;
+        var intersections = (int) occurrences.stream()
+                .filter(line -> occurrences.stream().anyMatch(line::intersects))
+                .count();
 
-        for (var l1 : occurrences) {
-            for (var l2 : occurrences) {
-                if (l1.intersects(l2)) {
-                    result += 1;
-                    break;
-                }
-            }
-        }
-
-        return result / 2;
+        return intersections / 2;
     }
 }
