@@ -14,8 +14,11 @@ public enum Direction {
     South,
     SouthEast;
 
-    public static final List<Direction> VALUES = Arrays.stream(values()).collect(Collectors.toList());
+    public static final List<Direction> VALUES         = Arrays.stream(values()).collect(Collectors.toList());
+    public static final int[]           ROW_DIRECTIONS = {-1, -1, -1, 0, 0, 1, 1, 1};
+    public static final int[]           COL_DIRECTIONS = {-1, 0, 1, -1, 1, -1, 0, 1};
 
-    public static final int[] ROW_DIRECTIONS = {-1, -1, -1, 0, 0, 1, 1, 1};
-    public static final int[] COL_DIRECTIONS = {-1, 0, 1, -1, 1, -1, 0, 1};
+    public boolean isDiagonal() {
+        return this == NorthWest || this == NorthEast || this == SouthWest || this == SouthEast;
+    }
 }

@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class Day3 extends Day {
     private static final Logger log = LogManager.getLogger();

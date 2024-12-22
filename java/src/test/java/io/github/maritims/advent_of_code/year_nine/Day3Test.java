@@ -19,7 +19,7 @@ public class Day3Test {
     public static Stream<Arguments> solvePartTwo() {
         return Stream.of(
                 Arguments.arguments(true, 48),
-                Arguments.arguments(false, 48)
+                Arguments.arguments(false, 127092535)
         );
     }
 

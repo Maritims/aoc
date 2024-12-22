@@ -16,11 +16,26 @@ public class Day4Test {
         );
     }
 
+    public static Stream<Arguments> solvePartTwo() {
+        return Stream.of(
+                Arguments.arguments(true, 9),
+                Arguments.arguments(false, 2000)
+        );
+    }
+
     @ParameterizedTest
     @MethodSource
     public void solvePartOne(boolean useSampleData, int expectedResult) {
         var sut = new Day4(useSampleData);
         var result = sut.solvePartOne();
+        assertEquals(expectedResult, result);
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    public void solvePartTwo(boolean useSampleData, int expectedResult) {
+        var sut = new Day4(useSampleData);
+        var result = sut.solvePartTwo();
         assertEquals(expectedResult, result);
     }
 }
