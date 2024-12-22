@@ -12,7 +12,7 @@ public class Day4Test {
     public static Stream<Arguments> solvePartOne() {
         return Stream.of(
                 Arguments.arguments(true, 18),
-                Arguments.arguments(false, 18)
+                Arguments.arguments(false, 2646)
         );
     }
 
