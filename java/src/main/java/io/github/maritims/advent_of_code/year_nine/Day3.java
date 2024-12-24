@@ -1,16 +1,12 @@
 package io.github.maritims.advent_of_code.year_nine;
 
 import io.github.maritims.advent_of_code.util.Day;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 public class Day3 extends Day {
-    private static final Logger log = LogManager.getLogger();
-
-    protected Day3(boolean useSampleData) {
+    public Day3(Boolean useSampleData) {
         super(2024, 3, useSampleData);
     }
 
@@ -85,27 +81,22 @@ public class Day3 extends Day {
 
             if (token.getType() == TokenType.MUL && isMultiplicationEnabled) {
                 if (tokens.get(i + 1).getType() != TokenType.LEFT_PARENTHESIS) {
-                    log.error("Expected {} at {}", TokenType.LEFT_PARENTHESIS, i + 1);
                     continue;
                 }
 
                 if (tokens.get(i + 2).getType() != TokenType.NUMBER) {
-                    log.error("Expected {} at {}", TokenType.NUMBER, i + 2);
                     continue;
                 }
 
                 if (tokens.get(i + 3).getType() != TokenType.COMMA) {
-                    log.error("Expected {} at {}", TokenType.COMMA, i + 3);
                     continue;
                 }
 
                 if (tokens.get(i + 4).getType() != TokenType.NUMBER) {
-                    log.error("Expected {} at {}", TokenType.NUMBER, i + 4);
                     continue;
                 }
 
                 if (tokens.get(i + 5).getType() != TokenType.RIGHT_PARENTHESIS) {
-                    log.error("Expected {} at {}", TokenType.RIGHT_PARENTHESIS, i + 5);
                     continue;
                 }
 

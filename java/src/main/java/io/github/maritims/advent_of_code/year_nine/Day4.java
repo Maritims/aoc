@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Day4 extends Day {
-    protected Day4(boolean useSampleData) {
+    public Day4(Boolean useSampleData) {
         super(2024, 4, useSampleData);
     }
 

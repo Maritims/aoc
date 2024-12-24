@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Day2 extends Day {
-    protected Day2(boolean useSampleData) {
+    public Day2(Boolean useSampleData) {
         super(2024, 2, useSampleData);
     }
 
