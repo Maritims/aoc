@@ -52,7 +52,7 @@ public abstract class Day {
     @NotNull
     protected String getInputText() {
         return getInputStream()
-                .map(is -> new BufferedReader(new InputStreamReader(is)).lines().collect(joining()))
+                .map(is -> new BufferedReader(new InputStreamReader(is)).lines().collect(joining("\n")))
                 .orElseThrow(() -> new RuntimeException("no text was read from resource " + resourceName));
     }
 

@@ -21,7 +21,7 @@ public class DayTest<T extends Day> {
                 arguments(2024, 2, 2, 4),
                 arguments(2024, 3, 161, 48),
                 arguments(2024, 4, 18, 9),
-                arguments(2024, 5, 143, 0)
+                arguments(2024, 5, 143, 123)
         );
     }
 
@@ -31,7 +31,7 @@ public class DayTest<T extends Day> {
                 arguments(2024, 2, 598, 634),
                 arguments(2024, 3, 187194524, 127092535),
                 arguments(2024, 4, 2646, 2000),
-                arguments(2024, 5, 5955, 0)
+                arguments(2024, 5, 5955, 4030)
         );
     }
 
