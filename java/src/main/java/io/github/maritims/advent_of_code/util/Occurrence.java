@@ -42,7 +42,7 @@ public class Occurrence<T> {
     }
 
     public Line2D toLine2D() {
-        return new Line2D(new Point2D(startCol, startRow), new Point2D(endCol, endRow));
+        return new Line2D(new Point2D(startRow, startCol), new Point2D(endRow, endCol));
     }
 
     @Override

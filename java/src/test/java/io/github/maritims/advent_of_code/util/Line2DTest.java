@@ -12,14 +12,14 @@ class Line2DTest {
 
     public static Stream<Arguments> contains() {
         return Stream.of(
-                Arguments.arguments(new Line2D(new Point2D(0, 0), new Point2D(0, 5)), new Point2D(0, 1), true),
-                Arguments.arguments(new Line2D(new Point2D(0, 0), new Point2D(0, 5)), new Point2D(0, 6), false)
+                Arguments.arguments(new Line2D(new Point2D(0, 0), new Point2D(5, 0)), new Point2D(1, 0), true),
+                Arguments.arguments(new Line2D(new Point2D(0, 0), new Point2D(5, 0)), new Point2D(6, 0), false)
         );
     }
 
     public static Stream<Arguments> getMidpoint() {
         return Stream.of(
-                Arguments.arguments(new Line2D(new Point2D(1, 0), new Point2D(3, 2)), new Point2D(2, 1))
+                Arguments.arguments(new Line2D(new Point2D(0, 1), new Point2D(2, 3)), new Point2D(1, 2))
         );
     }
 

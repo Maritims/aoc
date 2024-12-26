@@ -15,10 +15,10 @@ import static java.util.stream.Collectors.toList;
 public abstract class Day {
     private final int     year;
     private final int     day;
-    private final boolean useSampleData;
+    private final Boolean useSampleData;
     private final String  resourceName;
 
-    protected Day(int year, int day, Boolean useSampleData) {
+    public Day(int year, int day, Boolean useSampleData) {
         this.year = year;
         this.day = day;
         this.useSampleData = useSampleData;

@@ -18,20 +18,20 @@ public class Line2D {
     }
 
     public boolean contains(Point2D p) {
-        return p.getX() <= Math.max(p1.getX(), p2.getX()) &&
-                p.getX() >= Math.min(p1.getX(), p2.getX()) &&
-                p.getY() <= Math.max(p1.getY(), p2.getY()) &&
-                p.getY() >= Math.min(p1.getY(), p2.getY());
+        return p.getRow() <= Math.max(p1.getRow(), p2.getRow()) &&
+                p.getRow() >= Math.min(p1.getRow(), p2.getRow()) &&
+                p.getCol() <= Math.max(p1.getCol(), p2.getCol()) &&
+                p.getCol() >= Math.min(p1.getCol(), p2.getCol());
     }
 
     public Point2D getMidpoint() {
-        var x = (p1.getX() + p2.getX()) / 2;
-        var y = (p1.getY() + p2.getY()) / 2;
-        return new Point2D(x, y);
+        var row = (p1.getRow() + p2.getRow()) / 2;
+        var col = (p1.getCol() + p2.getCol()) / 2;
+        return new Point2D(row, col);
     }
 
     public int getSlope() {
-        return (p2.getY() - p1.getY()) / (p2.getX() - p1.getX());
+        return (p2.getCol() - p1.getCol()) / (p2.getRow() - p1.getRow());
     }
 
     public boolean intersects(Line2D that) {
