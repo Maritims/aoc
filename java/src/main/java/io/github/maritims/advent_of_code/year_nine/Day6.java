@@ -4,20 +4,10 @@ import io.github.maritims.advent_of_code.util.*;
 
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.IntStream;
 
 public class Day6 extends Day {
     public Day6(Boolean useSampleData) {
         super(2024, 6, useSampleData);
-    }
-
-    void foo(int row, int col, char[][] grid) {
-        if (grid[row][col] == '#') {
-
-        }
     }
 
     @Override
