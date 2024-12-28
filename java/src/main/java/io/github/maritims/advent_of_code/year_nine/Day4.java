@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.github.maritims.advent_of_code.util.Orientation.Diagonal;
+
 public class Day4 extends Day {
     public Day4(Boolean useSampleData) {
         super(2024, 4, useSampleData);
@@ -37,7 +39,7 @@ public class Day4 extends Day {
             }
 
             if (i == word.length()) {
-                var occurrence = new Occurrence<>(word, row, col, lastRd, lastCd, Direction.VALUES.get(direction));
+                var occurrence = new Occurrence<>(word, row, col, lastRd, lastCd);
                 occurrences.add(occurrence);
             }
         }
@@ -75,13 +77,13 @@ public class Day4 extends Day {
         var grid  = ListUtil.toCharacterGrid(lines);
         var occurrences = findOccurrences(grid, "MAS")
                 .stream()
-                .filter(occurrence -> occurrence.getDirection().isDiagonal())
-                .map(Occurrence::toLine2D)
+                .map(Occurrence::toLineSegment)
+                .filter(lineSegment -> lineSegment.orientation() == Diagonal)
                 .collect(Collectors.toList());
-        var intersections = (int) occurrences.stream()
-                .filter(line -> occurrences.stream().anyMatch(line::intersects))
+        var crosses = (int) occurrences.stream()
+                .filter(line -> occurrences.stream().anyMatch(line::formsCrossWith))
                 .count();
 
-        return intersections / 2;
+        return crosses / 2;
     }
 }
