@@ -12,12 +12,10 @@ public class TraversalOutcome {
 
     private final LinkedHashSet<Waypoint> waypoints;
     private final PathState               pathState;
-    private final Waypoint                finalWaypoint;
 
-    public TraversalOutcome(LinkedHashSet<Waypoint> waypoints, PathState pathState, Waypoint finalWaypoint) {
+    public TraversalOutcome(LinkedHashSet<Waypoint> waypoints, PathState pathState) {
         this.waypoints = waypoints;
         this.pathState = pathState;
-        this.finalWaypoint = finalWaypoint;
     }
 
     public LinkedHashSet<Waypoint> waypoints() {
@@ -26,10 +24,6 @@ public class TraversalOutcome {
 
     public PathState pathState() {
         return pathState;
-    }
-
-    public Waypoint finalWaypoint() {
-        return finalWaypoint;
     }
 
     public LinkedHashSet<Point2D> distinctPositions() {

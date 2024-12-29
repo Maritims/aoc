@@ -97,7 +97,7 @@ public class Grid<T> implements Cloneable {
 
             if (isOutOfBounds(newPoint)) {
                 // We've found the exit.
-                return new TraversalOutcome(visitedWaypoints, TraversalOutcome.PathState.Exit, new Waypoint(newPoint, currentDirection));
+                return new TraversalOutcome(visitedWaypoints, TraversalOutcome.PathState.Exit);
             }
 
             var cellValueAtNewPoint = cellAt(newPoint);
@@ -113,7 +113,7 @@ public class Grid<T> implements Cloneable {
             visitedWaypoint = new Waypoint(newPoint, currentDirection);
             if (visitedWaypoints.contains(visitedWaypoint)) {
                 // An obstacle at this point causes a loop.
-                return new TraversalOutcome(visitedWaypoints, TraversalOutcome.PathState.Loop, visitedWaypoint);
+                return new TraversalOutcome(visitedWaypoints, TraversalOutcome.PathState.Loop);
             }
             visitedWaypoints.add(visitedWaypoint);
             queue.add(new Point2D(dx, dy));
