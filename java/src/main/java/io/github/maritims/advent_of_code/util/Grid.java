@@ -1,7 +1,5 @@
 package io.github.maritims.advent_of_code.util;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,7 +8,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Grid<T> implements Cloneable {
-    private static final Logger             log = LogManager.getLogger();
     private final        List<ArrayList<T>> grid;
 
     public Grid(@NotNull List<ArrayList<T>> grid) {
@@ -35,27 +32,7 @@ public class Grid<T> implements Cloneable {
     }
 
     public boolean isOutOfBounds(@NotNull Point2D point) {
-        if (point.y() < 0) {
-            //log.error("Point {} is below the Y axis minimum value of 0", point);
-            return true;
-        }
-
-        if (point.y() >= grid.size()) {
-            //log.error("Point {} is exceeding the Y axis maximum value of {}", point, grid.size());
-            return true;
-        }
-
-        if (point.x() < 0) {
-            //log.error("Point {} is below the X axis minimum value of 0", point);
-            return true;
-        }
-
-        if (point.x() >= grid.get(0).size()) {
-            //log.error("Point {} is exceeding the X axis maximum value of {}", point, grid.get(0).size());
-            return true;
-        }
-
-        return false;
+        return point.y() < 0 || point.y() >= grid.size() || point.x() < 0 || point.x() >= grid.get(0).size();
     }
 
     @Nullable
@@ -95,9 +72,7 @@ public class Grid<T> implements Cloneable {
 
     @NotNull
     public Grid<T> withElementAt(@NotNull Point2D point, @NotNull T element) {
-        if (isOutOfBounds(point)) {
-            //log.error("Point {} is out of bounds. Unable to enter {} into grid", point, element);
-        } else {
+        if (!isOutOfBounds(point)) {
             grid.get(point.y()).set(point.x(), element);
         }
 
@@ -157,56 +132,6 @@ public class Grid<T> implements Cloneable {
         return grid.stream()
                 .map(ArrayList::new)
                 .collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    public String printTraversalOutcome(TraversalOutcome traversalOutcome) {
-        var       stringBuilder = new StringBuilder();
-        var       deepClone     = deepCloneInnerGrid();
-        var       visited       = new LinkedHashSet<Point2D>();
-        var       waypoints     = new ArrayList<>(traversalOutcome.waypoints());
-        Character playerSymbol  = '^';
-        var       startingPoint = findFirst((T) playerSymbol).orElseThrow();
-
-        for (var i = 0; i < traversalOutcome.waypoints().size(); i++) {
-            var waypoint = waypoints.get(i);
-
-            if (i == 0 || waypoint.point().equals(startingPoint)) {
-                Character symbol = '^';
-                deepClone.get(waypoint.point().y()).set(waypoint.point().x(), (T) symbol);
-                continue;
-            }
-
-            Character symbol = '+';
-
-            switch (waypoint.direction()) {
-                case North:
-                case South:
-                    symbol = '|';
-                    break;
-                case East:
-                case West:
-                    symbol = '-';
-                    break;
-            }
-
-            if (visited.contains(waypoint.point()) || (i < waypoints.size() - 1 && waypoint.direction() != waypoints.get(i + 1).direction())) {
-                symbol = '+';
-            }
-
-            deepClone.get(waypoint.point().y()).set(waypoint.point().x(), (T) symbol);
-            visited.add(waypoint.point());
-        }
-
-        for (var row = 0; row < rows(); row++) {
-            for (var col = 0; col < cols(); col++) {
-                stringBuilder.append(deepClone.get(row).get(col));
-            }
-            if (row < deepClone.size() - 1) {
-                stringBuilder.append('\n');
-            }
-        }
-
-        return stringBuilder.toString();
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")
