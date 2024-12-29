@@ -4,8 +4,6 @@ import io.github.maritims.advent_of_code.util.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.stream.Collectors;
 
 public class Day6 extends Day {
     public Day6(Boolean useSampleData) {
