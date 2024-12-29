@@ -3,7 +3,9 @@ package io.github.maritims.advent_of_code.year_nine;
 import io.github.maritims.advent_of_code.util.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.stream.Collectors;
 
 public class Day6 extends Day {
     public Day6(Boolean useSampleData) {
@@ -25,15 +27,18 @@ public class Day6 extends Day {
         var startingPoint            = grid.findFirst('^').orElseThrow(() -> new IllegalStateException("The grid does not contain a guard symbol"));
         var originalTraversalOutcome = grid.findExit(startingPoint);
         var originalWaypoints        = new ArrayList<>(originalTraversalOutcome.waypoints());
-        var distinctObstaclePoints   = new LinkedHashSet<Point2D>();
+        var distinctObstaclePoints   = new HashSet<Point2D>();
 
-        for (var i = originalWaypoints.size() - 1; i > 0; i--) {
-            var currentWaypoint  = originalWaypoints.get(i);
-            var previousWaypoint = originalWaypoints.get(i - 1);
-            var currentGrid      = grid.clone().withElementAt(currentWaypoint.point(), 'O');
-            var exit             = currentGrid.findExit(previousWaypoint.point(), previousWaypoint.direction());
+        for (var i = 0; i < originalWaypoints.size(); i++) {
+            var currentWaypoint = originalWaypoints.get(i);
+            var clonedGrid      = grid.clone();
+            if (i < originalWaypoints.size() - 1) {
+                clonedGrid = clonedGrid.withElementAt(originalWaypoints.get(i + 1).point(), 'O');
+            }
+
+            var exit = clonedGrid.findExit(currentWaypoint.point(), currentWaypoint.direction());
             if (exit.pathState() == TraversalOutcome.PathState.Loop) {
-                distinctObstaclePoints.add(originalWaypoints.get(i).point());
+                distinctObstaclePoints.add(currentWaypoint.point());
             }
         }
 
