@@ -1,8 +1,6 @@
 package io.github.maritims.advent_of_code.util;
 
-import java.util.Objects;
-
-public class Point2D implements Cloneable {
+public class Point2D {
     private final int x;
     private final int y;
 
@@ -15,20 +13,23 @@ public class Point2D implements Cloneable {
         return x;
     }
 
-    public Integer y() {
+    public int y() {
         return y;
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
+
         Point2D point2D = (Point2D) o;
         return x == point2D.x && y == point2D.y;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(x, y);
+        int result = x;
+        result = 31 * result + y;
+        return result;
     }
 
     @Override
@@ -36,12 +37,7 @@ public class Point2D implements Cloneable {
         return String.format("(%d, %d)", x, y);
     }
 
-    @Override
-    public Point2D clone() {
-        try {
-            return (Point2D) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
+    public static Point2D at(int x, int y) {
+        return new Point2D(x, y);
     }
 }

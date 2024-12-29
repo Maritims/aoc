@@ -1,5 +1,7 @@
 package io.github.maritims.advent_of_code.util;
 
+import java.util.stream.IntStream;
+
 public enum Direction {
     North(0, -1),
     East(1, 0),
@@ -26,22 +28,17 @@ public enum Direction {
         return y;
     }
 
-    public static final int[]       ROW_DIRECTIONS = {-1, -1, -1, 0, 0, 1, 1, 1};
-    public static final int[]       COL_DIRECTIONS = {-1, 0, 1, -1, 1, -1, 0, 1};
-    public static final int[]       horizontalDirections;
-    public static final int[]       verticalDirections;
-    public static final Direction[] allDirections;
+    public static final  int[]       ROW_DIRECTIONS = {-1, -1, -1, 0, 0, 1, 1, 1};
+    public static final  int[]       COL_DIRECTIONS = {-1, 0, 1, -1, 1, -1, 0, 1};
+    private static final Direction[] allDirections;
 
     static {
         var values = values();
         allDirections = new Direction[values.length];
-        horizontalDirections = new int[values.length];
-        verticalDirections = new int[values.length];
+        IntStream.range(0, values.length).forEach(i -> allDirections[i] = values[i]);
+    }
 
-        for (var i = 0; i < values.length; i++) {
-            allDirections[i] = values[i];
-            horizontalDirections[i] = values[i].x();
-            verticalDirections[i] = values[i].y();
-        }
+    public static Direction get(int ordinal) {
+        return allDirections[ordinal];
     }
 }
