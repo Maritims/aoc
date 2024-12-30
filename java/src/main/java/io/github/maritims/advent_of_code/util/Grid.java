@@ -103,7 +103,7 @@ public class Grid implements Cloneable {
             // Is there something in the way?
             // What if we're surrounded on all sides?
             var attemptedDirections = new LinkedHashSet<Direction>();
-            while (!isOutOfBounds(nextX, nextY) && grid[nextY][nextX] == '#' || grid[nextY][nextX] == 'O') {
+            while (!isOutOfBounds(nextX, nextY) && (grid[nextY][nextX] == '#' || grid[nextY][nextX] == 'O')) {
                 currentDirection = Direction.get((currentDirection.ordinal() + 1) % 4);
 
                 nextX = currentPoint.x() + currentDirection.x();
