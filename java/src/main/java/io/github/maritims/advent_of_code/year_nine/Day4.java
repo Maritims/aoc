@@ -15,73 +15,66 @@ public class Day4 extends Day {
     }
 
     @NotNull
-    private List<Occurrence<String>> findOccurrences(char[][] grid, int row, int col, @NotNull String word) {
-        var rows        = grid.length;
-        var cols        = grid[0].length;
-        var occurrences = new ArrayList<Occurrence<String>>();
+    private List<LineSegment> findLineSegments(@NotNull Grid grid, int row, int col, @NotNull String word) {
+        var lineSegments = new ArrayList<LineSegment>();
+        var directions   = Direction.getAll();
 
-        for (var direction = 0; direction < 8; direction++) {
-            var i  = 0;
-            var rd = row;
-            var cd = col;
-            int lastRd = rd, lastCd = cd;
+        for (var direction : directions) {
+            var i      = 0;
+            var dy     = row;
+            var dx     = col;
+            int lastDy = dy, lastDx = dx;
 
             for (i = 0; i < word.length(); i++) {
-                if (rd < 0 || rd >= rows || cd < 0 || cd >= cols || grid[rd][cd] != word.charAt(i)) {
+                if (grid.isOutOfBounds(dx, dy) || grid.getValueAt(dx, dy) != word.charAt(i)) {
                     break;
                 }
 
-                lastRd = rd;
-                lastCd = cd;
+                lastDy = dy;
+                lastDx = dx;
 
-                rd += Direction.ROW_DIRECTIONS[direction];
-                cd += Direction.COL_DIRECTIONS[direction];
+                dy += direction.y();
+                dx += direction.x();
             }
 
             if (i == word.length()) {
-                var occurrence = new Occurrence<>(word, row, col, lastRd, lastCd);
-                occurrences.add(occurrence);
+                lineSegments.add(new LineSegment(Point2D.at(col, row), Point2D.at(lastDx, lastDy)));
             }
         }
 
-        return occurrences;
+        return lineSegments;
     }
 
     @NotNull
-    private List<Occurrence<String>> findOccurrences(char[][] grid, @NotNull String word) {
-        var occurrences = new ArrayList<Occurrence<String>>();
-        var rows        = grid.length;
-        var cols        = grid[0].length;
+    private List<LineSegment> findLineSegments(Grid grid, @NotNull String word) {
+        var lineSegments = new ArrayList<LineSegment>();
 
-        for (var row = 0; row < rows; row++) {
-            for (var col = 0; col < cols; col++) {
-                occurrences.addAll(findOccurrences(grid, row, col, word));
+        for (var row = 0; row < grid.rows(); row++) {
+            for (var col = 0; col < grid.cols(); col++) {
+                lineSegments.addAll(findLineSegments(grid, row, col, word));
             }
         }
 
-        return occurrences;
+        return lineSegments;
     }
 
     @Override
     public Integer solvePartOne() {
-        var lines  = getInputLines();
-        var grid   = ListUtil.toCharacterGrid(lines);
-        var result = findOccurrences(grid, "XMAS");
+        var grid   = Grid.fromString(getInputText());
+        var result = findLineSegments(grid, "XMAS");
 
         return result.size();
     }
 
     @Override
     public Integer solvePartTwo() {
-        var lines = getInputLines();
-        var grid  = ListUtil.toCharacterGrid(lines);
-        var occurrences = findOccurrences(grid, "MAS")
+        var grid = Grid.fromString(getInputText());
+        var lineSegments = findLineSegments(grid, "MAS")
                 .stream()
-                .map(Occurrence::toLineSegment)
                 .filter(lineSegment -> lineSegment.orientation() == Diagonal)
                 .collect(Collectors.toList());
-        var crosses = (int) occurrences.stream()
-                .filter(line -> occurrences.stream().anyMatch(line::formsCrossWith))
+        var crosses = (int) lineSegments.stream()
+                .filter(line -> lineSegments.stream().anyMatch(line::formsCrossWith))
                 .count();
 
         return crosses / 2;

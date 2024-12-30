@@ -13,16 +13,4 @@ public class ListUtil {
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
     }
-
-    public static char[][] toCharacterGrid(@NotNull List<String> strings) {
-        var rows = strings.size();
-        var cols = strings.get(0).length();
-        var grid = new char[rows][cols];
-
-        for(var i = 0; i < rows; i++) {
-            grid[i] = strings.get(i).toCharArray();
-        }
-
-        return grid;
-    }
 }

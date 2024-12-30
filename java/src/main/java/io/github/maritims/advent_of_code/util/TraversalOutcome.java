@@ -1,5 +1,6 @@
 package io.github.maritims.advent_of_code.util;
 
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.stream.Collectors;

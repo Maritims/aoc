@@ -1,5 +1,6 @@
 package io.github.maritims.advent_of_code.util;
 
+import java.util.Set;
 import java.util.stream.IntStream;
 
 public enum Direction {
@@ -28,8 +29,22 @@ public enum Direction {
         return y;
     }
 
-    public static final  int[]       ROW_DIRECTIONS = {-1, -1, -1, 0, 0, 1, 1, 1};
-    public static final  int[]       COL_DIRECTIONS = {-1, 0, 1, -1, 1, -1, 0, 1};
+    public Orientation orientation() {
+        if(y == 0 && x != 0) {
+            return Orientation.Horizontal;
+        }
+
+        if(x == 0 && y != 0) {
+            return Orientation.Vertical;
+        }
+
+        if(Math.abs(x) == Math.abs(y)) {
+            return Orientation.Diagonal;
+        }
+
+        throw new IllegalStateException(String.format("Unable to determine orientation for direction %s (%d, %d)", this, x, y));
+    }
+
     private static final Direction[] allDirections;
 
     static {
@@ -40,5 +55,9 @@ public enum Direction {
 
     public static Direction get(int ordinal) {
         return allDirections[ordinal];
+    }
+
+    public static Set<Direction> getAll() {
+        return Set.of(allDirections);
     }
 }

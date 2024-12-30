@@ -2,6 +2,8 @@ package io.github.maritims.advent_of_code.util;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 
 public class Waypoint {
@@ -40,5 +42,9 @@ public class Waypoint {
     @Override
     public String toString() {
         return String.format("%d,%d,%d", point.x(), point.y(), direction.ordinal());
+    }
+
+    public static Waypoint to(int x, int y, Direction direction) {
+        return new Waypoint(Point2D.at(x, y), direction);
     }
 }

@@ -6,6 +6,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,8 +28,13 @@ public abstract class Day {
     }
 
     @NotNull
+    private Optional<InputStream> getInputStream(@NotNull String filename) {
+        return Optional.ofNullable(getClass().getClassLoader().getResourceAsStream(filename));
+    }
+
+    @NotNull
     private Optional<InputStream> getInputStream() {
-        return Optional.ofNullable(getClass().getClassLoader().getResourceAsStream(resourceName));
+        return getInputStream(resourceName);
     }
 
     @NotNull
@@ -50,10 +57,15 @@ public abstract class Day {
     }
 
     @NotNull
+    protected String getInputText(@NotNull String filename) {
+        return getInputStream(filename)
+                .map(is -> new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8)).lines().collect(joining("\n")))
+                .orElseThrow(() -> new RuntimeException("no text was read from resource " + filename));
+    }
+
+    @NotNull
     protected String getInputText() {
-        return getInputStream()
-                .map(is -> new BufferedReader(new InputStreamReader(is)).lines().collect(joining("\n")))
-                .orElseThrow(() -> new RuntimeException("no text was read from resource " + resourceName));
+        return getInputText(resourceName);
     }
 
     public abstract Integer solvePartOne();
@@ -67,5 +79,13 @@ public abstract class Day {
     @Override
     public String toString() {
         return String.format("%d.%d", year, day);
+    }
+
+    public Boolean getUseSampleData() {
+        return useSampleData;
+    }
+
+    public String getResourceName() {
+        return resourceName;
     }
 }
