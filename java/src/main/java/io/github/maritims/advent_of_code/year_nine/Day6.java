@@ -1,15 +1,11 @@
 package io.github.maritims.advent_of_code.year_nine;
 
 import io.github.maritims.advent_of_code.util.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 
 public class Day6 extends Day {
-    private static final Logger log = LogManager.getLogger();
-
     public Day6(Boolean useSampleData) {
         super(2024, 6, useSampleData);
     }

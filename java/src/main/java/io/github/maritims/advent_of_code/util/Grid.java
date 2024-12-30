@@ -1,14 +1,11 @@
 package io.github.maritims.advent_of_code.util;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 public class Grid implements Cloneable {
-    private static final Logger   log = LogManager.getLogger();
-    private final        char[][] grid;
+    private final char[][] grid;
 
     public Grid(char[][] grid) {
         this.grid = grid;
@@ -84,19 +81,6 @@ public class Grid implements Cloneable {
         }
 
         return this;
-    }
-
-    private char getSymbol(Direction direction) {
-        switch (direction) {
-            case North:
-            case South:
-                return '|';
-            case East:
-            case West:
-                return '-';
-            default:
-                throw new IllegalArgumentException("Invalid direction");
-        }
     }
 
     public TraversalOutcome findExit(@NotNull Point2D startingPoint, Direction currentDirection) {
