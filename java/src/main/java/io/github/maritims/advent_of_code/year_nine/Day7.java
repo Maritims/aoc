@@ -16,27 +16,26 @@ public class Day7 extends Day {
         super(2024, 7, useSampleData);
     }
 
-    private List<String> lines;
+    private List<Equation> equations;
 
     @Override
     protected void initialize() {
         super.initialize();
-        lines = getInputLines();
-    }
-
-    private Long getTotalCalibrationResult(List<Operation> operations) {
         var pattern = Pattern.compile("^(\\d+): ([\\d\\s]+)$");
-        var trueEquations = lines.parallelStream()
+        var lines   = getInputLines();
+        equations = lines.parallelStream()
                 .map(line -> pattern.matcher(line).results())
                 .flatMap(matchResults -> matchResults.map(matchResult -> Pair.of(
                         Long.parseLong(matchResult.group(1)),
                         ListUtil.splitToList(matchResult.group(2).trim(), "\\s+", Long::parseLong)
                 )))
-                .map(pair -> new Equation(pair.first(), pair.second(), operations))
-                .filter(Equation::isTrue)
+                .map(pair -> new Equation(pair.first(), pair.second()))
                 .collect(Collectors.toList());
+    }
 
-        return trueEquations.parallelStream()
+    private Long getTotalCalibrationResult(List<Operation> operations) {
+        return equations.parallelStream()
+                .filter(equation -> equation.isTrue(operations))
                 .mapToLong(Equation::getResult)
                 .sum();
     }
@@ -55,21 +54,19 @@ public class Day7 extends Day {
     }
 
     static class Equation {
-        private final        long            result;
-        private final        List<Long>      numbers;
-        private final        List<Operation> operations;
+        private final long       result;
+        private final List<Long> numbers;
 
-        Equation(long result, List<Long> numbers, List<Operation> operations) {
+        Equation(long result, List<Long> numbers) {
             this.result = result;
             this.numbers = numbers;
-            this.operations = operations;
         }
 
         public long getResult() {
             return result;
         }
 
-        public boolean isTrue() {
+        public boolean isTrue(List<Operation> operations) {
             var operatorSpaces    = numbers.size() - 1;
             var totalCombinations = Math.pow(operations.size(), operatorSpaces);
 

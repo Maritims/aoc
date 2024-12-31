@@ -13,13 +13,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class Day7Test {
     public static Stream<Arguments> equationIsTrue() {
         return Stream.of(
-                Arguments.arguments(new Day7.Equation(156, List.of(15L, 6L), List.of(Math::addExact, Math::multiplyExact, MathUtil::concatenate)), true)
+                Arguments.arguments(new Day7.Equation(156, List.of(15L, 6L)), true)
         );
     }
 
     @ParameterizedTest
     @MethodSource
     void equationIsTrue(Day7.Equation equation, boolean expectedResult) {
-        assertEquals(expectedResult, equation.isTrue());
+        assertEquals(expectedResult, equation.isTrue(List.of(Math::addExact, Math::multiplyExact, MathUtil::concatenate)));
     }
 }
