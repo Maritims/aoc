@@ -36,7 +36,7 @@ public class Day7 extends Day {
                 .filter(Equation::isTrue)
                 .collect(Collectors.toList());
 
-        return trueEquations.stream()
+        return trueEquations.parallelStream()
                 .mapToLong(Equation::getResult)
                 .sum();
     }
