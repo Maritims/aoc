@@ -83,49 +83,38 @@ public class Grid implements Cloneable {
         return this;
     }
 
-    public TraversalOutcome findExit(@NotNull Point2D startingPoint, Direction currentDirection) {
-        var queue            = new ArrayDeque<Point2D>();
+    public TraversalOutcome findExit(@NotNull Point2D point, @NotNull Direction direction) {
+        var isLooping        = false;
         var visitedWaypoints = new LinkedHashSet<Waypoint>();
+        visitedWaypoints.add(Waypoint.to(point.x(), point.y(), direction));
 
-        queue.add(startingPoint);
-        visitedWaypoints.add(Waypoint.to(startingPoint.x(), startingPoint.y(), currentDirection));
+        while (true) {
+            var nextX = point.x() + direction.x();
+            var nextY = point.y() + direction.y();
 
-        while (!queue.isEmpty()) {
-            var currentPoint = queue.poll();
-            var nextX        = currentPoint.x() + currentDirection.x();
-            var nextY        = currentPoint.y() + currentDirection.y();
-
-            // Is it on the map?
             if (isOutOfBounds(nextX, nextY)) {
-                return new TraversalOutcome(visitedWaypoints, TraversalOutcome.PathState.Exit);
+                // We've found an exit!
+                break;
             }
 
-            // Is there something in the way?
-            // What if we're surrounded on all sides?
-            var attemptedDirections = new LinkedHashSet<Direction>();
-            while (!isOutOfBounds(nextX, nextY) && (grid[nextY][nextX] == '#' || grid[nextY][nextX] == 'O')) {
-                currentDirection = Direction.get((currentDirection.ordinal() + 1) % 4);
-
-                nextX = currentPoint.x() + currentDirection.x();
-                nextY = currentPoint.y() + currentDirection.y();
-
-                if (attemptedDirections.contains(currentDirection)) {
-                    return new TraversalOutcome(visitedWaypoints, TraversalOutcome.PathState.Loop);
+            // Step forward if there's nothing in the way.
+            if (grid[nextY][nextX] != '#') {
+                point = Point2D.at(nextX, nextY);
+                var visitedWaypoint = Waypoint.to(point.x(), point.y(), direction);
+                if (visitedWaypoints.contains(visitedWaypoint)) {
+                    // We're in a loop!
+                    isLooping = true;
+                    break;
                 }
-
-                attemptedDirections.add(currentDirection);
+                visitedWaypoints.add(Waypoint.to(point.x(), point.y(), direction));
             }
-
-            // Have we been here before?
-            if (visitedWaypoints.contains(Waypoint.to(nextX, nextY, currentDirection))) {
-                return new TraversalOutcome(visitedWaypoints, TraversalOutcome.PathState.Loop);
+            // Turn 90 degrees to the right if there's something in the way.
+            else {
+                direction = Direction.get((direction.ordinal() + 1) % 4);
             }
-
-            visitedWaypoints.add(Waypoint.to(nextX, nextY, currentDirection));
-            queue.add(Point2D.at(nextX, nextY));
         }
 
-        throw new RuntimeException();
+        return new TraversalOutcome(visitedWaypoints, isLooping ? TraversalOutcome.PathState.Loop : TraversalOutcome.PathState.Exit);
     }
 
     public char[][] deepCloneArray() {

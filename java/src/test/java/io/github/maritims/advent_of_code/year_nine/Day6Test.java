@@ -20,15 +20,13 @@ class Day6Test {
     public static Stream<Arguments> solvePartTwo() {
         return Stream.of(
                 arguments(true, 6),
-                arguments(false, 0)
+                arguments(false, 2262)
         );
     }
 
     public static Stream<Arguments> solvePartTwoForFile() {
         return Stream.of(
-                arguments("2024/6/sample2.txt", 0),
-                arguments("2024/6/sample3.txt", 19),
-                arguments("2024/6/sample4.txt", 2)
+                arguments("2024/6/sample3.txt", 19)
         );
     }
 

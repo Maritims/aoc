@@ -2,8 +2,7 @@ package io.github.maritims.advent_of_code.year_nine;
 
 import io.github.maritims.advent_of_code.util.*;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.stream.Collectors;
 
 public class Day6 extends Day {
     public Day6(Boolean useSampleData) {
@@ -12,38 +11,33 @@ public class Day6 extends Day {
 
     @Override
     public Integer solvePartOne() {
-        var grid              = Grid.fromString(getInputText());
-        var startingPoint     = grid.findFirst('^').orElseThrow(() -> new IllegalStateException("The grid does not contain a guard symbol"));
-        var traversalOutcome  = grid.findExit(startingPoint.point(), startingPoint.direction());
-        var distinctPositions = traversalOutcome.distinctPositions();
+        var grid             = Grid.fromString(getInputText());
+        var startingPoint    = grid.findFirst('^').orElseThrow(() -> new IllegalStateException("The grid does not contain a guard symbol"));
+        var traversalOutcome = grid.findExit(startingPoint.point(), startingPoint.direction());
 
-        return distinctPositions.size();
+        return (int) traversalOutcome.waypoints().stream().map(Waypoint::point).distinct().count();
     }
 
     protected Integer solvePartTwoForFile(String filename) {
-        var grid                     = Grid.fromString(getInputText(filename));
-        var startingPoint            = grid.findFirst('^').orElseThrow(() -> new IllegalStateException("The grid does not contain a guard symbol"));
-        var originalTraversalOutcome = grid.findExit(startingPoint.point(), startingPoint.direction());
-        var originalWaypoints        = new ArrayList<>(originalTraversalOutcome.waypoints());
-        var distinctObstaclePoints   = new LinkedHashSet<Point2D>();
+        var grid          = Grid.fromString(getInputText(filename));
+        var startingPoint = grid.findFirst('^').orElseThrow(() -> new IllegalStateException("The grid does not contain a guard symbol"));
+        var loopCounter   = 0;
+        var visitedPoints = grid.findExit(startingPoint.point(), startingPoint.direction())
+                .waypoints()
+                .stream()
+                .map(Waypoint::point)
+                .distinct()
+                .collect(Collectors.toList());
 
-        for (var i = 0; i < originalWaypoints.size() - 1; i++) {
-            var currentWaypoint = originalWaypoints.get(i);
-            var nextWaypoint    = originalWaypoints.get(i + 1);
-            var currentGrid     = grid.clone();
-
-            if (i > 0 && currentGrid.getValueAt(nextWaypoint.point().x(), nextWaypoint.point().y()) != '#') {
-                currentGrid.withElementAt(nextWaypoint.point(), 'O');
-            }
-
-            var exit = currentGrid.findExit(currentWaypoint.point(), currentWaypoint.direction());
-            if (exit.pathState() == TraversalOutcome.PathState.Loop) {
-                System.out.println(currentGrid);
-                distinctObstaclePoints.add(currentWaypoint.point());
+        for (var visitedPoint : visitedPoints) {
+            var clonedGrid       = grid.clone().withElementAt(visitedPoint, '#');
+            var traversalOutcome = clonedGrid.findExit(startingPoint.point(), startingPoint.direction());
+            if(traversalOutcome.pathState() == TraversalOutcome.PathState.Loop) {
+                loopCounter++;
             }
         }
 
-        return distinctObstaclePoints.size();
+        return loopCounter;
     }
 
     @Override

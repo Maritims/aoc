@@ -33,7 +33,7 @@ public class DayTest<T extends Day> {
                 arguments(2024, 3, 187194524, 127092535),
                 arguments(2024, 4, 2646, 2000),
                 arguments(2024, 5, 5955, 4030),
-                arguments(2024, 6, 5534, 0)
+                arguments(2024, 6, 5534, 2262)
         );
     }
 
