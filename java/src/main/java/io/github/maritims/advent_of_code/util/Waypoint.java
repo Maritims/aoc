@@ -42,7 +42,7 @@ public class Waypoint {
         return String.format("%d,%d,%d", point.x(), point.y(), direction.ordinal());
     }
 
-    public static Waypoint to(int x, int y, Direction direction) {
-        return new Waypoint(Point2D.at(x, y), direction);
+    public static Waypoint to(Point2D point, Direction direction) {
+        return new Waypoint(point, direction);
     }
 }

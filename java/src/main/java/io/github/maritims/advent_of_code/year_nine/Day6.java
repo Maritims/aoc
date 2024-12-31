@@ -13,31 +13,33 @@ public class Day6 extends Day {
     public Integer solvePartOne() {
         var grid             = Grid.fromString(getInputText());
         var startingPoint    = grid.findFirst('^').orElseThrow(() -> new IllegalStateException("The grid does not contain a guard symbol"));
-        var traversalOutcome = grid.findExit(startingPoint.point(), startingPoint.direction());
 
-        return (int) traversalOutcome.waypoints().stream().map(Waypoint::point).distinct().count();
+        return (int) grid.findExit(startingPoint)
+                .waypoints()
+                .parallelStream()
+                .map(Waypoint::point)
+                .distinct()
+                .count();
     }
 
     protected Integer solvePartTwoForFile(String filename) {
         var grid          = Grid.fromString(getInputText(filename));
         var startingPoint = grid.findFirst('^').orElseThrow(() -> new IllegalStateException("The grid does not contain a guard symbol"));
-        var loopCounter   = 0;
-        var visitedPoints = grid.findExit(startingPoint.point(), startingPoint.direction())
+        var visitedPoints = grid.findExit(startingPoint)
                 .waypoints()
-                .stream()
+                .parallelStream()
                 .map(Waypoint::point)
                 .distinct()
                 .collect(Collectors.toList());
 
-        for (var visitedPoint : visitedPoints) {
-            var clonedGrid       = grid.clone().withElementAt(visitedPoint, '#');
-            var traversalOutcome = clonedGrid.findExit(startingPoint.point(), startingPoint.direction());
-            if(traversalOutcome.pathState() == TraversalOutcome.PathState.Loop) {
-                loopCounter++;
-            }
-        }
-
-        return loopCounter;
+        return (int) visitedPoints.parallelStream()
+                .map(visitedPoint -> grid.clone()
+                        .withElementAt(visitedPoint, '#')
+                        .findExit(startingPoint)
+                        .pathState()
+                )
+                .filter(pathState -> pathState == TraversalOutcome.PathState.Loop)
+                .count();
     }
 
     @Override

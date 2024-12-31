@@ -83,10 +83,12 @@ public class Grid implements Cloneable {
         return this;
     }
 
-    public TraversalOutcome findExit(@NotNull Point2D point, @NotNull Direction direction) {
+    public TraversalOutcome findExit(@NotNull Waypoint waypoint) {
         var isLooping        = false;
+        var point            = waypoint.point();
+        var direction        = waypoint.direction();
         var visitedWaypoints = new LinkedHashSet<Waypoint>();
-        visitedWaypoints.add(Waypoint.to(point.x(), point.y(), direction));
+        visitedWaypoints.add(Waypoint.to(point, direction));
 
         while (true) {
             var nextX = point.x() + direction.x();
@@ -100,13 +102,13 @@ public class Grid implements Cloneable {
             // Step forward if there's nothing in the way.
             if (grid[nextY][nextX] != '#') {
                 point = Point2D.at(nextX, nextY);
-                var visitedWaypoint = Waypoint.to(point.x(), point.y(), direction);
+                var visitedWaypoint = Waypoint.to(point, direction);
                 if (visitedWaypoints.contains(visitedWaypoint)) {
                     // We're in a loop!
                     isLooping = true;
                     break;
                 }
-                visitedWaypoints.add(Waypoint.to(point.x(), point.y(), direction));
+                visitedWaypoints.add(Waypoint.to(point, direction));
             }
             // Turn 90 degrees to the right if there's something in the way.
             else {
