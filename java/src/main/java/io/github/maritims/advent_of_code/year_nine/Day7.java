@@ -2,6 +2,7 @@ package io.github.maritims.advent_of_code.year_nine;
 
 import io.github.maritims.advent_of_code.util.Day;
 import io.github.maritims.advent_of_code.util.ListUtil;
+import io.github.maritims.advent_of_code.util.MathUtil;
 import io.github.maritims.advent_of_code.util.Pair;
 
 import java.util.ArrayList;
@@ -23,8 +24,7 @@ public class Day7 extends Day {
         lines = getInputLines();
     }
 
-    @Override
-    public Long solvePartOne() {
+    private Long getTotalCalibrationResult(List<Operation> operations) {
         var pattern = Pattern.compile("^(\\d+): ([\\d\\s]+)$");
         var trueEquations = lines.parallelStream()
                 .map(line -> pattern.matcher(line).results())
@@ -32,7 +32,7 @@ public class Day7 extends Day {
                         Long.parseLong(matchResult.group(1)),
                         ListUtil.splitToList(matchResult.group(2).trim(), "\\s+", Long::parseLong)
                 )))
-                .map(pair -> new Equation(pair.first(), pair.second()))
+                .map(pair -> new Equation(pair.first(), pair.second(), operations))
                 .filter(Equation::isTrue)
                 .collect(Collectors.toList());
 
@@ -42,21 +42,27 @@ public class Day7 extends Day {
     }
 
     @Override
+    public Long solvePartOne() {
+        return getTotalCalibrationResult(List.of(Math::addExact, Math::multiplyExact));
+    }
+
+    @Override
     public Long solvePartTwo() {
-        return 0L;
+        return getTotalCalibrationResult(List.of(Math::addExact, Math::multiplyExact, MathUtil::concatenate));
     }
 
     interface Operation extends BiFunction<Long, Long, Long> {
     }
 
     static class Equation {
-        private static final List<Operation> operators = List.of(Math::addExact, Math::multiplyExact);
         private final        long            result;
         private final        List<Long>      numbers;
+        private final        List<Operation> operations;
 
-        Equation(long result, List<Long> numbers) {
+        Equation(long result, List<Long> numbers, List<Operation> operations) {
             this.result = result;
             this.numbers = numbers;
+            this.operations = operations;
         }
 
         public long getResult() {
@@ -65,15 +71,15 @@ public class Day7 extends Day {
 
         public boolean isTrue() {
             var operatorSpaces    = numbers.size() - 1;
-            var totalCombinations = Math.pow(2, operatorSpaces);
+            var totalCombinations = Math.pow(operations.size(), operatorSpaces);
 
             for (var i = 0; i < totalCombinations; i++) {
                 var temp                 = i;
                 var operatorCombinations = new ArrayList<Operation>();
 
                 for (var j = 0; j < operatorSpaces; j++) {
-                    operatorCombinations.add(operators.get(temp % operators.size()));
-                    temp /= operators.size();
+                    operatorCombinations.add(operations.get(temp % operations.size()));
+                    temp /= operations.size();
                 }
 
                 var result = numbers.get(0);
