@@ -10,11 +10,11 @@ public class Day6 extends Day {
     }
 
     @Override
-    public Integer solvePartOne() {
+    public Long solvePartOne() {
         var grid             = Grid.fromString(getInputText());
         var startingPoint    = grid.findFirst('^').orElseThrow(() -> new IllegalStateException("The grid does not contain a guard symbol"));
 
-        return (int) grid.findExit(startingPoint)
+        return grid.findExit(startingPoint)
                 .waypoints()
                 .parallelStream()
                 .map(Waypoint::point)
@@ -22,7 +22,7 @@ public class Day6 extends Day {
                 .count();
     }
 
-    protected Integer solvePartTwoForFile(String filename) {
+    protected Long solvePartTwoForFile(String filename) {
         var grid          = Grid.fromString(getInputText(filename));
         var startingPoint = grid.findFirst('^').orElseThrow(() -> new IllegalStateException("The grid does not contain a guard symbol"));
         var visitedPoints = grid.findExit(startingPoint)
@@ -32,7 +32,7 @@ public class Day6 extends Day {
                 .distinct()
                 .collect(Collectors.toList());
 
-        return (int) visitedPoints.parallelStream()
+        return visitedPoints.parallelStream()
                 .map(visitedPoint -> grid.clone()
                         .withElementAt(visitedPoint, '#')
                         .findExit(startingPoint)
@@ -43,7 +43,7 @@ public class Day6 extends Day {
     }
 
     @Override
-    public Integer solvePartTwo() {
+    public Long solvePartTwo() {
         return solvePartTwoForFile(getResourceName());
     }
 

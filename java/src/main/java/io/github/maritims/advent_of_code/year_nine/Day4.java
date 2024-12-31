@@ -59,15 +59,15 @@ public class Day4 extends Day {
     }
 
     @Override
-    public Integer solvePartOne() {
+    public Long solvePartOne() {
         var grid   = Grid.fromString(getInputText());
         var result = findLineSegments(grid, "XMAS");
 
-        return result.size();
+        return (long) result.size();
     }
 
     @Override
-    public Integer solvePartTwo() {
+    public Long solvePartTwo() {
         var grid = Grid.fromString(getInputText());
         var lineSegments = findLineSegments(grid, "MAS")
                 .stream()
@@ -77,6 +77,6 @@ public class Day4 extends Day {
                 .filter(line -> lineSegments.stream().anyMatch(line::formsCrossWith))
                 .count();
 
-        return crosses / 2;
+        return (long) (crosses / 2);
     }
 }

@@ -54,24 +54,24 @@ public class Day5 extends Day {
     }
 
     @Override
-    public Integer solvePartOne() {
+    public Long solvePartOne() {
         var lines = getInputLines();
         var rules = getRules(lines);
 
         return getUpdates(lines, rules)
                 .stream()
                 .filter(Update::isValid)
-                .mapToInt(Update::getMiddlePageNumber)
+                .mapToLong(Update::getMiddlePageNumber)
                 .sum();
     }
 
     @SuppressWarnings("ComparatorMethodParameterNotUsed")
     @Override
-    public Integer solvePartTwo() {
+    public Long solvePartTwo() {
         var lines                = getInputLines();
         var rules                = getRules(lines);
 
-        return getUpdates(lines, rules)
+        return (long) getUpdates(lines, rules)
                 .stream()
                 .filter(update -> !update.isValid())
                 .mapToInt(update -> {

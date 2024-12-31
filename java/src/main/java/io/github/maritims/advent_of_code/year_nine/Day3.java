@@ -11,7 +11,7 @@ public class Day3 extends Day {
     }
 
     @Override
-    public Integer solvePartOne() {
+    public Long solvePartOne() {
         var text    = getInputText();
         var pattern = Pattern.compile("mul\\((\\d+),(\\d+)\\)");
         var matcher = pattern.matcher(text);
@@ -24,11 +24,11 @@ public class Day3 extends Day {
             sum += product;
         }
 
-        return sum;
+        return (long) sum;
     }
 
     @Override
-    public Integer solvePartTwo() {
+    public Long solvePartTwo() {
         var text     = getInputText();
         var position = 0;
         var sum      = 0;
@@ -107,7 +107,7 @@ public class Day3 extends Day {
             }
         }
 
-        return sum;
+        return (long) sum;
     }
 
     enum TokenType {

@@ -13,4 +13,11 @@ public class ListUtil {
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
     }
+
+    @NotNull
+    public static List<Long> toLongList(@NotNull String[] strings) {
+        return Arrays.stream(strings)
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+    }
 }

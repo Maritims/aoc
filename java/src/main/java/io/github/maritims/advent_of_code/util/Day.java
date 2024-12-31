@@ -67,12 +67,12 @@ public abstract class Day {
         return getInputText(resourceName);
     }
 
-    public abstract Integer solvePartOne();
+    public abstract Long solvePartOne();
 
-    public abstract Integer solvePartTwo();
+    public abstract Long solvePartTwo();
 
-    public final Integer[] solve() {
-        return new Integer[] { solvePartOne(), solvePartTwo() };
+    public final Long[] solve() {
+        return new Long[] { solvePartOne(), solvePartTwo() };
     }
 
     @Override

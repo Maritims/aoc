@@ -12,7 +12,7 @@ public class Day1 extends Day {
     }
 
     @Override
-    public @NotNull Integer solvePartOne() {
+    public @NotNull Long solvePartOne() {
         var lines = getInputLines();
         var leftParts = new ArrayList<Integer>();
         var rightParts = new ArrayList<Integer>();
@@ -35,11 +35,11 @@ public class Day1 extends Day {
             totalDistance += distance;
         }
 
-        return totalDistance;
+        return (long) totalDistance;
     }
 
     @Override
-    public Integer solvePartTwo() {
+    public Long solvePartTwo() {
         var lines = getInputLines();
         var leftParts = new ArrayList<Integer>();
         var rightParts = new ArrayList<Integer>();
@@ -62,6 +62,6 @@ public class Day1 extends Day {
             totalSimilarityScore += similarityScore;
         }
 
-        return totalSimilarityScore;
+        return (long) totalSimilarityScore;
     }
 }

@@ -35,15 +35,16 @@ public class Day2 extends Day {
     }
 
     @Override
-    public @NotNull Integer solvePartOne() {
+    public @NotNull Long solvePartOne() {
         return getInputLines()
                 .stream()
                 .map(line -> ListUtil.toIntegerList(line.split("\\s")))
-                .mapToInt(level -> isSafe(level) ? 1 : 0).sum();
+                .mapToLong(level -> isSafe(level) ? 1 : 0)
+                .sum();
     }
 
     @Override
-    public Integer solvePartTwo() {
+    public Long solvePartTwo() {
         var lines = getInputLines();
         var safeReports = 0;
 
@@ -61,6 +62,6 @@ public class Day2 extends Day {
             }
         }
 
-        return safeReports;
+        return (long) safeReports;
     }
 }

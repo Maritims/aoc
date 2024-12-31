@@ -22,7 +22,8 @@ public class DayTest<T extends Day> {
                 arguments(2024, 3, 161, 48),
                 arguments(2024, 4, 18, 9),
                 arguments(2024, 5, 143, 123),
-                arguments(2024, 6, 41, 6)
+                arguments(2024, 6, 41, 6),
+                arguments(2024, 7, 3749, 0)
         );
     }
 
@@ -33,7 +34,8 @@ public class DayTest<T extends Day> {
                 arguments(2024, 3, 187194524, 127092535),
                 arguments(2024, 4, 2646, 2000),
                 arguments(2024, 5, 5955, 4030),
-                arguments(2024, 6, 5534, 2262)
+                arguments(2024, 6, 5534, 2262),
+                arguments(2024, 7, 7710205485870L, 0)
         );
     }
 
@@ -67,7 +69,7 @@ public class DayTest<T extends Day> {
     @DisplayName("Solving using sample input")
     @ParameterizedTest(name = "{0}.{1}: {2} (part 1), {3} (part 2)")
     @MethodSource
-    void solveUsingSampleData(int year, int day, int expectedAnswerToPartOne, int expectedAnswerToPartTwo) {
+    void solveUsingSampleData(int year, int day, long expectedAnswerToPartOne, long expectedAnswerToPartTwo) {
         var sampleInputAnswers = getInstance(year, day, true).solve();
         assertEquals(expectedAnswerToPartOne, sampleInputAnswers[0], "Wrong answer for part 1");
         assertEquals(expectedAnswerToPartTwo, sampleInputAnswers[1], "Wrong answer for part 2");
@@ -76,7 +78,7 @@ public class DayTest<T extends Day> {
     @DisplayName("Solving using real input")
     @ParameterizedTest(name = "{0}.{1}: {2} (part 1), {3} (part 2)")
     @MethodSource
-    void solveUsingRealInput(int year, int day, int expectedAnswerToPartOne, int expectedAnswerToPartTwo) {
+    void solveUsingRealInput(int year, int day, long expectedAnswerToPartOne, long expectedAnswerToPartTwo) {
         var realInputAnswers = getInstance(year, day, false).solve();
         assertEquals(expectedAnswerToPartOne, realInputAnswers[0], "Wrong answer for part 1");
         assertEquals(expectedAnswerToPartTwo, realInputAnswers[1], "Wrong answer for part 2");
