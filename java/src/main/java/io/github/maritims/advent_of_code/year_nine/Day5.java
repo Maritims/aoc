@@ -11,6 +11,17 @@ public class Day5 extends Day {
         super(2024, 5, useSampleData);
     }
 
+    private Map<Integer, Set<Integer>> rules;
+    private List<Update>               updates;
+
+    @Override
+    protected void initialize() {
+        super.initialize();
+        var lines = getInputLines();
+        rules = getRules(lines);
+        updates = getUpdates(lines, rules);
+    }
+
     protected Map<Integer, Set<Integer>> getRules(List<String> lines) {
         return lines.stream()
                 .filter(line -> line.contains("|"))
@@ -55,11 +66,7 @@ public class Day5 extends Day {
 
     @Override
     public Long solvePartOne() {
-        var lines = getInputLines();
-        var rules = getRules(lines);
-
-        return getUpdates(lines, rules)
-                .stream()
+        return updates.stream()
                 .filter(Update::isValid)
                 .mapToLong(Update::getMiddlePageNumber)
                 .sum();
@@ -68,11 +75,7 @@ public class Day5 extends Day {
     @SuppressWarnings("ComparatorMethodParameterNotUsed")
     @Override
     public Long solvePartTwo() {
-        var lines                = getInputLines();
-        var rules                = getRules(lines);
-
-        return (long) getUpdates(lines, rules)
-                .stream()
+        return (long) updates.stream()
                 .filter(update -> !update.isValid())
                 .mapToInt(update -> {
                     var pageNumbers = new ArrayList<>(update.getPageNumbers());

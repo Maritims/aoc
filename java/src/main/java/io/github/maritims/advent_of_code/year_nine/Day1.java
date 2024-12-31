@@ -5,63 +5,42 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.IntStream;
 
 public class Day1 extends Day {
     public Day1(Boolean useSampleData) {
         super(2024, 1, useSampleData);
     }
 
+    private final List<Integer> leftList  = new ArrayList<>();
+    private final List<Integer> rightList = new ArrayList<>();
+
+    @Override
+    protected void initialize() {
+        super.initialize();
+        getInputLines()
+                .stream()
+                .map(line -> line.split("\\s+"))
+                .forEach(parts -> {
+                    leftList.add(Integer.parseInt(parts[0]));
+                    rightList.add(Integer.parseInt(parts[1]));
+                });
+        leftList.sort(Integer::compareTo);
+        rightList.sort(Integer::compareTo);
+    }
+
     @Override
     public @NotNull Long solvePartOne() {
-        var lines = getInputLines();
-        var leftParts = new ArrayList<Integer>();
-        var rightParts = new ArrayList<Integer>();
-
-        for(var line : lines) {
-            var parts = line.split("\\s+");
-            var left = Integer.parseInt(parts[0]);
-            var right = Integer.parseInt(parts[1]);
-
-            leftParts.add(left);
-            rightParts.add(right);
-        }
-
-        leftParts.sort(Integer::compareTo);
-        rightParts.sort(Integer::compareTo);
-        var totalDistance = 0;
-
-        for(var i = 0; i < leftParts.size(); i++) {
-            var distance = Math.abs(leftParts.get(i) - rightParts.get(i));
-            totalDistance += distance;
-        }
-
-        return (long) totalDistance;
+        return (long) IntStream.range(0, leftList.size())
+                .map(i -> Math.abs(leftList.get(i) - rightList.get(i)))
+                .sum();
     }
 
     @Override
     public Long solvePartTwo() {
-        var lines = getInputLines();
-        var leftParts = new ArrayList<Integer>();
-        var rightParts = new ArrayList<Integer>();
-
-        for(var line : lines) {
-            var parts = line.split("\\s+");
-            var left = Integer.parseInt(parts[0]);
-            var right = Integer.parseInt(parts[1]);
-
-            leftParts.add(left);
-            rightParts.add(right);
-        }
-
-        var totalSimilarityScore = 0;
-
-        for(var i = 0; i < lines.size(); i++) {
-            var left = leftParts.get(i);
-            var occurrences = Collections.frequency(rightParts, left);
-            var similarityScore = left * occurrences;
-            totalSimilarityScore += similarityScore;
-        }
-
-        return (long) totalSimilarityScore;
+        return (long) leftList.parallelStream()
+                .mapToInt(left -> left * Collections.frequency(rightList, left))
+                .sum();
     }
 }

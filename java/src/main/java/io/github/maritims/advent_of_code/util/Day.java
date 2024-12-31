@@ -26,6 +26,21 @@ public abstract class Day {
         this.resourceName = year + "/" + day + "/" + (useSampleData ? "sample" : "input") + ".txt";
     }
 
+    public Day(int year, int day, String filename) {
+        this.year = year;
+        this.day = day;
+        this.useSampleData = false;
+        this.resourceName = year + "/" + day + "/" + filename;
+    }
+
+    public Boolean getUseSampleData() {
+        return useSampleData;
+    }
+
+    public String getResourceName() {
+        return resourceName;
+    }
+
     @NotNull
     private Optional<InputStream> getInputStream(@NotNull String filename) {
         return Optional.ofNullable(getClass().getClassLoader().getResourceAsStream(filename));
@@ -67,24 +82,20 @@ public abstract class Day {
         return getInputText(resourceName);
     }
 
+    protected void initialize() {
+    }
+
     public abstract Long solvePartOne();
 
     public abstract Long solvePartTwo();
 
     public final Long[] solve() {
-        return new Long[] { solvePartOne(), solvePartTwo() };
+        initialize();
+        return new Long[]{solvePartOne(), solvePartTwo()};
     }
 
     @Override
     public String toString() {
         return String.format("%d.%d", year, day);
-    }
-
-    public Boolean getUseSampleData() {
-        return useSampleData;
-    }
-
-    public String getResourceName() {
-        return resourceName;
     }
 }

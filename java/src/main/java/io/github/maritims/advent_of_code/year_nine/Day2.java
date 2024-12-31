@@ -4,15 +4,23 @@ import io.github.maritims.advent_of_code.util.Day;
 import io.github.maritims.advent_of_code.util.ListUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class Day2 extends Day {
     public Day2(Boolean useSampleData) {
         super(2024, 2, useSampleData);
     }
 
-    private boolean isSafe(List<Integer> level) {
+    private List<List<Long>> levels;
+
+    @Override
+    protected void initialize() {
+        super.initialize();
+        levels = ListUtil.splitToListOfLists(getInputLines(), "\\s", Long::parseLong);
+    }
+
+    private boolean isSafe(List<Long> level) {
         var isIncreasing = true;
         var isDecreasing = true;
         var isSafe       = true;
@@ -34,34 +42,27 @@ public class Day2 extends Day {
         return isSafe && (isIncreasing || isDecreasing);
     }
 
+    private boolean couldBeSafe(List<Long> level) {
+        return IntStream.range(0, level.size())
+                .anyMatch(i -> {
+                    var tmp = level.remove(i);
+                    var isSafe = isSafe(level);
+                    level.add(i, tmp);
+                    return isSafe;
+                });
+    }
+
     @Override
     public @NotNull Long solvePartOne() {
-        return getInputLines()
-                .stream()
-                .map(line -> ListUtil.toIntegerList(line.split("\\s")))
-                .mapToLong(level -> isSafe(level) ? 1 : 0)
-                .sum();
+        return levels.parallelStream()
+                .filter(this::isSafe)
+                .count();
     }
 
     @Override
     public Long solvePartTwo() {
-        var lines = getInputLines();
-        var safeReports = 0;
-
-        for(var line : lines) {
-            var level = ListUtil.toIntegerList(line.split("\\s"));
-
-            for(var i = 0; i < level.size(); i++) {
-                var thisLevel = new ArrayList<>(level);
-                thisLevel.remove(i);
-
-                if(isSafe(thisLevel)) {
-                    safeReports++;
-                    break;
-                }
-            }
-        }
-
-        return (long) safeReports;
+        return levels.parallelStream()
+                .filter(this::couldBeSafe)
+                .count();
     }
 }

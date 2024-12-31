@@ -12,19 +12,11 @@ public class Day3 extends Day {
 
     @Override
     public Long solvePartOne() {
-        var text    = getInputText();
-        var pattern = Pattern.compile("mul\\((\\d+),(\\d+)\\)");
-        var matcher = pattern.matcher(text);
-        var sum     = 0;
-
-        while (matcher.find()) {
-            var leftFactor  = Integer.parseInt(matcher.group(1));
-            var rightFactor = Integer.parseInt(matcher.group(2));
-            var product     = leftFactor * rightFactor;
-            sum += product;
-        }
-
-        return (long) sum;
+        return (long) Pattern.compile("mul\\((\\d+),(\\d+)\\)")
+                .matcher(getInputText())
+                .results()
+                .mapToInt(result -> Integer.parseInt(result.group(1)) * Integer.parseInt(result.group(2)))
+                .sum();
     }
 
     @Override

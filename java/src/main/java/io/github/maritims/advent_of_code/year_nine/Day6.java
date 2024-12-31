@@ -9,24 +9,34 @@ public class Day6 extends Day {
         super(2024, 6, useSampleData);
     }
 
+    public Day6(String filename) {
+        super(2024, 6, filename);
+    }
+
+    private Grid             grid;
+    private Waypoint         startingPoint;
+    private TraversalOutcome originalTraversalOutcome;
+
+    @Override
+    protected void initialize() {
+        super.initialize();
+        grid = Grid.fromString(getInputText());
+        startingPoint = grid.findFirst('^').orElseThrow(() -> new IllegalStateException("The grid does not contain a guard symbol"));
+        originalTraversalOutcome = grid.findExit(startingPoint);
+    }
+
     @Override
     public Long solvePartOne() {
-        var grid             = Grid.fromString(getInputText());
-        var startingPoint    = grid.findFirst('^').orElseThrow(() -> new IllegalStateException("The grid does not contain a guard symbol"));
-
-        return grid.findExit(startingPoint)
-                .waypoints()
+        return originalTraversalOutcome.waypoints()
                 .parallelStream()
                 .map(Waypoint::point)
                 .distinct()
                 .count();
     }
 
-    protected Long solvePartTwoForFile(String filename) {
-        var grid          = Grid.fromString(getInputText(filename));
-        var startingPoint = grid.findFirst('^').orElseThrow(() -> new IllegalStateException("The grid does not contain a guard symbol"));
-        var visitedPoints = grid.findExit(startingPoint)
-                .waypoints()
+    @Override
+    public Long solvePartTwo() {
+        var visitedPoints = originalTraversalOutcome.waypoints()
                 .parallelStream()
                 .map(Waypoint::point)
                 .distinct()
@@ -40,11 +50,6 @@ public class Day6 extends Day {
                 )
                 .filter(pathState -> pathState == TraversalOutcome.PathState.Loop)
                 .count();
-    }
-
-    @Override
-    public Long solvePartTwo() {
-        return solvePartTwoForFile(getResourceName());
     }
 
 }

@@ -14,6 +14,8 @@ public class Day4 extends Day {
         super(2024, 4, useSampleData);
     }
 
+    private final Grid grid = Grid.fromString(getInputText());
+
     @NotNull
     private List<LineSegment> findLineSegments(@NotNull Grid grid, int row, int col, @NotNull String word) {
         var lineSegments = new ArrayList<LineSegment>();
@@ -60,20 +62,16 @@ public class Day4 extends Day {
 
     @Override
     public Long solvePartOne() {
-        var grid   = Grid.fromString(getInputText());
-        var result = findLineSegments(grid, "XMAS");
-
-        return (long) result.size();
+        return (long) findLineSegments(grid, "XMAS").size();
     }
 
     @Override
     public Long solvePartTwo() {
-        var grid = Grid.fromString(getInputText());
         var lineSegments = findLineSegments(grid, "MAS")
-                .stream()
+                .parallelStream()
                 .filter(lineSegment -> lineSegment.orientation() == Diagonal)
                 .collect(Collectors.toList());
-        var crosses = (int) lineSegments.stream()
+        var crosses = (int) lineSegments.parallelStream()
                 .filter(line -> lineSegments.stream().anyMatch(line::formsCrossWith))
                 .count();
 

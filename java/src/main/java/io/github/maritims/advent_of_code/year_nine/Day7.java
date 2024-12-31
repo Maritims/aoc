@@ -15,15 +15,22 @@ public class Day7 extends Day {
         super(2024, 7, useSampleData);
     }
 
+    private List<String> lines;
+
+    @Override
+    protected void initialize() {
+        super.initialize();
+        lines = getInputLines();
+    }
+
     @Override
     public Long solvePartOne() {
-        var lines   = getInputLines();
         var pattern = Pattern.compile("^(\\d+): ([\\d\\s]+)$");
         var trueEquations = lines.parallelStream()
                 .map(line -> pattern.matcher(line).results())
                 .flatMap(matchResults -> matchResults.map(matchResult -> Pair.of(
                         Long.parseLong(matchResult.group(1)),
-                        ListUtil.toLongList(matchResult.group(2).trim().split("\\s+"))
+                        ListUtil.splitToList(matchResult.group(2).trim(), "\\s+", Long::parseLong)
                 )))
                 .map(pair -> new Equation(pair.first(), pair.second()))
                 .filter(Equation::isTrue)

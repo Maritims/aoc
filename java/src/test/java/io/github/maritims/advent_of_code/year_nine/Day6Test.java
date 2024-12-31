@@ -45,6 +45,6 @@ class Day6Test {
     @ParameterizedTest
     @MethodSource
     void solvePartTwoForFile(String filename, int expectedResult) {
-        assertEquals(expectedResult, new Day6(true).solvePartTwoForFile(filename));
+        assertEquals(expectedResult, new Day6(filename).solvePartTwo());
     }
 }
