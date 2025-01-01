@@ -33,15 +33,7 @@ public class Day8 extends Day {
                     continue;
                 }
 
-                var point = Point.at(col, row);
-                antennas.compute(c, (k, v) -> {
-                    if (v == null) {
-                        v = new LinkedHashSet<>(Set.of(point));
-                    } else {
-                        v.add(point);
-                    }
-                    return v;
-                });
+                antennas.computeIfAbsent(c, k -> new LinkedHashSet<>()).add(Point.at(row, col));
             }
         }
     }
