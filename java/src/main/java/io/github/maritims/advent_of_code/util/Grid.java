@@ -24,6 +24,14 @@ public class Grid implements Cloneable {
         return y < 0 || y >= rows() || x < 0 || x >= cols();
     }
 
+    public boolean isOutOfBounds(Point2D p) {
+        return isOutOfBounds(p.x(), p.y());
+    }
+
+    public boolean isOutOfBounds(LineSegment lineSegment) {
+        return isOutOfBounds(lineSegment.p1()) || isOutOfBounds(lineSegment.p2());
+    }
+
     public char getValueAt(int x, int y) {
         if (isOutOfBounds(x, y)) {
             throw new IllegalArgumentException(String.format("Point (%d, %d) is not within the grid", x, y));

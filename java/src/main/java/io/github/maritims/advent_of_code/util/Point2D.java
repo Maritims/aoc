@@ -40,4 +40,8 @@ public class Point2D {
     public static Point2D at(int x, int y) {
         return new Point2D(x, y);
     }
+
+    public static int getManhattanDistance(Point2D p1, Point2D p2) {
+        return Math.abs(p1.x() - p2.x()) + Math.abs(p1.y() - p2.y());
+}
 }

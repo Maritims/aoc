@@ -12,6 +12,47 @@ public class LineSegment {
         this.p2 = p2;
     }
 
+    public Point2D p1() {
+        return p1;
+    }
+
+    public Point2D p2() {
+        return p2;
+    }
+
+    private double length = Double.MIN_VALUE;
+
+    public double length() {
+        if (length == Double.MIN_VALUE) {
+            var dx = p2.x() - p1.x();
+            var dy = p2.y() - p1.y();
+            length = Math.sqrt(dx * dx + dy * dy);
+        }
+        return length;
+    }
+
+    public LineSegment extend(double factor) {
+        // Direction vector
+        var dx = p2.x() - p1.x();
+        var dy = p2.y() - p1.y();
+
+        var length = length();
+
+        // Unit direction vector
+        var ux = dx / length;
+        var uy = dy / length;
+
+        var newX1 = p1.x() - factor * ux;
+        var newY1 = p1.y() - factor * uy;
+        var newP1 = Point2D.at((int) newX1, (int) newY1);
+
+        var newX2 = p2.x() + factor * ux;
+        var newY2 = p2.y() + factor * uy;
+        var newP2 = Point2D.at((int) newX2, (int) newY2);
+
+        return new LineSegment(newP1, newP2);
+    }
+
     public boolean contains(Point2D p) {
         return p.y() <= Math.max(p1.y(), p2.y()) &&
                 p.y() >= Math.min(p1.y(), p2.y()) &&
@@ -36,7 +77,7 @@ public class LineSegment {
      * </ul>
      */
     public double slope() {
-        if(p2.x() == p1.x()) {
+        if (p2.x() == p1.x()) {
             return Double.POSITIVE_INFINITY;
         }
 
@@ -48,15 +89,15 @@ public class LineSegment {
     public Orientation orientation() {
         var slope = slope();
 
-        if(Double.isInfinite(slope)) {
+        if (Double.isInfinite(slope)) {
             return Orientation.Vertical;
         }
 
-        if(slope == 0) {
+        if (slope == 0) {
             return Orientation.Horizontal;
         }
 
-        if(slope > 0 || slope < 0) {
+        if (slope > 0 || slope < 0) {
             return Orientation.Diagonal;
         }
 
@@ -64,7 +105,7 @@ public class LineSegment {
     }
 
     public boolean formsCrossWith(LineSegment that) {
-        if(!midpoint().equals(that.midpoint())) {
+        if (!midpoint().equals(that.midpoint())) {
             return false;
         }
 
