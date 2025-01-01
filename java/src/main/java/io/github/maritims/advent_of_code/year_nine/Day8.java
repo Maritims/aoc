@@ -4,6 +4,10 @@ import io.github.maritims.advent_of_code.util.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static io.github.maritims.advent_of_code.util.CollectionUtil.collectionOfNonNulls;
 
 public class Day8 extends Day {
     public Day8(Boolean useSampleData) {
@@ -44,15 +48,15 @@ public class Day8 extends Day {
 
     @NotNull
     protected HashSet<Point> getAntiNodesFromPair(@NotNull Pair<Point, Point> pair) {
-        var p1        = pair.first();
-        var p2        = pair.second();
-        var v         = p2.subtract(p1);
-        var antiNodes = new HashSet<Point>();
+        var p1 = pair.first();
+        var p2 = pair.second();
+        var v  = p2.subtract(p1);
 
-        If.of(p1.subtract(v)).when(value -> !grid.isOutOfBounds(value)).then(antiNodes::add);
-        If.of(p2.add(v)).when(value -> !grid.isOutOfBounds(value)).then(antiNodes::add);
-
-        return antiNodes;
+        return collectionOfNonNulls(
+                HashSet::new,
+                If.of(p1.subtract(v)).when(value -> !grid.isOutOfBounds(value)).thenGetValue(),
+                If.of(p2.add(v)).when(value -> !grid.isOutOfBounds(value)).thenGetValue()
+        );
     }
 
     @Override

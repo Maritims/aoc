@@ -2,10 +2,9 @@ package io.github.maritims.advent_of_code.util;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class CollectionUtil {
@@ -33,5 +32,11 @@ public class CollectionUtil {
         }
 
         return pairs;
+    }
+
+    public static <TItem, TCollection extends Collection<TItem>> TCollection collectionOfNonNulls(Supplier<TCollection> collectionFactory, TItem... items) {
+        return Arrays.stream(items)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(collectionFactory));
     }
 }

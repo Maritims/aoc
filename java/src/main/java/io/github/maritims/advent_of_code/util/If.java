@@ -27,6 +27,10 @@ public class If<T> {
         return this;
     }
 
+    public T thenGetValue() {
+        return condition && value != null ? value : null;
+    }
+
     public If<T> otherwise(Consumer<T> action) {
         if(!condition && value != null) {
             action.accept(value);
