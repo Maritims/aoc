@@ -1,11 +1,9 @@
 package io.github.maritims.advent_of_code.util;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class CollectionUtil {
@@ -24,8 +22,8 @@ public class CollectionUtil {
     }
 
     @NotNull
-    public static <T> HashSet<Pair<T, T>> generateUniquePairSet(@NotNull List<T> items) {
-        var pairs = new HashSet<Pair<T, T>>();
+    public static <T> LinkedHashSet<Pair<T, T>> generateUniquePairSet(@NotNull List<T> items) {
+        var pairs = new LinkedHashSet<Pair<T, T>>();
 
         for(var i = 0; i < items.size(); i++) {
             for(var j = i + 1; j < items.size(); j++) {
@@ -34,13 +32,5 @@ public class CollectionUtil {
         }
 
         return pairs;
-    }
-
-    @SafeVarargs
-    @NotNull
-    public static <TItem, TCollection extends Collection<TItem>> TCollection collectionOfNonNulls(@NotNull Supplier<TCollection> collectionFactory, @Nullable TItem... items) {
-        return Arrays.stream(items)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toCollection(collectionFactory));
     }
 }

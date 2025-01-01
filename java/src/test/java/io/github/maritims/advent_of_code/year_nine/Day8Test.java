@@ -20,6 +20,12 @@ class Day8Test {
         );
     }
 
+    public static Stream<Arguments> solvePartTwoForFilename() {
+        return Stream.of(
+                Arguments.arguments("sample4.txt", 9)
+        );
+    }
+
     @ParameterizedTest
     @MethodSource
     void solvePartOneForFilename(String filename, long expectedResult) {
@@ -34,4 +40,17 @@ class Day8Test {
         assertEquals(expectedResult, result);
     }
 
+    @ParameterizedTest
+    @MethodSource
+    void solvePartTwoForFilename(String filename, long expectedResult) {
+        // arrange
+        var sut = new Day8(filename);
+        sut.initialize();
+
+        // act
+        var result = sut.solvePartTwo();
+
+        // assert
+        assertEquals(expectedResult, result);
+    }
 }
