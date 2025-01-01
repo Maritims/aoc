@@ -41,10 +41,6 @@ public class Day8 extends Day {
 
     @Override
     public Long solvePartOne() {
-        // Find a point.
-        // Is there one antenna with the same frequency in any direction?
-        // If there is another antenna with the same frequency in any direction, get the Manhattan distance between the two.
-        // The antinodes will be the same distance away in the same orientation as the antennas.
         var antinodes = new LinkedHashSet<Point2D>();
 
         for (var entry : antennas.entrySet()) {
