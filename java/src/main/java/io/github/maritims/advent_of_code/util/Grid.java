@@ -3,6 +3,7 @@ package io.github.maritims.advent_of_code.util;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class Grid implements Cloneable {
     private final char[][] grid;
@@ -29,6 +30,10 @@ public class Grid implements Cloneable {
         }
 
         return grid[y][x];
+    }
+
+    public char getValueAt(Point2D point) {
+        return getValueAt(point.x(), point.y());
     }
 
     @NotNull
@@ -161,5 +166,31 @@ public class Grid implements Cloneable {
         }
 
         return stringBuilder.toString();
+    }
+
+    public static void bfs(Grid grid, Point2D point, Consumer<Point2D> onVisit) {
+        var directions = List.of(Direction.North, Direction.East, Direction.South, Direction.West);
+        var queue      = new LinkedList<>(Set.of(point));
+        var visited    = new boolean[grid.rows()][grid.cols()];
+        visited[point.y()][point.x()] = true;
+
+        while (!queue.isEmpty()) {
+            var currentPoint = queue.poll();
+
+            for (var direction : directions) {
+                var nextX = currentPoint.x() + direction.x();
+                var nextY = currentPoint.y() + direction.y();
+
+                if (!grid.isOutOfBounds(nextX, nextY) && !visited[nextY][nextX]) {
+                    var nextPoint = Point2D.at(nextX, nextY);
+                    queue.add(nextPoint);
+                    visited[nextY][nextX] = true;
+
+                    if (onVisit != null) {
+                        onVisit.accept(nextPoint);
+                    }
+                }
+            }
+        }
     }
 }
