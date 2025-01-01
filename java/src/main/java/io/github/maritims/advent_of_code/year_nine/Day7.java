@@ -1,7 +1,7 @@
 package io.github.maritims.advent_of_code.year_nine;
 
 import io.github.maritims.advent_of_code.util.Day;
-import io.github.maritims.advent_of_code.util.ListUtil;
+import io.github.maritims.advent_of_code.util.CollectionUtil;
 import io.github.maritims.advent_of_code.util.MathUtil;
 import io.github.maritims.advent_of_code.util.Pair;
 
@@ -27,7 +27,7 @@ public class Day7 extends Day {
                 .map(line -> pattern.matcher(line).results())
                 .flatMap(matchResults -> matchResults.map(matchResult -> Pair.of(
                         Long.parseLong(matchResult.group(1)),
-                        ListUtil.splitToList(matchResult.group(2).trim(), "\\s+", Long::parseLong)
+                        CollectionUtil.splitToList(matchResult.group(2).trim(), "\\s+", Long::parseLong)
                 )))
                 .map(pair -> new Equation(pair.first(), pair.second()))
                 .collect(Collectors.toList());

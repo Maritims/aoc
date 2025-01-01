@@ -26,7 +26,7 @@ public class TraversalOutcome {
         return pathState;
     }
 
-    public LinkedHashSet<Point2D> distinctPositions() {
+    public LinkedHashSet<Point> distinctPositions() {
         return waypoints.stream()
                 .map(Waypoint::point)
                 .collect(Collectors.toCollection(LinkedHashSet::new));

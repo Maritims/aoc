@@ -24,7 +24,7 @@ public class Grid implements Cloneable {
         return y < 0 || y >= rows() || x < 0 || x >= cols();
     }
 
-    public boolean isOutOfBounds(Point2D p) {
+    public boolean isOutOfBounds(Point p) {
         return isOutOfBounds(p.x(), p.y());
     }
 
@@ -40,7 +40,7 @@ public class Grid implements Cloneable {
         return grid[y][x];
     }
 
-    public char getValueAt(Point2D point) {
+    public char getValueAt(Point point) {
         return getValueAt(point.x(), point.y());
     }
 
@@ -65,7 +65,7 @@ public class Grid implements Cloneable {
                             direction = Direction.North;
                             break;
                     }
-                    return Optional.of(new Waypoint(Point2D.at(col, row), direction));
+                    return Optional.of(new Waypoint(Point.at(col, row), direction));
                 }
             }
         }
@@ -88,7 +88,7 @@ public class Grid implements Cloneable {
     }
 
     @NotNull
-    public Grid withElementAt(@NotNull Point2D point, char value) {
+    public Grid withElementAt(@NotNull Point point, char value) {
         if (!isOutOfBounds(point.x(), point.y())) {
             grid[point.y()][point.x()] = value;
         }
@@ -114,7 +114,7 @@ public class Grid implements Cloneable {
 
             // Step forward if there's nothing in the way.
             if (grid[nextY][nextX] != '#') {
-                point = Point2D.at(nextX, nextY);
+                point = Point.at(nextX, nextY);
                 var visitedWaypoint = Waypoint.to(point, direction);
                 if (visitedWaypoints.contains(visitedWaypoint)) {
                     // We're in a loop!
@@ -176,7 +176,7 @@ public class Grid implements Cloneable {
         return stringBuilder.toString();
     }
 
-    public static void bfs(Grid grid, Point2D point, Consumer<Point2D> onVisit) {
+    public static void bfs(Grid grid, Point point, Consumer<Point> onVisit) {
         var directions = List.of(Direction.North, Direction.East, Direction.South, Direction.West);
         var queue      = new LinkedList<>(Set.of(point));
         var visited    = new boolean[grid.rows()][grid.cols()];
@@ -190,7 +190,7 @@ public class Grid implements Cloneable {
                 var nextY = currentPoint.y() + direction.y();
 
                 if (!grid.isOutOfBounds(nextX, nextY) && !visited[nextY][nextX]) {
-                    var nextPoint = Point2D.at(nextX, nextY);
+                    var nextPoint = Point.at(nextX, nextY);
                     queue.add(nextPoint);
                     visited[nextY][nextX] = true;
 

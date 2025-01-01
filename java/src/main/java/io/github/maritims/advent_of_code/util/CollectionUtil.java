@@ -2,13 +2,13 @@ package io.github.maritims.advent_of_code.util;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class ListUtil {
+public class CollectionUtil {
     @NotNull
     public static <T> List<T> splitToList(@NotNull String str, @NotNull String regex, @NotNull Function<String, T> mapper) {
         return Arrays.stream(str.split(regex))
@@ -23,8 +23,8 @@ public class ListUtil {
                 .collect(Collectors.toList());
     }
 
-    public static <T> List<Pair<T, T>> generateUniquePairs(@NotNull List<T> items) {
-        var pairs = new ArrayList<Pair<T, T>>();
+    public static <T> HashSet<Pair<T, T>> generateUniquePairSet(@NotNull List<T> items) {
+        var pairs = new HashSet<Pair<T, T>>();
 
         for(var i = 0; i < items.size(); i++) {
             for(var j = i + 1; j < items.size(); j++) {

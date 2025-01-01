@@ -1,10 +1,10 @@
 package io.github.maritims.advent_of_code.util;
 
-public class Point2D {
+public class Point {
     private final int x;
     private final int y;
 
-    public Point2D(int x, int y) {
+    public Point(int x, int y) {
         this.x = x;
         this.y = y;
     }
@@ -17,12 +17,24 @@ public class Point2D {
         return y;
     }
 
+    public Vector subtract(Point that) {
+        return new Vector(x - that.x, y - that.y);
+    }
+
+    public Point subtract(Vector vector) {
+        return new Point(x - vector.x(), y - vector.y());
+    }
+
+    public Point add(Vector vector) {
+        return new Point(x + vector.x(), y + vector.y());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
 
-        Point2D point2D = (Point2D) o;
-        return x == point2D.x && y == point2D.y;
+        Point point = (Point) o;
+        return x == point.x && y == point.y;
     }
 
     @Override
@@ -37,11 +49,7 @@ public class Point2D {
         return String.format("(%d, %d)", x, y);
     }
 
-    public static Point2D at(int x, int y) {
-        return new Point2D(x, y);
+    public static Point at(int x, int y) {
+        return new Point(x, y);
     }
-
-    public static int getManhattanDistance(Point2D p1, Point2D p2) {
-        return Math.abs(p1.x() - p2.x()) + Math.abs(p1.y() - p2.y());
-}
 }

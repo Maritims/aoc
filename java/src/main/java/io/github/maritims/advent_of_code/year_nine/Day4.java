@@ -40,7 +40,7 @@ public class Day4 extends Day {
             }
 
             if (i == word.length()) {
-                lineSegments.add(new LineSegment(Point2D.at(col, row), Point2D.at(lastDx, lastDy)));
+                lineSegments.add(new LineSegment(Point.at(col, row), Point.at(lastDx, lastDy)));
             }
         }
 

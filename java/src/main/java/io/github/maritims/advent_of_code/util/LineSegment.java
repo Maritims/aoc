@@ -1,69 +1,42 @@
 package io.github.maritims.advent_of_code.util;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * In geometry, a line segment is a part of a straight line that is bounded by two distinct end points, and contains every point on the line that is between its endpoints.
  */
 public class LineSegment {
-    private final Point2D p1;
-    private final Point2D p2;
+    @NotNull
+    private final Point p1;
+    @NotNull
+    private final Point p2;
 
-    public LineSegment(Point2D p1, Point2D p2) {
+    public LineSegment(@NotNull Point p1, @NotNull Point p2) {
         this.p1 = p1;
         this.p2 = p2;
     }
 
-    public Point2D p1() {
+    @NotNull
+    public Point p1() {
         return p1;
     }
 
-    public Point2D p2() {
+    @NotNull
+    public Point p2() {
         return p2;
     }
 
-    private double length = Double.MIN_VALUE;
-
-    public double length() {
-        if (length == Double.MIN_VALUE) {
-            var dx = p2.x() - p1.x();
-            var dy = p2.y() - p1.y();
-            length = Math.sqrt(dx * dx + dy * dy);
-        }
-        return length;
-    }
-
-    public LineSegment extend(double factor) {
-        // Direction vector
-        var dx = p2.x() - p1.x();
-        var dy = p2.y() - p1.y();
-
-        var length = length();
-
-        // Unit direction vector
-        var ux = dx / length;
-        var uy = dy / length;
-
-        var newX1 = p1.x() - factor * ux;
-        var newY1 = p1.y() - factor * uy;
-        var newP1 = Point2D.at((int) newX1, (int) newY1);
-
-        var newX2 = p2.x() + factor * ux;
-        var newY2 = p2.y() + factor * uy;
-        var newP2 = Point2D.at((int) newX2, (int) newY2);
-
-        return new LineSegment(newP1, newP2);
-    }
-
-    public boolean contains(Point2D p) {
+    public boolean contains(@NotNull Point p) {
         return p.y() <= Math.max(p1.y(), p2.y()) &&
                 p.y() >= Math.min(p1.y(), p2.y()) &&
                 p.x() <= Math.max(p1.x(), p2.x()) &&
                 p.x() >= Math.min(p1.x(), p2.x());
     }
 
-    public Point2D midpoint() {
+    public Point midpoint() {
         var row = (p1.y() + p2.y()) / 2;
         var col = (p1.x() + p2.x()) / 2;
-        return new Point2D(col, row);
+        return new Point(col, row);
     }
 
     /**
@@ -104,7 +77,7 @@ public class LineSegment {
         throw new IllegalStateException(String.format("Unable to determine orientation from slope %f", slope));
     }
 
-    public boolean formsCrossWith(LineSegment that) {
+    public boolean formsCrossWith(@NotNull LineSegment that) {
         if (!midpoint().equals(that.midpoint())) {
             return false;
         }

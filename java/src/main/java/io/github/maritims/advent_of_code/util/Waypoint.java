@@ -6,17 +6,17 @@ import java.util.Objects;
 
 public class Waypoint {
     @NotNull
-    private final Point2D   point;
+    private final Point     point;
     @NotNull
     private final Direction direction;
 
-    public Waypoint(@NotNull Point2D point, @NotNull Direction direction) {
+    public Waypoint(@NotNull Point point, @NotNull Direction direction) {
         this.point = point;
         this.direction = direction;
     }
 
     @NotNull
-    public Point2D point() {
+    public Point point() {
         return point;
     }
 
@@ -42,7 +42,7 @@ public class Waypoint {
         return String.format("%d,%d,%d", point.x(), point.y(), direction.ordinal());
     }
 
-    public static Waypoint to(Point2D point, Direction direction) {
+    public static Waypoint to(Point point, Direction direction) {
         return new Waypoint(point, direction);
     }
 }

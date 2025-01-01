@@ -1,6 +1,7 @@
 package io.github.maritims.advent_of_code.year_nine;
 
 import io.github.maritims.advent_of_code.util.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -13,8 +14,8 @@ public class Day8 extends Day {
         super(2024, 8, filename);
     }
 
-    private Grid                                       grid;
-    private HashMap<Character, LinkedHashSet<Point2D>> antennas;
+    private Grid                                     grid;
+    private HashMap<Character, LinkedHashSet<Point>> antennas;
 
     @Override
     protected void initialize() {
@@ -25,47 +26,47 @@ public class Day8 extends Day {
         for (var row = 0; row < grid.rows(); row++) {
             for (var col = 0; col < grid.cols(); col++) {
                 var c     = grid.getValueAt(col, row);
-                var point = Point2D.at(col, row);
+                var point = Point.at(col, row);
 
-                antennas.compute(c, (k, v) -> {
-                    if (v == null) {
-                        v = new LinkedHashSet<>(Set.of(point));
-                    } else {
-                        v.add(point);
-                    }
-                    return v;
-                });
+                if (c != '.') {
+                    antennas.compute(c, (k, v) -> {
+                        if (v == null) {
+                            v = new LinkedHashSet<>(Set.of(point));
+                        } else {
+                            v.add(point);
+                        }
+                        return v;
+                    });
+                }
             }
         }
     }
 
+    @NotNull
+    protected HashSet<Point> getAntiNodesFromPair(@NotNull Pair<Point, Point> pair) {
+        var p1        = pair.first();
+        var p2        = pair.second();
+        var v         = p2.subtract(p1);
+        var antiNodes = new HashSet<Point>();
+
+        If.of(p1.subtract(v)).when(value -> !grid.isOutOfBounds(value)).then(antiNodes::add);
+        If.of(p2.add(v)).when(value -> !grid.isOutOfBounds(value)).then(antiNodes::add);
+
+        return antiNodes;
+    }
+
     @Override
     public Long solvePartOne() {
-        var antinodes = new LinkedHashSet<Point2D>();
-
-        for (var entry : antennas.entrySet()) {
-            var frequency   = entry.getKey();
-            if(frequency == '.' || frequency == '#') {
-                continue;
-            }
-
-            var uniquePairs = ListUtil.generateUniquePairs(new ArrayList<>(entry.getValue()));
-
-            for (var uniquePair : uniquePairs) {
-                var lineSegment         = new LineSegment(uniquePair.first(), uniquePair.second());
-                var extendedLineSegment = lineSegment.extend(lineSegment.length());
-
-                if(!grid.isOutOfBounds(extendedLineSegment.p1())) {
-                    antinodes.add(extendedLineSegment.p1());
-                }
-
-                if(!grid.isOutOfBounds(extendedLineSegment.p2())) {
-                    antinodes.add(extendedLineSegment.p2());
-                }
-            }
-        }
-
-        return (long) antinodes.size();
+        return antennas.entrySet()
+                .parallelStream()
+                .filter(entry -> entry.getKey() != '.' && entry.getKey() != '#')
+                .map(Map.Entry::getValue)
+                .flatMap(value -> CollectionUtil.generateUniquePairSet(new ArrayList<>(value))
+                        .stream()
+                        .map(this::getAntiNodesFromPair)
+                        .flatMap(Collection::parallelStream))
+                .distinct()
+                .count();
     }
 
     @Override

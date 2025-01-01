@@ -7,15 +7,16 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.params.provider.Arguments.*;
 
 class Day8Test {
     public static Stream<Arguments> solvePartOneForFilename() {
         return Stream.of(
-                Arguments.arguments("sample1.txt", 2),
-                Arguments.arguments("sample2.txt", 4),
-                Arguments.arguments("sample3.txt", 4),
-                Arguments.arguments("sample4.txt", 14),
-                Arguments.arguments("input.txt", 0)
+                arguments("sample1.txt", 2),
+                arguments("sample2.txt", 4),
+                arguments("sample3.txt", 4),
+                arguments("sample.txt", 14),
+                arguments("input.txt", 320)
         );
     }
 
