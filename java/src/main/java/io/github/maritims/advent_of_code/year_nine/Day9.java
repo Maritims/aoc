@@ -6,6 +6,7 @@ import io.github.maritims.advent_of_code.util.Pair;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 public class Day9 extends Day {
     public Day9(Boolean useSampleData) {
@@ -52,11 +53,9 @@ public class Day9 extends Day {
             right--;
         }
 
-        var checksum = IntStream.range(0, disk.size())
-                .map(i -> disk.get(i).map(x -> x * i).orElse(0))
+        return LongStream.range(0, disk.size()) // Use LongStream to avoid Integer overflow and wrap-around which would result in a sum that's far too low.
+                .map(i -> disk.get((int) i).map(x -> x * i).orElse(0L))
                 .sum();
-
-        return (long) checksum;
     }
 
     @Override
