@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-import static io.github.maritims.advent_of_code.util.CollectionUtil.generateUniquePairSet;
+import static io.github.maritims.advent_of_code.util.ListUtil.generateUniquePairSet;
 
 public class Day8 extends Day {
     public Day8(Boolean useSampleData) {

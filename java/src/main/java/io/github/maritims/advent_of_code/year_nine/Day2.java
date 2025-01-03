@@ -1,7 +1,7 @@
 package io.github.maritims.advent_of_code.year_nine;
 
 import io.github.maritims.advent_of_code.util.Day;
-import io.github.maritims.advent_of_code.util.CollectionUtil;
+import io.github.maritims.advent_of_code.util.ListUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -17,7 +17,7 @@ public class Day2 extends Day {
     @Override
     protected void initialize() {
         super.initialize();
-        levels = CollectionUtil.splitToListOfLists(getInputLines(), "\\s", Long::parseLong);
+        levels = ListUtil.splitToListOfLists(getInputLines(), "\\s", Long::parseLong);
     }
 
     private boolean isSafe(List<Long> level) {
